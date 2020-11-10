@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using CompilationUnitSyntax = Microsoft.CodeAnalysis.CSharp.Syntax.CompilationUnitSyntax;
 
-namespace Kingdom.OrTools.Sat.CodeGeneration
+namespace Ellumination.OrTools.Sat.CodeGeneration
 {
     using Code.Generation.Roslyn;
     using Microsoft.CodeAnalysis;
@@ -58,9 +58,9 @@ namespace Kingdom.OrTools.Sat.CodeGeneration
         internal static ICodeGenerationConsoleManager Instance => new CodeGenerationConsoleManager(Console.Out);
 
         /// <summary>
-        /// &quot;Kingdom OrTools Constraint Programming Satisfaction Code Generation&quot;
+        /// &quot;Ellumination OrTools Constraint Programming Satisfaction Code Generation&quot;
         /// </summary>
-        private const string ConsoleManagerName = "Kingdom OrTools Constraint Programming Satisfaction Code Generation";
+        private const string ConsoleManagerName = "Ellumination OrTools Constraint Programming Satisfaction Code Generation";
 
         /// <summary>
         /// 1

@@ -1,7 +1,7 @@
 ﻿using System;
 //using System.Linq;
 
-namespace Kingdom.OrTools.Sat.CodeGeneration
+namespace Ellumination.OrTools.Sat.CodeGeneration
 {
     using Code.Generation.Roslyn;
 
