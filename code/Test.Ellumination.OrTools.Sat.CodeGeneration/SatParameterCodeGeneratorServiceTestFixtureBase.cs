@@ -1,4 +1,4 @@
-﻿namespace Kingdom.OrTools.Sat.CodeGeneration
+﻿namespace Ellumination.OrTools.Sat.CodeGeneration
 {
     using Xunit;
     using Xunit.Abstractions;

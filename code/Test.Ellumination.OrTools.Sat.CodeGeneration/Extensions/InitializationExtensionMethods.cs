@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Kingdom.OrTools.Sat.CodeGeneration
+namespace Ellumination.OrTools.Sat.CodeGeneration
 {
     internal static class InitializationExtensionMethods
     {

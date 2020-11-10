@@ -1,7 +1,7 @@
 ﻿//using System.Collections.Generic;
 
 //// TODO: TBD: got it sorted out, FINALLY, I think.
-//namespace Kingdom.OrTools.Sat.CodeGeneration
+//namespace Ellumination.OrTools.Sat.CodeGeneration
 //{
 //    using Xunit.Abstractions;
 

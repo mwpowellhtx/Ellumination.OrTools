@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 
-namespace Kingdom.OrTools.Sat.CodeGeneration
+namespace Ellumination.OrTools.Sat.CodeGeneration
 {
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp;

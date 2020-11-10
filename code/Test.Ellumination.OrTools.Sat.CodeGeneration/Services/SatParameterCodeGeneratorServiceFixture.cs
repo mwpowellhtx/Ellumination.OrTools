@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Kingdom.OrTools.Sat.CodeGeneration
+namespace Ellumination.OrTools.Sat.CodeGeneration
 {
     using static String;
 
@@ -70,7 +70,7 @@ namespace Kingdom.OrTools.Sat.CodeGeneration
 
             if (!File.Exists(projectPath))
             {
-                const string parametersCoreProjectName = "Kingdom.OrTools.Sat.Parameters";
+                const string parametersCoreProjectName = "Ellumination.OrTools.Sat.Parameters";
 
                 // Which paths are based on the output directory relative paths.
                 GenerateCode(projectPath, () => Join(crLf
