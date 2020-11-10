@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 
-namespace Kingdom.OrTools.Sat.CodeGeneration
+namespace Ellumination.OrTools.Sat.CodeGeneration
 {
     using Microsoft.CodeAnalysis.CSharp.Syntax;
     using Protobuf;
@@ -93,10 +93,10 @@ namespace Kingdom.OrTools.Sat.CodeGeneration
 
         /// <summary>
         /// Gets an <see cref="IdentifierPath"/> representing
-        /// &quot;Kingdom.OrTools.Sat.Parameters&quot;.
+        /// &quot;Ellumination.OrTools.Sat.Parameters&quot;.
         /// </summary>
         protected static IdentifierPath SatParametersNameSpacePath { get; }
-            = (Identifier) "Kingdom" / "OrTools" / "Sat" / "Parameters";
+            = (Identifier) "Ellumination" / "OrTools" / "Sat" / "Parameters";
 
         protected static IEnumerable<T> GetRange<T>(params T[] values)
         {

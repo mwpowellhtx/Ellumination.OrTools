@@ -2,7 +2,7 @@
 using System.IO;
 using System.Reflection;
 
-namespace Kingdom.OrTools.Sat.CodeGeneration
+namespace Ellumination.OrTools.Sat.CodeGeneration
 {
     using static Path;
     using static StringComparison;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Kingdom.OrTools.Sat.CodeGeneration
+namespace Ellumination.OrTools.Sat.CodeGeneration
 {
     using Antlr4.Runtime;
     using Protobuf;

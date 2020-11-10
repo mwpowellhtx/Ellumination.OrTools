@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Kingdom.OrTools.Sat.CodeGeneration
+namespace Ellumination.OrTools.Sat.CodeGeneration
 {
     public class FileEventArgs : EventArgs
     {
