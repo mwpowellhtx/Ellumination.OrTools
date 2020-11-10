@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Kingdom.OrTools.Sat.CodeGeneration
+namespace Ellumination.OrTools.Sat.CodeGeneration
 {
     using Xunit;
     using Xunit.Abstractions;
@@ -30,30 +30,28 @@ namespace Kingdom.OrTools.Sat.CodeGeneration
         /// <summary>
         /// Provides some known Expected Values.
         /// </summary>
+        /// <remarks>Maybe not the greatest idea to include a version specific unit test,
+        /// however it is a kind of check and balance that we use to double check our
+        /// dependency thinking.</remarks>
         internal static class Expected
         {
-            /// <summary>
-            /// 7
-            /// </summary>
+            /// <value>7</value>
             internal const int Major = 7;
 
-            /// <summary>
-            /// 3
-            /// </summary>
-            internal const int Minor = 3;
+            /// <value>3</value>
+            internal const int Minor = 4;
 
-            /// <summary>
-            /// 7083
-            /// </summary>
-            internal const int Build = 7083;
+            /// <value>7083</value>
+            internal const int Build = 7247;
         }
 
         // TODO: TBD: should perhaps have unit tests for this property as well...
         /// <summary>
         /// Gets the Expected <see cref="Version"/>.
         /// </summary>
-        /// <remarks>May seem a bit excessive, but we will verify the Version bits with every
-        /// request. What this does establish is consistency over the range of unit tests.</remarks>
+        /// <remarks>May seem a bit excessive, but we will verify the Version bits with
+        /// every request. What this does establish is consistency over the range of
+        /// unit tests.</remarks>
         /// <see cref="Major"/>
         /// <see cref="Minor"/>
         /// <see cref="Build"/>

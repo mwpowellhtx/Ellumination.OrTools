@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.1</TargetFramework>
+        <Version>1.0.0.255</Version>
+        <AssemblyVersion>1.0.0.255</AssemblyVersion>
+        <FileVersion>1.0.0.255</FileVersion>
+        <!--<ReleaseVersionStrategy>patch</ReleaseVersionStrategy>-->
+        <Configurations>Debug</Configurations>
+    </PropertyGroup>
+
+    <ImportGroup>
+        <Import Project="..\..\Dotnet.Unit.Testing.props" />
+    </ImportGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Ellumination.OrTools.Sat.CodeGeneration.Tool\Ellumination.OrTools.Sat.CodeGeneration.Tool.csproj" />
+    </ItemGroup>
+
+    <!-- ReSharper disable UnknownProperty -->
+    <ItemGroup>
+        <PackageReference Include="xunit" Version="$(XunitVersion)" />
+        <PackageReference Include="xunit.fluently.assert" Version="[1.3.1,2)" />
+        <PackageReference Include="xunit.fluently.assert.ioly" Version="[1.2,2]" />
+        <PackageReference Include="xunit.fluently.assert.exceptionally" Version="[1,2]" />
+        <PackageReference Include="xunit.fluently.theoretically" Version="[1,2]" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitVersion)">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+    <!-- ReSharper restore UnknownProperty -->
+
+    <ImportGroup>
+        <Import Project="..\Sat.Parameters.CodeGeneration.props" />
+    </ImportGroup>
+
+</Project>
