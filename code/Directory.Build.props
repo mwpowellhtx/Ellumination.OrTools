@@ -11,12 +11,12 @@
   </ImportGroup>
 
   <PropertyGroup>
-    <RootNamespace>Kingdom.OrTools.Sat.CodeGeneration</RootNamespace>
+    <RootNamespace>Ellumination.OrTools.Sat.CodeGeneration</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup>
-    <!-- Defined for internal consistency with the Kingdom.OrTools.Sat.CodeGeneration targets. -->
-    <KingdomOrToolsSatCodeGenerationToolName>dotnet-ortools-sat-cg</KingdomOrToolsSatCodeGenerationToolName>
+    <!-- Defined for internal consistency with the Ellumination.OrTools.Sat.CodeGeneration targets. -->
+    <ElluminationOrToolsSatCodeGenerationToolName>dotnet-ortools-sat-cg</ElluminationOrToolsSatCodeGenerationToolName>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -28,8 +28,8 @@
     <CodeGenerationRoslynAttributesVersion>1.1</CodeGenerationRoslynAttributesVersion>
     <CodeGenerationRoslynBuildTimeVersions>[1.1,2)</CodeGenerationRoslynBuildTimeVersions>
     <CodeGenerationRoslynBuildTimeVersion>1.1</CodeGenerationRoslynBuildTimeVersion>
-    <KingdomProtobufAntlrVersions>[1.0.13,2)</KingdomProtobufAntlrVersions>
-    <KingdomProtobufAntlrVersion>1.0.13.22961</KingdomProtobufAntlrVersion>
+    <ElluminationProtobufAntlrVersions>[1.0.13,2)</ElluminationProtobufAntlrVersions>
+    <ElluminationProtobufAntlrVersion>1.0.13.22961</ElluminationProtobufAntlrVersion>
   </PropertyGroup>
 
 </Project>
