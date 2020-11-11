@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Google.OrTools.Sat;
 
-namespace Kingdom.OrTools.Sat
+namespace Ellumination.OrTools.Sat
 {
     using static DomainReductionStrategy;
     using static VariableSelectionStrategy;

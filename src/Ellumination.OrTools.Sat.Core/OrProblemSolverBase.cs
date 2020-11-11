@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Kingdom.OrTools.Sat
+namespace Ellumination.OrTools.Sat
 {
     using Google.OrTools.Sat;
     using Parameters;

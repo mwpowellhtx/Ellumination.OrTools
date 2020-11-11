@@ -1,6 +1,6 @@
 ﻿using Google.OrTools.Sat;
 
-namespace Kingdom.OrTools.Sat
+namespace Ellumination.OrTools.Sat
 {
     using ReductionStrategy = DecisionStrategyProto.Types.DomainReductionStrategy;
 

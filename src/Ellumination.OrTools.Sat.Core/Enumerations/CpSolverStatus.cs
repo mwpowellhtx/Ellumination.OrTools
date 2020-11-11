@@ -1,4 +1,4 @@
-﻿namespace Kingdom.OrTools.Sat
+﻿namespace Ellumination.OrTools.Sat
 {
     using SolverStatus = Google.OrTools.Sat.CpSolverStatus;
 

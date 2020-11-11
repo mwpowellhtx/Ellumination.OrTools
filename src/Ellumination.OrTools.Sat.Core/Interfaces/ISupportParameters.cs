@@ -1,4 +1,4 @@
-﻿namespace Kingdom.OrTools.Sat
+﻿namespace Ellumination.OrTools.Sat
 {
     /// <summary>
     /// Support Parameters serves as the bridge between first class language level Parameter
