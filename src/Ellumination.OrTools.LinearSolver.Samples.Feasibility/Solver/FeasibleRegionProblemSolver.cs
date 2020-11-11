@@ -1,10 +1,9 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Kingdom.OrTools.LinearSolver.Samples.Feasibility
+namespace Ellumination.OrTools.LinearSolver.Samples.Feasibility
 {
     using Google.OrTools.LinearSolver;
-    using static LinearResultStatus;
 
     /// <summary>
     /// Based on the Feasible Region example provided on the Google Optimization Linear
@@ -12,12 +11,12 @@ namespace Kingdom.OrTools.LinearSolver.Samples.Feasibility
     /// </summary>
     /// <see cref="!:http://developers.google.com/optimization/lp/glop" />
     /// <inheritdoc />
-    public class FeasibleRegionProblemSolverWithoutSolution
-        : OrLinearProblemSolverBase<FeasibleRegionProblemSolverWithoutSolution>
+    public class FeasibleRegionProblemSolver
+        : OrLinearProblemSolverBase<FeasibleRegionProblemSolver, double>
     {
         /// <inheritdoc />
-        public FeasibleRegionProblemSolverWithoutSolution()
-            : base(@"Feasible Region")
+        public FeasibleRegionProblemSolver()
+            : base(@"Feasible Region", p => 3*p.x.SolutionValue() + 4*p.y.SolutionValue())
         {
         }
 
@@ -50,7 +49,7 @@ namespace Kingdom.OrTools.LinearSolver.Samples.Feasibility
                 c.SetCoefficient(Problem.x, 1);
                 c.SetCoefficient(Problem.y, 2);
                 ClrCreatedObjects.Add(c);
-                SetProblemComponent(c, (p, m) => p.c1 = m);
+                SetProblemComponent(c, (p, c1) => p.c1 = c1);
             }
 
             {
@@ -59,7 +58,7 @@ namespace Kingdom.OrTools.LinearSolver.Samples.Feasibility
                 c.SetCoefficient(Problem.x, 3);
                 c.SetCoefficient(Problem.y, -1);
                 ClrCreatedObjects.Add(c);
-                SetProblemComponent(c, (p, m) => p.c2 = m);
+                SetProblemComponent(c, (p, c2) => p.c2 = c2);
             }
 
             {
@@ -68,7 +67,7 @@ namespace Kingdom.OrTools.LinearSolver.Samples.Feasibility
                 c.SetCoefficient(Problem.x, 1);
                 c.SetCoefficient(Problem.y, -1);
                 ClrCreatedObjects.Add(c);
-                SetProblemComponent(c, (p, m) => p.c3 = m);
+                SetProblemComponent(c, (p, c3) => p.c3 = c3);
             }
         }
 
@@ -79,14 +78,7 @@ namespace Kingdom.OrTools.LinearSolver.Samples.Feasibility
             obj.SetCoefficient(Problem.y, 4);
             obj.SetMaximization();
             ClrCreatedObjects.Add(obj);
-            SetProblemComponent(obj, (p, m) => p.obj = m);
-        }
-
-        protected override void ReceiveSolution(Solver solver, LinearResultStatus resultStatus, dynamic problem)
-        {
-            var solution = resultStatus == Optimal || resultStatus == Feasible;
-            var e = new SolutionEventArgs(solver, resultStatus, solution, GetSolutionValues(problem));
-            OnSolved(e);
+            SetProblemComponent(obj, (p, o) => p.obj = o);
         }
     }
 }
