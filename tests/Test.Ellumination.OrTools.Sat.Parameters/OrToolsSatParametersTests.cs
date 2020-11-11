@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Kingdom.OrTools.Sat.Parameters
+namespace Ellumination.OrTools.Sat.Parameters
 {
     using Xunit;
     using Xunit.Abstractions;
@@ -39,13 +39,13 @@ namespace Kingdom.OrTools.Sat.Parameters
         /// Gets the entire set of Parameter Types.
         /// </summary>
         /// <see cref="ParameterType"/>
-        private static IEnumerable<Type> ParameterTypes => GetParameterTypes(ParameterType).AssertNotNull().AssertNotEmpty();
+        private static IEnumerable<Type> ParameterTypes => GetParameterTypes(ParameterType).AssertNotNull().AssertCollectionNotEmpty();
 
         /// <summary>
         /// Gets the entire set of Parameter Types.
         /// </summary>
         /// <see cref="ParameterType"/>
-        private static IEnumerable<Type> RepeatedParameterTypes => GetParameterTypes(RepeatedParameterType).AssertNotNull().AssertNotEmpty();
+        private static IEnumerable<Type> RepeatedParameterTypes => GetParameterTypes(RepeatedParameterType).AssertNotNull().AssertCollectionNotEmpty();
 
         /// <summary>
         /// Do some verification of the internal bits, without which the
@@ -93,7 +93,7 @@ namespace Kingdom.OrTools.Sat.Parameters
         /// <param name="expectedCount"></param>
         [Theory, MemberData(nameof(OverallParameterCounts))]
         public void Assembly_Has_Parameter_Types(Type expectedParameterType, int expectedCount) => GetParameterTypes(
-            expectedParameterType).AssertNotNull().AssertNotEmpty().AssertEqual(expectedCount, x => x.Count());
+            expectedParameterType).AssertNotNull().AssertCollectionNotEmpty().AssertEqual(expectedCount, x => x.Count());
 
         private static IEnumerable<object[]> _parameterCriteria;
 
@@ -188,8 +188,8 @@ namespace Kingdom.OrTools.Sat.Parameters
                         yield return expectedCount;
                     }
 
-                    // 9: Parameter<`enum´>
-                    // 2: RepeatedParameter<`enum´>
+                    // 9: Parameter<'enum'>
+                    // 2: RepeatedParameter<'enum'>
 
                     // More like 11, composed of 9 Parameters +2 Repeated, which also derives from IParameter.
                     yield return GetOneEnum<IParameter>(9, typeof(Parameter<>)).ToArray();
@@ -217,7 +217,7 @@ namespace Kingdom.OrTools.Sat.Parameters
                 OutputHelper.WriteLine(
                     $"Reporting {expectedCount} expected "
                     // ReSharper disable once PossibleNullReferenceException
-                    + $"types: {Join(", ", reportedTypes.Select(x => $"`{x.FullName} : {x.BaseType.FullName}´"))}"
+                    + $"types: {Join(", ", reportedTypes.Select(x => $"'{x.FullName} : {x.BaseType.FullName}'"))}"
                 );
                 return true;
             }
@@ -329,7 +329,7 @@ namespace Kingdom.OrTools.Sat.Parameters
              3. may consider a default ctor, or at least a single value ctor...
              4. at the same time introduce a third ctor taking IEnumerable<RestartAlgorithm> values...
              5. then if there are any differences we can isolate those test cases downstream...
-             6a. might also consider how better to `publish´ the Kingdom.OrTools.Sat.Core assembly...
+             6a. might also consider how better to 'publish' the Ellumination.OrTools.Sat.Core assembly...
              6b. ...as a direct ProjectReference? ...or as yet another internally delivered PackageReference? */
 
             // TODO: TBD: SO! ... with all the above considerations...
@@ -337,7 +337,7 @@ namespace Kingdom.OrTools.Sat.Parameters
             // TODO: TBD: notwithstanding cleaning some code up...
             // TODO: TBD: might consider receiving only the args, and inferring the types out...
             // TODO: TBD: should also reflect the Ctor out in the body of the test, since the idea is we can to verify the ctor during the test...
-            // TODO: TBD: IOW, we are not there to receive a ctor, but to verify we can find it successfully, invoke it, etc, with the expected `args´.
+            // TODO: TBD: IOW, we are not there to receive a ctor, but to verify we can find it successfully, invoke it, etc, with the expected 'args'.
 
             var ctor = parameterType.GetConstructor(argumentTypes).AssertNotNull();
             args = args.AssertNotNull();
@@ -371,7 +371,7 @@ namespace Kingdom.OrTools.Sat.Parameters
             // TODO: TBD: we could get fancier here, like we are not expecting whitespace ...
             // TODO: TBD: perhaps only expecting in a character set compatible with the Protocol Buffer specification, that sort of thing...
             // TODO: TBD: but this will do for the time being...
-            return attribute.Name.AssertNotNull().AssertNotEmpty();
+            return attribute.Name.AssertNotNull().AssertCollectionNotEmpty();
         }
 
         [Theory, MemberData(nameof(ParameterDecoratedTestCases))]
@@ -381,13 +381,13 @@ namespace Kingdom.OrTools.Sat.Parameters
             var actualName = GetParameterDecoratedName(parameterType);
 
             // Then we may simply report the result.
-            OutputHelper.WriteLine($"Parameter type `{parameterType.FullName}´ named `{actualName}´.");
+            OutputHelper.WriteLine($"Parameter type '{parameterType.FullName}' named '{actualName}'.");
         }
 
         [Fact]
         public void Parameters_Distinctly_Decorated()
         {
-            var names = ParameterTypes.Select(GetParameterDecoratedName).AssertNotNull().AssertNotEmpty().ToArray();
+            var names = ParameterTypes.Select(GetParameterDecoratedName).AssertNotNull().AssertCollectionNotEmpty().ToArray();
             names.Distinct().AssertEqual(names);
         }
     }

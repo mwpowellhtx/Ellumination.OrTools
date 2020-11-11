@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Kingdom.OrTools.Sat.Parameters
+namespace Ellumination.OrTools.Sat.Parameters
 {
     using Xunit;
     using static Enum;
@@ -38,7 +38,7 @@ namespace Kingdom.OrTools.Sat.Parameters
 
             TUnderlying AsUnderlying(object value) => (TUnderlying) Convert.ChangeType(value, underlyingType);
 
-            foreach (var x in enumType.PrivateGetEnumValues().AssertNotNull().AssertNotEmpty().Select(AsUnderlying))
+            foreach (var x in enumType.PrivateGetEnumValues().AssertNotNull().AssertCollectionNotEmpty().Select(AsUnderlying))
             {
                 yield return x;
             }

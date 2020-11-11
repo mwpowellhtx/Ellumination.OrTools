@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Kingdom.OrTools.Sat.Parameters
+namespace Ellumination.OrTools.Sat.Parameters
 {
     // TODO: TBD: these functions could actually serve pretty well in our Collections package(s) ...
     internal static class RangeExtensionMethods

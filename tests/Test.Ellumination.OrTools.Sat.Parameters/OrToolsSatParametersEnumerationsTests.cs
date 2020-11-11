@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Kingdom.OrTools.Sat.Parameters
+namespace Ellumination.OrTools.Sat.Parameters
 {
     using Xunit;
     using Xunit.Abstractions;
@@ -27,7 +27,7 @@ namespace Kingdom.OrTools.Sat.Parameters
         /// Gets the Enumeration Types.
         /// </summary>
         /// <see cref="TypeIsEnum"/>
-        private static IEnumerable<Type> EnumerationTypes => ParametersAssembly.GetTypes().Where(TypeIsEnum).AssertNotNull().AssertNotEmpty();
+        private static IEnumerable<Type> EnumerationTypes => ParametersAssembly.GetTypes().Where(TypeIsEnum).AssertNotNull().AssertCollectionNotEmpty();
 
         /// <summary>
         /// Do some verification of the internal bits, without which the
@@ -93,7 +93,7 @@ namespace Kingdom.OrTools.Sat.Parameters
         /// <param name="expectedLength"></param>
         [Theory, MemberData(nameof(CodeGeneratedEnumTestCases))]
         public void Has_Expected_Number_of_Enums(Type[] enumTypes, int expectedLength) => enumTypes
-            .AssertNotNull().AssertNotEmpty()
+            .AssertNotNull().AssertCollectionNotEmpty()
             .AssertEqual(expectedLength.AssertTrue(x => x > 0), x => x.Length);
 
         private static IEnumerable<object[]> _memberNameAttributeTestCases;
@@ -144,7 +144,7 @@ namespace Kingdom.OrTools.Sat.Parameters
         /// <see cref="ParameterMemberNameAttribute"/>
         [Theory, MemberData(nameof(MemberNameAttributeTestCases))]
         public void Member_Name_Decoration_Exists(Type enumType, object value)
-            => GetMemberAnnotation(enumType, value).MemberName.AssertNotNull().AssertNotEmpty();
+            => GetMemberAnnotation(enumType, value).MemberName.AssertNotNull().AssertCollectionNotEmpty();
 
         private static IEnumerable<object[]> _memberNamesDistinctTestCases;
 
@@ -175,7 +175,7 @@ namespace Kingdom.OrTools.Sat.Parameters
             );
 
             IEnumerable<Tuple<object, string>> GetMemberAnnotatedTuples()
-                => enumType.GetEnumValues().AssertNotNull().AssertNotEmpty()
+                => enumType.GetEnumValues().AssertNotNull().AssertCollectionNotEmpty()
                     .OfType<object>().Select(GetEnumMemberAnnotatedTuple)
                     .AssertTrue(x => x.All(y => y.Item2.AssertNotNull().Any()));
 
@@ -188,7 +188,7 @@ namespace Kingdom.OrTools.Sat.Parameters
             string ReportTuple(Tuple<object, string> tuple) => $"{tuple.Item1} = {tuple.Item2} ({(long) tuple.Item1})";
 
             OutputHelper.WriteLine(
-                $"Enumerated type `{enumType.FullName}´"
+                $"Enumerated type '{enumType.FullName}'"
                 + $" member decorations: {Join(", ", tuples.Select(ReportTuple))}"
             );
         }

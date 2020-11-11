@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace Kingdom.OrTools.Sat.Parameters
+namespace Ellumination.OrTools.Sat.Parameters
 {
     using Xunit;
     using Xunit.Abstractions;
