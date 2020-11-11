@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.1</TargetFramework>
+        <Version>1.1.18.13337</Version>
+        <AssemblyVersion>1.1.18.13337</AssemblyVersion>
+        <FileVersion>1.1.18.13337</FileVersion>
+        <DebugVersionStrategy>patch</DebugVersionStrategy>
+        <Configurations>Debug</Configurations>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Platform)' == 'AnyCPU'">
+        <PlatformTarget>x64</PlatformTarget>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Remove="Ellumination.OrTools.Sat.Parameters.Tests.csproj.DotSettings" />
+    </ItemGroup>
+
+    <PropertyGroup>
+        <RootNamespace>Ellumination.OrTools.Sat.Parameters</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Ellumination.OrTools.Sat.Parameters.Core\Ellumination.OrTools.Sat.Parameters.Core.csproj" />
+    </ItemGroup>
+
+    <ImportGroup>
+        <Import Project="..\..\Dotnet.Unit.Testing.props" />
+    </ImportGroup>
+
+</Project>
