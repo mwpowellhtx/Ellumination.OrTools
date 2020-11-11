@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Kingdom.OrTools.Samples.Sudoku
+namespace Ellumination.OrTools.Samples.Sudoku
 {
     /// <summary>
     /// Sudoku puzzle interface.

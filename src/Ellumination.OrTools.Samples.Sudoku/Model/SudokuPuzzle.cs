@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Kingdom.OrTools.Samples.Sudoku
+namespace Ellumination.OrTools.Samples.Sudoku
 {
     using static Domain;
 

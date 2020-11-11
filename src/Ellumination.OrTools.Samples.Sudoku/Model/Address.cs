@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Kingdom.OrTools.Samples.Sudoku
+namespace Ellumination.OrTools.Samples.Sudoku
 {
     /// <summary>
     /// Sets up a basic addressable convention for purposes of addressing the grid.

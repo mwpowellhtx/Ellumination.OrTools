@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
-namespace Kingdom.OrTools.Samples.Sudoku
+namespace Ellumination.OrTools.Samples.Sudoku
 {
     using static Domain;
     using static String;

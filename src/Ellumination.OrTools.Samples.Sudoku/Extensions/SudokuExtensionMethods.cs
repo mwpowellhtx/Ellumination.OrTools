@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Kingdom.OrTools.Samples.Sudoku
+namespace Ellumination.OrTools.Samples.Sudoku
 {
     using static Domain;
 

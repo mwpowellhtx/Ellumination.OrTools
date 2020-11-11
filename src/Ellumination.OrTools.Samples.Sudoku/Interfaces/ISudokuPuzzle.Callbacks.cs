@@ -1,4 +1,4 @@
-﻿namespace Kingdom.OrTools.Samples.Sudoku
+﻿namespace Ellumination.OrTools.Samples.Sudoku
 {
     public delegate void PrettyPrintCallback(string formatted);
 }
