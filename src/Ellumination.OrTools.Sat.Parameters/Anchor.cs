@@ -1,4 +1,4 @@
-﻿namespace Kingdom.OrTools.Sat.Parameters
+﻿namespace Ellumination.OrTools.Sat.Parameters
 {
     // TODO: TBD: Anchor serves as a clue, as a Namespace reference, and not least of which as
     // a clue that we should investigate the Parameters unit testing solution for further details
@@ -9,7 +9,7 @@
     /// We use this type to inform the unit tests as to the Parameters Assembly.
     /// </summary>
     /// <remarks>Predicate updates herewith based on whether there were changes from the most
-    /// recent `sat_parameters.proto´ baseline. Such deltas may impact the code generation out
+    /// recent 'sat_parameters.proto' baseline. Such deltas may impact the code generation out
     /// workings, at best. Worst case, we may need to revisit the CG tooling itself, or even
     /// deeper into the actual Protocol Buffer ANTLR bits. Critical note, see also the Parameters
     /// unit testing solution for further details concerning Google.OrTools Parameters Protocol
