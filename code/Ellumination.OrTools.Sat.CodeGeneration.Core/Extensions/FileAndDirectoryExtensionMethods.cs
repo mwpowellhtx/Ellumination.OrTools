@@ -25,12 +25,12 @@ namespace Ellumination.OrTools.Sat.CodeGeneration
         {
             /* We had been expecting a NuGet Package Reference in a path something like these
              * since at least version 7.1:
-             *  `packages\google.ortools.runtime.win-x64\7.1.6720\runtimes\win-x64\lib\netstandard2.0\Google.OrTools.dll´
-             *  `packages\google.ortools\version\content\sat\sat_parameters.proto´ */
+             *  'packages\google.ortools.runtime.win-x64\7.1.6720\runtimes\win-x64\lib\netstandard2.0\Google.OrTools.dll'
+             *  'packages\google.ortools\version\content\sat\sat_parameters.proto' */
 
             /* We are not sure what changed in recent weeks, but now the path for
-             * `typeof(Google.OrTool.Sat.CpModel).Assembly.Location´ resolves to
-             * `packages\google.ortools\7.4.7247\lib\netstandard2.0\Google.OrTools.dll´,
+             * 'typeof(Google.OrTool.Sat.CpModel).Assembly.Location' resolves to
+             * 'packages\google.ortools\7.4.7247\lib\netstandard2.0\Google.OrTools.dll',
              * which is originally what we might have expected. However, why the sudden change?
              * More importantly, should we account for potentially either use case being the case? */
 
