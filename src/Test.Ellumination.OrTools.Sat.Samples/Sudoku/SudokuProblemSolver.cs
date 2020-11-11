@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Kingdom.OrTools.Sat.Samples.Sudoku
+namespace Ellumination.OrTools.Sat.Samples.Sudoku
 {
     using Google.OrTools.Sat;
-    using Kingdom.OrTools.Samples.Sudoku;
-    using static Kingdom.OrTools.Samples.Sudoku.Domain;
-    using static Kingdom.OrTools.Samples.Sudoku.SudokuPuzzle;
+    using Ellumination.OrTools.Samples.Sudoku;
+    using static Ellumination.OrTools.Samples.Sudoku.Domain;
+    using static Ellumination.OrTools.Samples.Sudoku.SudokuPuzzle;
     using static CpSolverStatus;
     using RowMajorAddressTuple = Tuple<int, int>;
 

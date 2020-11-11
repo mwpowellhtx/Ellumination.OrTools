@@ -1,12 +1,12 @@
 ﻿using System.Linq;
 
-namespace Kingdom.OrTools.ConstraintSolver.Samples
+namespace Ellumination.OrTools.Sat.Samples
 {
-    using Kingdom.OrTools.Samples.Sudoku;
+    using Ellumination.OrTools.Samples.Sudoku;
     using Sudoku;
     using Xunit;
     using Xunit.Abstractions;
-    using static Kingdom.OrTools.Samples.Sudoku.Domain;
+    using static Ellumination.OrTools.Samples.Sudoku.Domain;
 
     /// <summary>
     /// 

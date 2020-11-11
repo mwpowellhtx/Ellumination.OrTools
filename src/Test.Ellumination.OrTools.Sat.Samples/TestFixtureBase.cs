@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Kingdom.OrTools.ConstraintSolver.Samples
+namespace Ellumination.OrTools.Sat.Samples
 {
     using Xunit.Abstractions;
 
