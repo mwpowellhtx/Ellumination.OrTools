@@ -1,4 +1,4 @@
-﻿namespace Kingdom.Constraints.Sample.Fixturing.Tests
+﻿namespace Ellumination.Constraints.Sample.Fixturing.Tests
 {
     using NUnit.Framework;
 

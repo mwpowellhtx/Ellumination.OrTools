@@ -7,7 +7,7 @@
 //using Solver = Google.OrTools.ConstraintSolver.Solver;
 
 //// TODO: TBD: actually, I'm not positive, but I think much of this is obsolete with the current versions of Google OrTools...
-//namespace Kingdom.Constraints.Sample.Fixturing.Tests
+//namespace Ellumination.Constraints.Sample.Fixturing.Tests
 //{
 //    using Google.OrTools.ConstraintSolver;
 //    using Google.Protobuf;
@@ -302,7 +302,7 @@
 //        //{
 //        //    using (var s = new Solver("Test"))
 //        //    {
-//        //        s.ExportModel(@"G:\Source\Kingdom Software\Kingdom.ConstraintSolvers\Working\src\Kingdom.Constraints.Sample.Fixturing.Tests\ExportedSolverModel.gz");
+//        //        s.ExportModel(@"G:\Source\Ellumination Software\Ellumination.ConstraintSolvers\Working\src\Ellumination.Constraints.Sample.Fixturing.Tests\ExportedSolverModel.gz");
 //        //    }
 //        //}
 
@@ -324,7 +324,7 @@
 //            const string solverName2 = "Test2";
 
 //            const string path =
-//                @"G:\Source\Kingdom Software\Kingdom.ConstraintSolvers\Working\src\Kingdom.Constraints.Sample.Fixturing.Tests\ExportedSolverModel.dat";
+//                @"G:\Source\Ellumination Software\Ellumination.ConstraintSolvers\Working\src\Ellumination.Constraints.Sample.Fixturing.Tests\ExportedSolverModel.dat";
 
 //            using (var sc = GetSampleContext(solverName1))
 //            {

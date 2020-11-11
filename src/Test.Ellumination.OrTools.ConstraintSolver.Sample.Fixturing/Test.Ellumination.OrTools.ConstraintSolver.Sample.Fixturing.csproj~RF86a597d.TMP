@@ -7,8 +7,8 @@
     <ProjectGuid>{05D37050-50DA-459D-A62F-C051BA62FA0A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Kingdom.Constraints.Sample.Fixturing.Tests</RootNamespace>
-    <AssemblyName>Kingdom.Constraints.Sample.Fixturing.Tests</AssemblyName>
+    <RootNamespace>Test.Ellumination.Constraints.Sample.Fixturing</RootNamespace>
+    <AssemblyName>Test.Ellumination.Constraints.Sample.Fixturing</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
