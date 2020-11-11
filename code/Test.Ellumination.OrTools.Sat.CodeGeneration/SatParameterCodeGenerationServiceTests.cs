@@ -70,7 +70,7 @@ namespace Ellumination.OrTools.Sat.CodeGeneration
         /// solution that builds the generators themselves for internal publication. Then,
         /// we subscribe to those in order to actually do the code generation delivering
         /// into the Sat Parameters project itself. Best possible case is that we can
-        /// simply leverage the CG assemblies as `project references´, but I have some
+        /// simply leverage the CG assemblies as 'project references', but I have some
         /// reservations whether that may work, considering CG aspects involving file
         /// locks, but we will see.</remarks>
         [Fact]
@@ -107,7 +107,7 @@ namespace Ellumination.OrTools.Sat.CodeGeneration
                 where TNode : SyntaxNode
                 => compilationUnits.Where(x => x.Value.DescendantNodes().OfType<TNode>().Any());
 
-            /* So, we are not really `Initializing´ with the ForEach, so much as we do want
+            /* So, we are not really 'Initializing' with the ForEach, so much as we do want
              * a Report prior to vetting the Count. We want to vet the generated units. */
 
             GetCompilationUnits<EnumDeclarationSyntax>(dictionary)

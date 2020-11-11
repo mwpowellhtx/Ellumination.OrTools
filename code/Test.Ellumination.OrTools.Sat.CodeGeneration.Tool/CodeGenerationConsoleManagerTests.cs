@@ -17,7 +17,7 @@ namespace Ellumination.OrTools.Sat.CodeGeneration
     using static String;
 
     /// <summary>
-    /// We ought to be able to integration test everything behind the `dotnet tool-name´
+    /// We ought to be able to integration test everything behind the 'dotnet tool-name'
     /// up to this point. That should give us a much higher level of confidence that everything
     /// we thing should be working is in fact working when it comes time to actually connect the
     /// tooling dots.
@@ -113,7 +113,7 @@ namespace Ellumination.OrTools.Sat.CodeGeneration
                     break;
 
                 case ErrorGeneratingCode:
-                    // TODO: TBD: may elaborate on what this means, `error´ ...
+                    // TODO: TBD: may elaborate on what this means, 'error' ...
                     break;
 
                 case MustSpecifyOutputDirectory:
@@ -303,7 +303,7 @@ namespace Ellumination.OrTools.Sat.CodeGeneration
 
                 // We need an instance of the Service Manager for what we are about to do here.
                 var serviceManager = new CodeGenerationServiceManager(registry.OutputDirectory, RegistryFileName);
-                // The Version will surely have updated from `0.0.0´ ... Remember, we also want it in Three Parts.
+                // The Version will surely have updated from '0.0.0' ... Remember, we also want it in Three Parts.
                 serviceManager.Registry.GoogleOrToolsVersion = Parse("0.0.0");
                 serviceManager.TrySave();
             }

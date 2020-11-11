@@ -15,7 +15,7 @@
         Switch VersionSwitch { get; }
 
         /// <summary>
-        /// Gets whether `Google.OrTools´ Version was requested.
+        /// Gets whether 'Google.OrTools' Version was requested.
         /// </summary>
         Switch GoogleOrToolsVersionSwitch { get; }
 

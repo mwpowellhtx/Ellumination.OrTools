@@ -32,12 +32,12 @@ namespace Ellumination.OrTools.Sat.CodeGeneration
         ]
         public void Verify_Relative_Path(string basePath, string otherPath, string expectedRelativePath)
         {
-            OutputHelper.WriteLine($"`{nameof(basePath)}´ = `{basePath}´");
-            OutputHelper.WriteLine($"`{nameof(otherPath)}´ = `{otherPath}´");
-            OutputHelper.WriteLine($"`{nameof(expectedRelativePath)}´ = `{expectedRelativePath}´");
+            OutputHelper.WriteLine($"'{nameof(basePath)}' = '{basePath}'");
+            OutputHelper.WriteLine($"'{nameof(otherPath)}' = '{otherPath}'");
+            OutputHelper.WriteLine($"'{nameof(expectedRelativePath)}' = '{expectedRelativePath}'");
 
             var actualRelativePath = basePath.GetRelativePath(otherPath);
-            OutputHelper.WriteLine($"`{nameof(actualRelativePath)}´ = `{actualRelativePath}´");
+            OutputHelper.WriteLine($"'{nameof(actualRelativePath)}' = '{actualRelativePath}'");
 
             actualRelativePath.AssertEqual(expectedRelativePath);
         }
@@ -53,15 +53,15 @@ namespace Ellumination.OrTools.Sat.CodeGeneration
 
             var actualProtoPath = Combine(actualDirectoryFullName, "sat", "sat_parameters.proto").AssertFileExists();
 
-            OutputHelper.WriteLine($"`{nameof(actualDirectoryFullName)}´ = `{actualDirectoryFullName}´");
-            OutputHelper.WriteLine($"`{nameof(actualProtoPath)}´ = `{actualProtoPath}´");
+            OutputHelper.WriteLine($"'{nameof(actualDirectoryFullName)}' = '{actualDirectoryFullName}'");
+            OutputHelper.WriteLine($"'{nameof(actualProtoPath)}' = '{actualProtoPath}'");
 
             var referenced = GetType().Assembly.GetReferencedAssemblies()
                 .Where(x => x.FullName.Contains("Google.OrTools")).ToArray();
 
             var loadedName = referenced.SingleOrDefault().AssertNotNull();
 
-            OutputHelper.WriteLine($"Loaded assembly version: `{loadedName.Version}´");
+            OutputHelper.WriteLine($"Loaded assembly version: '{loadedName.Version}'");
 
             Assembly.Load(loadedName).AssertNotNull();
         }

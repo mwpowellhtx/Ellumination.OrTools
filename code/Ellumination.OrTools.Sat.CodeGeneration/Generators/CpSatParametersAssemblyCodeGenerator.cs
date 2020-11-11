@@ -31,7 +31,7 @@ namespace Ellumination.OrTools.Sat.CodeGeneration.Generators
             void GenerateCallback()
             {
                 // TODO: TBD: sprinkles in a bit of Validation as well...
-                // TODO: TBD: would be better if `Validation´ actually supported a more Fluent style...
+                // TODO: TBD: would be better if 'Validation' actually supported a more Fluent style...
                 Assumes.Present(s);
 
                 // A lot goes in behind the Descriptor parsing the Protocol Buffer file into a usable form.
@@ -53,7 +53,7 @@ namespace Ellumination.OrTools.Sat.CodeGeneration.Generators
                 foreach (var (k, x) in visitor.CompilationUnits)
                 {
                     // TODO: TBD: potential future direction for CGR, we may work by adding a dictionary of CompilationUnitSyntax instances...
-                    Verify.Operation(k != Guid.Empty, $"Dictionary key `{nameof(k)}´ should not be Empty.");
+                    Verify.Operation(k != Guid.Empty, $"Dictionary key '{nameof(k)}' should not be Empty.");
                     Assumes.NotNull(x);
 
                     cgd.CompilationUnits.Add(x);

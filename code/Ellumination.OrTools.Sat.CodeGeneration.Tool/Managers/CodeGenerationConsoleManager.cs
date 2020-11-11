@@ -159,10 +159,10 @@ namespace Ellumination.OrTools.Sat.CodeGeneration
                     : $"{version} ({informational})";
             }
 
-            /* There is `a lot going on´ behind this properly. Do not take this one lightly. Per
+            /* There is 'a lot going on' behind this properly. Do not take this one lightly. Per
              * the Google version strategy, only using three-parts. The critical bit is that our
              * Code Generation Targets are also leveraging these bits in order to inform where we
-             * find the Protocol Buffer `.proto´ specification. */
+             * find the Protocol Buffer '.proto' specification. */
 
             string RenderGoogleOrToolsVersion() => $"{GoogleOrToolsVersion.ToString(3)}";
 
@@ -357,7 +357,7 @@ namespace Ellumination.OrTools.Sat.CodeGeneration
 
                 if (DebugMessagesSwitch)
                 {
-                    Writer.WriteLine($"Output Directory is `{outputDirectory}´, registry file name is `{generatedCodeRegistryFile}´.");
+                    Writer.WriteLine($"Output Directory is '{outputDirectory}', registry file name is '{generatedCodeRegistryFile}'.");
                 }
 
                 var serviceManager = new CodeGenerationServiceManager(outputDirectory, generatedCodeRegistryFile);
@@ -453,7 +453,7 @@ namespace Ellumination.OrTools.Sat.CodeGeneration
 
         public override void Run(out int errorLevel)
         {
-            // TODO: TBD: again, some of which could potentially be presented from the base class, i.e. bits concerning `Show Version´ ...
+            // TODO: TBD: again, some of which could potentially be presented from the base class, i.e. bits concerning 'Show Version' ...
             int? shownVersion;
 
             switch (shownVersion = ShowVersions())

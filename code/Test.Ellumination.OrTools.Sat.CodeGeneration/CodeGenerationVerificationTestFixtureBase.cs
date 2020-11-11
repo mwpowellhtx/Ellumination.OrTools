@@ -6,7 +6,7 @@
 //    using Microsoft.CodeAnalysis;
 //    using Xunit.Abstractions;
 
-//    // TODO: TBD: we have refactored `compilation´ concerns to a separate class.
+//    // TODO: TBD: we have refactored 'compilation' concerns to a separate class.
 //    public abstract class CodeGenerationVerificationTestFixtureBase : TestFixtureBase
 //    {
 //        protected CodeGenerationVerificationTestFixtureBase(ITestOutputHelper outputHelper)
