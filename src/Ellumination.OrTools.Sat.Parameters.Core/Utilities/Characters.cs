@@ -1,4 +1,4 @@
-﻿namespace Kingdom.OrTools.Sat.Parameters
+﻿namespace Ellumination.OrTools.Sat.Parameters
 {
     /// <summary>
     /// Provides a nominal set of useful Characters for use throughout the API.

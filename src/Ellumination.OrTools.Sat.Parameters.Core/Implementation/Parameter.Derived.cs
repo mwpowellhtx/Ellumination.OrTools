@@ -1,4 +1,4 @@
-﻿namespace Kingdom.OrTools.Sat.Parameters
+﻿namespace Ellumination.OrTools.Sat.Parameters
 {
     /// <typeparam name="T"></typeparam>
     /// <inheritdoc cref="Parameter"/>

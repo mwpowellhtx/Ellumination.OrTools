@@ -1,4 +1,4 @@
-﻿namespace Kingdom.OrTools.Sat.Parameters
+﻿namespace Ellumination.OrTools.Sat.Parameters
 {
     /// <summary>
     /// Represents a Strongly Typed <typeparamref name="T"/> <see cref="IParameter"/>.

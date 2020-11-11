@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Kingdom.OrTools.Sat.Parameters
+namespace Ellumination.OrTools.Sat.Parameters
 {
     // TODO: TBD: may rename to ParameterField instead of ParameterMember, but will run with this for the time being...
     [AttributeUsage(AttributeTargets.Field)]

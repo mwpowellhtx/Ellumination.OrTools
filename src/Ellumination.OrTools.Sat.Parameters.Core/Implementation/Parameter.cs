@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Kingdom.OrTools.Sat.Parameters
+namespace Ellumination.OrTools.Sat.Parameters
 {
     using static Characters;
 

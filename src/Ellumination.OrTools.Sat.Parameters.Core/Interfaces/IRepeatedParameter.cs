@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Kingdom.OrTools.Sat.Parameters
+namespace Ellumination.OrTools.Sat.Parameters
 {
     /// <summary>
     /// Represents the core set of Repeated <see cref="IParameter"/> concerns. Really,

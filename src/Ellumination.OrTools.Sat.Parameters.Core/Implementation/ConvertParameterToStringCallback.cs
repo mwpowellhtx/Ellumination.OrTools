@@ -1,4 +1,4 @@
-﻿namespace Kingdom.OrTools.Sat.Parameters
+﻿namespace Ellumination.OrTools.Sat.Parameters
 {
     /// <summary>
     /// Callback used to Convert the <paramref name="value"/> to <see cref="string"/>.

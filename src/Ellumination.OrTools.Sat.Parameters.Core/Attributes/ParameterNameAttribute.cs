@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Kingdom.OrTools.Sat.Parameters
+namespace Ellumination.OrTools.Sat.Parameters
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class ParameterNameAttribute : Attribute
