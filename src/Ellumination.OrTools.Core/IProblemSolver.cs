@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Kingdom.OrTools
+namespace Ellumination.OrTools
 {
     /// <summary>
     /// Establishes a loosely coupled problem solver for use throughout.

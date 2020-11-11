@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Kingdom.OrTools
+namespace Ellumination.OrTools
 {
     /// <inheritdoc />
     public abstract class ProblemSolverAspectBase<TSolver, TAspect>

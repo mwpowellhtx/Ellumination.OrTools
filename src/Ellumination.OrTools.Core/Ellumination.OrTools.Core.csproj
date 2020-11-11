@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <Version>2.19.1.16208</Version>
+        <AssemblyVersion>2.19.1.16208</AssemblyVersion>
+        <FileVersion>2.19.1.16208</FileVersion>
+        <PackageVersion>2.19.1.16208</PackageVersion>
+        <!--<ReleaseVersionStrategy>patch</ReleaseVersionStrategy>-->
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <Description>Provides the core problem solver abstraction for use with Google OR-tools Constraint Solver and Linear Solver wrappers.</Description>
+        <PackageTags>Ellumination;Google;Operations;Research;Tools;wrapper;disposable;CLR;object;host;problem;solver</PackageTags>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Platform)' == 'AnyCPU'">
+        <DocumentationFile>bin\$(Configuration)\netstandard2.0\Ellumination.OrTools.Core.xml</DocumentationFile>
+    </PropertyGroup>
+
+</Project>

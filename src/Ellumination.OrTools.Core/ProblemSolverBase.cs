@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Kingdom.OrTools
+namespace Ellumination.OrTools
 {
     /// <summary>
     /// Establishes a loosely coupled Problem Solver for use throughout.

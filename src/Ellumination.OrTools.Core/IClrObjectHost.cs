@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Kingdom.OrTools
+namespace Ellumination.OrTools
 {
     /// <summary>
     /// Clr object host interface.
