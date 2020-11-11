@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 
-namespace Kingdom.OrTools
+namespace Ellumination.OrTools
 {
     using Xunit;
 

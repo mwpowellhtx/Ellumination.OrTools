@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Kingdom.OrTools.Sudoku
+namespace Ellumination.OrTools.Sudoku
 {
     using static String;
 

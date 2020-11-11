@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace Kingdom.OrTools
+namespace Ellumination.OrTools
 {
     /// <summary>
     /// Performs some basic unit testing.
