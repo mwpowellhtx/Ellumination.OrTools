@@ -1,6 +1,6 @@
 using System;
 
-namespace Kingdom.OrTools.LinearSolver
+namespace Ellumination.OrTools.LinearSolver
 {
     using ResultStatus = Google.OrTools.LinearSolver.Solver.ResultStatus;
     using static Google.OrTools.LinearSolver.Solver.ResultStatus;

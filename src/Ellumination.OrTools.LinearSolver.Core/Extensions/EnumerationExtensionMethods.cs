@@ -1,6 +1,6 @@
 using System;
 
-namespace Kingdom.OrTools.LinearSolver
+namespace Ellumination.OrTools.LinearSolver
 {
     internal static class EnumerationExtensionMethods
     {

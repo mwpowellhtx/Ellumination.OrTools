@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 
-namespace Kingdom.OrTools.LinearSolver
+namespace Ellumination.OrTools.LinearSolver
 {
     using Google.OrTools.LinearSolver;
     using MpParamSpec = Tuple<MpParamDoubleParam, double>;

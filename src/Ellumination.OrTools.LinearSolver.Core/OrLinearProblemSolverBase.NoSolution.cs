@@ -1,4 +1,4 @@
-namespace Kingdom.OrTools.LinearSolver
+namespace Ellumination.OrTools.LinearSolver
 {
     using Google.OrTools.LinearSolver;
 

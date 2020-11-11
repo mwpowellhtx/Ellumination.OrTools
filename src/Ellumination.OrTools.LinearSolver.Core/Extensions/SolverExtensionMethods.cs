@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Google.OrTools.LinearSolver;
 
-namespace Kingdom.OrTools.LinearSolver
+namespace Ellumination.OrTools.LinearSolver
 {
     using IProblemTypeDictionary = IDictionary<LinearOptimizationProblemType, Solver.OptimizationProblemType>;
     using IResultStatusDictionary = IDictionary<Solver.ResultStatus, LinearResultStatus>;

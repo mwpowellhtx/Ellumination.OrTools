@@ -1,7 +1,7 @@
 using System;
 using Google.OrTools.LinearSolver;
 
-namespace Kingdom.OrTools.LinearSolver
+namespace Ellumination.OrTools.LinearSolver
 {
     using OptimizationProblemType = Solver.OptimizationProblemType;
     using static Solver.OptimizationProblemType;

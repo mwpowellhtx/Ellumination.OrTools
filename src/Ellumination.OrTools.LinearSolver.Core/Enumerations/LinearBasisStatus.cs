@@ -1,4 +1,4 @@
-namespace Kingdom.OrTools.LinearSolver
+namespace Ellumination.OrTools.LinearSolver
 {
     using BasisStatus = Google.OrTools.LinearSolver.Solver.BasisStatus;
     using static Google.OrTools.LinearSolver.Solver.BasisStatus;

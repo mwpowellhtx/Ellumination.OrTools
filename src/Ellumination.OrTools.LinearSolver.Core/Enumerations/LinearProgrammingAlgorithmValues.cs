@@ -1,6 +1,6 @@
 using Google.OrTools.LinearSolver;
 
-namespace Kingdom.OrTools.LinearSolver
+namespace Ellumination.OrTools.LinearSolver
 {
     using static MPSolverParameters.LpAlgorithmValues;
 
