@@ -1,6 +1,6 @@
 ﻿//using System;
 
-namespace Kingdom.OrTools.ConstraintSolver.Samples
+namespace Ellumination.OrTools.ConstraintSolver.Samples
 {
     //using Google.OrTools.ConstraintSolver;
     //using Xunit;

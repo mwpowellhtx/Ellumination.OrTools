@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace Kingdom.OrTools.ConstraintSolver.Samples
+namespace Ellumination.OrTools.ConstraintSolver.Samples
 {
     using Google.OrTools.ConstraintSolver;
     using Xunit;
     using Xunit.Abstractions;
-    using static Kingdom.OrTools.Samples.Sudoku.Domain;
+    using static Ellumination.OrTools.Samples.Sudoku.Domain;
 
     /// <summary>
     /// Performs some basic unit testing.

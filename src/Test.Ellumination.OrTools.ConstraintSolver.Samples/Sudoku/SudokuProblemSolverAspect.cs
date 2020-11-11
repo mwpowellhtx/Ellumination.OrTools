@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Kingdom.OrTools.ConstraintSolver.Samples.Sudoku
+namespace Ellumination.OrTools.ConstraintSolver.Samples.Sudoku
 {
     using Google.OrTools.ConstraintSolver;
-    using static Kingdom.OrTools.Samples.Sudoku.Domain;
-    using static Kingdom.OrTools.Samples.Sudoku.SudokuPuzzle;
+    using static Ellumination.OrTools.Samples.Sudoku.Domain;
+    using static Ellumination.OrTools.Samples.Sudoku.SudokuPuzzle;
 
     public class SudokuProblemSolverAspect : ProblemSolverAspectBase<Solver, Solver, IntVar, Constraint, SudokuProblemSolverAspect>
     {

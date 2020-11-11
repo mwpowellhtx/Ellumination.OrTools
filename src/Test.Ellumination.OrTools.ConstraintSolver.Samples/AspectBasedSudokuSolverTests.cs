@@ -1,4 +1,4 @@
-namespace Kingdom.OrTools.ConstraintSolver.Samples
+namespace Ellumination.OrTools.ConstraintSolver.Samples
 {
     using Sudoku;
     using Xunit;

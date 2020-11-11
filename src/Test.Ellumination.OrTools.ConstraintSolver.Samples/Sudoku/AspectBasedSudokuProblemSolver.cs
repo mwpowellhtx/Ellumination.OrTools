@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Kingdom.OrTools.ConstraintSolver.Samples.Sudoku
+namespace Ellumination.OrTools.ConstraintSolver.Samples.Sudoku
 {
     using Google.OrTools.ConstraintSolver;
-    using Kingdom.OrTools.Samples.Sudoku;
+    using Ellumination.OrTools.Samples.Sudoku;
     using Xunit;
     using static IntValueStrategy;
     using static IntVarStrategy;
-    using static Kingdom.OrTools.Samples.Sudoku.Domain;
+    using static Ellumination.OrTools.Samples.Sudoku.Domain;
 
     public class AspectBasedSudokuProblemSolver : OrProblemSolverBase<SudokuProblemSolverAspect>
     {
