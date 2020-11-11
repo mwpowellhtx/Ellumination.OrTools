@@ -5,7 +5,7 @@
 //using Google.OrTools.ConstraintSolver;
 
 //// ReSharper disable once IdentifierTypo
-//namespace Kingdom.Constraints.Sample.Fixturing.Tests
+//namespace Ellumination.Constraints.Sample.Fixturing
 //{
 //    using Google.OrTools.ConstraintSolver;
 //    using Google.Protobuf;
@@ -312,7 +312,7 @@
 //        //{
 //        //    using (var s = new Solver("Test"))
 //        //    {
-//        //        s.ExportModel(@"G:\Source\Kingdom Software\Kingdom.ConstraintSolvers\Working\src\Kingdom.Constraints.Sample.Fixturing.Tests\ExportedSolverModel.gz");
+//        //        s.ExportModel(@"G:\Source\Ellumination Software\Ellumination.ConstraintSolvers\Working\src\Test.Ellumination.Constraints.Sample.Fixturing\ExportedSolverModel.gz");
 //        //    }
 //        //}
 

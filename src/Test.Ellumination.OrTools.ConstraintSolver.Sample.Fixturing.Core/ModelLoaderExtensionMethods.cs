@@ -1,5 +1,5 @@
 ﻿//// ReSharper disable once IdentifierTypo
-//namespace Kingdom.Constraints.Sample.Fixturing.Tests
+//namespace Ellumination.Constraints.Sample.Fixturing
 //{
 //    using Google.OrTools.ConstraintSolver;
 
