@@ -1,4 +1,4 @@
-﻿namespace Kingdom.OrTools.LinearSolver.Samples.Feasibility
+﻿namespace Ellumination.OrTools.LinearSolver.Samples.Feasibility
 {
     using Xunit.Abstractions;
 
