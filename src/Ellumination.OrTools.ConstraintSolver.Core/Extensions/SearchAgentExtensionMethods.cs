@@ -1,6 +1,6 @@
 using System;
 
-namespace Kingdom.OrTools.ConstraintSolver
+namespace Ellumination.OrTools.ConstraintSolver
 {
     /// <summary>
     /// <see cref="ISearchAgent"/> extension methods.

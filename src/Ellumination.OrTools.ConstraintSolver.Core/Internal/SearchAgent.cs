@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Google.OrTools.ConstraintSolver;
 
-namespace Kingdom.OrTools.ConstraintSolver
+namespace Ellumination.OrTools.ConstraintSolver
 {
     using ISolverProblemSolver = IProblemSolver<Solver, Solver>;
 

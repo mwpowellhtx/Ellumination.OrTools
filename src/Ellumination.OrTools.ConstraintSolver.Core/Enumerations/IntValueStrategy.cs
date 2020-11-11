@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Google.OrTools.ConstraintSolver;
 
-namespace Kingdom.OrTools.ConstraintSolver
+namespace Ellumination.OrTools.ConstraintSolver
 {
     using static Solver;
     using static IntValueStrategy;

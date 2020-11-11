@@ -1,4 +1,4 @@
-namespace Kingdom.OrTools.ConstraintSolver
+namespace Ellumination.OrTools.ConstraintSolver
 {
     using Google.OrTools.ConstraintSolver;
 

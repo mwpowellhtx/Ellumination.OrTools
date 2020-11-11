@@ -1,4 +1,4 @@
-namespace Kingdom.OrTools.ConstraintSolver
+namespace Ellumination.OrTools.ConstraintSolver
 {
     /// <summary>
     /// Breakable interface used to signal when a control decision should break from a loop.
