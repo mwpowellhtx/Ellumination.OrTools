@@ -24,31 +24,36 @@ rem Go ahead and pre-seed the Projects up front.
 :set_projects
 set projects=
 rem Setup All Projects
-set all_projects=Kingdom.OrTools.Core
-set all_projects=%all_projects%%delim%Kingdom.OrTools.ConstraintSolver.Core
-set all_projects=%all_projects%%delim%Kingdom.OrTools.LinearSolver.Core
-set all_projects=%all_projects%%delim%Kingdom.OrTools.Sat.Core
-set all_projects=%all_projects%%delim%Kingdom.OrTools.Sat.Parameters.Core
-set all_projects=%all_projects%%delim%Kingdom.OrTools.Sat.Parameters
+set all_projects=Ellumination.OrTools.Core
+set all_projects=%all_projects%%delim%Ellumination.OrTools.ConstraintSolver.Core
+set all_projects=%all_projects%%delim%Ellumination.OrTools.LinearSolver.Core
+set all_projects=%all_projects%%delim%Ellumination.OrTools.Sat.Core
+set all_projects=%all_projects%%delim%Ellumination.OrTools.Sat.Parameters.Core
+set all_projects=%all_projects%%delim%Ellumination.OrTools.Sat.Parameters
 rem Setup Constraint Solver
-set constraint_projects=Kingdom.OrTools.Core
-set constraint_projects=%constraint_projects%%delim%Kingdom.OrTools.ConstraintSolver.Core
+set constraint_projects=Ellumination.OrTools.Core
+set constraint_projects=%constraint_projects%%delim%Ellumination.OrTools.ConstraintSolver.Core
+rem Setup Routing
+set routing_projects=Ellumination.OrTools.Core
+rem TODO: TBD: does it require a dependency on our ConstraintSolver core package?
+rem set routing_projects=Ellumination.OrTools.ConstraintSolver.Core
+set routing_projects=%routing_projects%%delim%Ellumination.OrTools.ConstraintSolver.Routing
 rem Setup Linear Solver
-set linear_projects=Kingdom.OrTools.Core
-set linear_projects=%linear_projects%%delim%Kingdom.OrTools.LinearSolver.Core
+set linear_projects=Ellumination.OrTools.Core
+set linear_projects=%linear_projects%%delim%Ellumination.OrTools.LinearSolver.Core
 rem Setup Sat Solver
-set sat_projects=Kingdom.OrTools.Core
-set sat_projects=%sat_projects%%delim%Kingdom.OrTools.Sat.Core
-set sat_projects=%sat_projects%%delim%Kingdom.OrTools.Sat.Parameters.Core
-set sat_projects=%sat_projects%%delim%Kingdom.OrTools.Sat.Parameters
+set sat_projects=Ellumination.OrTools.Core
+set sat_projects=%sat_projects%%delim%Ellumination.OrTools.Sat.Core
+set sat_projects=%sat_projects%%delim%Ellumination.OrTools.Sat.Parameters.Core
+set sat_projects=%sat_projects%%delim%Ellumination.OrTools.Sat.Parameters
 rem Setup Sat Parameters
-set sat_params_projects=Kingdom.OrTools.Sat.Parameters.Core
-set sat_params_projects=%sat_params_projects%%delim%Kingdom.OrTools.Sat.Parameters
+set sat_params_projects=Ellumination.OrTools.Sat.Parameters.Core
+set sat_params_projects=%sat_params_projects%%delim%Ellumination.OrTools.Sat.Parameters
 rem Setup Solver Projects
-set solver_projects=Kingdom.OrTools.Core
-set solver_projects=%solver_projects%%delim%Kingdom.OrTools.ConstraintSolver.Core
-set solver_projects=%solver_projects%%delim%Kingdom.OrTools.LinearSolver.Core
-set solver_projects=%solver_projects%%delim%Kingdom.OrTools.Sat.Core
+set solver_projects=Ellumination.OrTools.Core
+set solver_projects=%solver_projects%%delim%Ellumination.OrTools.ConstraintSolver.Core
+set solver_projects=%solver_projects%%delim%Ellumination.OrTools.LinearSolver.Core
+set solver_projects=%solver_projects%%delim%Ellumination.OrTools.Sat.Core
 rem We decided to let internally delivered packages rest in their respective build pipelines.
 
 :parse_args
@@ -85,6 +90,16 @@ if "%1" equ "--local" (
 if "%1" equ "--nuget" (
     set function=nuget
     goto :next_arg
+)
+
+:add_routing_projects
+if "%1" equ "--routing" (
+    if "%projects%" equ "" (
+        set projects=%routing_projects%
+    ) else (
+        set projects=%projects%%delim%%routing_projects%
+    )
+	goto :next_arg
 )
 
 :add_constraint_projects
