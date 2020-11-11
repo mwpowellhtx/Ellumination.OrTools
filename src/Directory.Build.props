@@ -25,12 +25,12 @@
     <CodeGenerationRoslynAttributesVersion>1.1</CodeGenerationRoslynAttributesVersion>
     <CodeGenerationRoslynBuildTimeVersions>[1.1,2)</CodeGenerationRoslynBuildTimeVersions>
     <CodeGenerationRoslynBuildTimeVersion>1.1</CodeGenerationRoslynBuildTimeVersion>
-    <KingdomProtobufAntlrVersions>[1.0.13,2)</KingdomProtobufAntlrVersions>
-    <KingdomProtobufAntlrVersion>1.0.13.22961</KingdomProtobufAntlrVersion>
+    <ElluminationProtobufAntlrVersions>[1.0.13,2)</ElluminationProtobufAntlrVersions>
+    <ElluminationProtobufAntlrVersion>1.0.13.22961</ElluminationProtobufAntlrVersion>
     <!-- True, this is the dependency. We just want the latest stable, always. -->
-    <KingdomOrToolsSatCodeGenerationBuildTimeDependency>Kingdom.OrTools.Sat.CodeGeneration.BuildTime</KingdomOrToolsSatCodeGenerationBuildTimeDependency>
+    <ElluminationOrToolsSatCodeGenerationBuildTimeDependency>Ellumination.OrTools.Sat.CodeGeneration.BuildTime</ElluminationOrToolsSatCodeGenerationBuildTimeDependency>
     <!-- Do not chase the version numbers here. Just use the latest stable version whatever it happens to be. -->
-    <KingdomOrToolsSatCodeGenerationVersion>*</KingdomOrToolsSatCodeGenerationVersion>
+    <ElluminationOrToolsSatCodeGenerationVersion>*</ElluminationOrToolsSatCodeGenerationVersion>
   </PropertyGroup>
 
 </Project>
