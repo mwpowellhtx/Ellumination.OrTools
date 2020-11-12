@@ -33,7 +33,6 @@
         <PackageReference Include="Google.OrTools" Version="$(GoogleOrToolsVersion)" />
         <PackageReference Include="Google.Protobuf" Version="$(GoogleProtobufVersion)" />
     </ItemGroup>
-    <!-- ReSharper restore UnknownProperty -->
 
     <ItemGroup>
         <ProjectReference Include="..\Ellumination.OrTools.Core\Ellumination.OrTools.Core.csproj" />
