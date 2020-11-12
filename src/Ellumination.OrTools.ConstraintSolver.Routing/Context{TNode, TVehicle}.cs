@@ -40,7 +40,10 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     public abstract class Context<TNode, TVehicle> : Context
     {
         /// <summary>
-        /// Gets or Sets the Nodes.
+        /// Gets or Sets the Nodes. Nodes aligns with <see cref="Context.NodeCount"/>
+        /// in the sense that a <c>+1</c> <see cref="Context.Edge"/> buffer may be
+        /// included at <see cref="IncludeEdge.IncludeStart"/> and, or
+        /// <see cref="IncludeEdge.IncludeEnd"/>.
         /// </summary>
         /// <remarks>At this level Nodes and Vehicles are simply along for the ride. Any solver
         /// initialization that will have been performed will have been done at the base class
@@ -60,8 +63,9 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="depot">Meaning &quot;home base&quot; or &quot;headquarters&quot;,
         /// basically where ever the vehicles are operating as their base of operations for
         /// scheduling purposes.</param>
-        protected Context(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, int depot = 0)
-            : this(nodes, vehicles, depot, null)
+        /// <param name="edge"></param>
+        protected Context(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, int depot = 0, IncludeEdge edge = default)
+            : this(nodes, vehicles, depot, edge, null)
         {
         }
 
@@ -73,9 +77,10 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="depot">Meaning &quot;home base&quot; or &quot;headquarters&quot;,
         /// basically where ever the vehicles are operating as their base of operations for
         /// scheduling purposes.</param>
-        /// <param name="parameters"></param>
-        protected Context(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, int depot = 0, RoutingModelParameters parameters = null)
-            : base(nodes.OrEmpty().Count(), vehicles.OrEmpty().Count(), depot, parameters)
+        /// <param name="edge"></param>
+        /// <param name="modelParameters"></param>
+        protected Context(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, int depot = 0, IncludeEdge edge = default, RoutingModelParameters modelParameters = null)
+            : base(nodes.OrEmpty().Count() + edge.Summarize(), vehicles.OrEmpty().Count(), depot, edge, modelParameters)
         {
             // TODO: TBD: verify that the depot index is valid, that is, within range of the nodes.
             this.Nodes = nodes.OrEmpty().ToArray();
@@ -89,8 +94,9 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="vehicles">The number of vehicles involved in the Context.</param>
         /// <param name="starts">Not every Vehicle necessarily Starts at the same location.</param>
         /// <param name="ends">Additionally, not every Vehicle may End at the same location.</param>
-        protected Context(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, IEnumerable<int> starts, IEnumerable<int> ends)
-            : this(nodes, vehicles, starts, ends, null)
+        /// <param name="edge"></param>
+        protected Context(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, IEnumerable<int> starts, IEnumerable<int> ends, IncludeEdge edge = default)
+            : this(nodes, vehicles, starts, ends, edge, null)
         {
         }
 
@@ -101,9 +107,10 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="vehicles">The number of vehicles involved in the Context.</param>
         /// <param name="starts">Not every Vehicle necessarily Starts at the same location.</param>
         /// <param name="ends">Additionally, not every Vehicle may End at the same location.</param>
+        /// <param name="edge"></param>
         /// <param name="modelParameters"></param>
-        protected Context(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, IEnumerable<int> starts, IEnumerable<int> ends, RoutingModelParameters modelParameters)
-            : base(nodes.OrEmpty().Count(), vehicles.OrEmpty().Count(), starts, ends, modelParameters)
+        protected Context(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, IEnumerable<int> starts, IEnumerable<int> ends, IncludeEdge edge = default, RoutingModelParameters modelParameters = null)
+            : base(nodes.OrEmpty().Count() + edge.Summarize(), vehicles.OrEmpty().Count(), starts, ends, edge, modelParameters)
         {
             this.Nodes = nodes.OrEmpty().ToArray();
             this.Vehicles = vehicles.OrEmpty().ToArray();
