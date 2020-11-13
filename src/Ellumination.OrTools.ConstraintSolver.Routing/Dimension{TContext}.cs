@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Ellumination.OrTools.ConstraintSolver.Routing
 {
+    using Distances;
     using Google.OrTools.ConstraintSolver;
 
     // TODO: TBD: will consider dimension bits next...
@@ -27,21 +29,27 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     /// <see cref="RoutingModel.RegisterPositiveTransitCallback"/>
     /// <see cref="RoutingModel.RegisterUnaryTransitCallback"/>
     /// <see cref="RoutingModel.RegisterPositiveUnaryTransitCallback"/>
-    public abstract class Dimension<TContext>
+    public abstract class Dimension<TContext> : Dimension
         where TContext : Context
     {
         /// <summary>
-        /// Gets the Context associated with the Dimension.
+        /// Gets or Sets the Registered Callback Index.
         /// </summary>
-        protected TContext Context { get; }
+        protected virtual int? RegisteredCallbackIndex { get; set; }
+
+        /// <summary>
+        /// Gets the <typeparamref name="TContext"/> associated with the
+        /// <see cref="Dimension{TContext}"/>.
+        /// </summary>
+        protected new virtual TContext Context => base.Context as TContext;
 
         /// <summary>
         /// Protected Constructor.
         /// </summary>
         /// <param name="context"></param>
         protected Dimension(TContext context)
+            : base(context)
         {
-            this.Context = context;
         }
 
         /// <summary>
@@ -81,6 +89,22 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
             index < this.Context.StartEdge || index >= this.Context.NodeCount ? @default : (long?)null;
 
         /// <summary>
+        /// In this implementation, the most common usage is for both<paramref name="i"/> and
+        /// <paramref name="j"/> indices to be evaluated first prior to invoking the domain
+        /// model oriented Transit Callback. There may be some Dimensions in which that is
+        /// not desired, or that only one of the indices should be screened prior to doing so.
+        /// That is for the Dimension author to evaluate the most appropriate implementation
+        /// for his or her routing model.
+        /// </summary>
+        /// <param name="i"></param>
+        /// <param name="j"></param>
+        /// <param name="default"></param>
+        /// <returns></returns>
+        /// <see cref="EvaluateIndex"/>
+        protected virtual long? OnEvaluateIndices(long i, long j, long @default = default) =>
+            this.EvaluateIndex(i, @default) ?? this.EvaluateIndex(j, @default);
+
+        /// <summary>
         /// Callback that occurs when <see cref="RoutingModel.RegisterTransitCallback"/>
         /// or <see cref="RoutingModel.RegisterPositiveTransitCallback"/>. In this version
         /// of the callback we evaluate the indices concerning the model nodes, and as long
@@ -90,6 +114,8 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="i"></param>
         /// <param name="j"></param>
         /// <returns></returns>
+        /// <see cref="OnEvaluateIndices"/>
+        /// <see cref="OnEvaluateTransit(int, int)"/>
         protected virtual long OnEvaluateTransit(long i, long j)
         {
             (int i, int j, int delta) CalculateNormalizedIndexes(int delta) =>
@@ -97,10 +123,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
 
             var indexes = CalculateNormalizedIndexes(-this.Context.StartEdge);
 
-            return this.EvaluateIndex(i)
-                ?? this.EvaluateIndex(j)
-                ?? this.OnEvaluateTransit(indexes.i, indexes.j)
-                ;
+            return this.OnEvaluateIndices(i, j) ?? this.OnEvaluateTransit(indexes.i, indexes.j);
         }
 
         /// <summary>
@@ -112,16 +135,16 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// </summary>
         /// <param name="i"></param>
         /// <returns></returns>
-        protected long OnEvaluateUnaryTransit(long i)
+        /// <see cref="EvaluateIndex"/>
+        /// <see cref="OnEvaluateUnaryTransit(int)"/>
+        protected virtual long OnEvaluateUnaryTransit(long i)
         {
             (int i, int delta) CalculateNormalizedIndex(int delta) =>
                 ((int)i + delta, delta);
 
             var index = CalculateNormalizedIndex(-this.Context.StartEdge);
 
-            return this.EvaluateIndex(i)
-                ?? this.OnEvaluateUnaryTransit(index.i)
-                ;
+            return this.EvaluateIndex(i) ?? this.OnEvaluateUnaryTransit(index.i);
         }
     }
 }
