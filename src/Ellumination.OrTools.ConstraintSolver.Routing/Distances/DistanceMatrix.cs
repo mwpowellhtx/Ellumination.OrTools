@@ -25,6 +25,14 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
         public bool IsSquare => this._matrix.GetLength(0) == this._matrix.GetLength(1);
 
         /// <summary>
+        /// Default Public Constructor.
+        /// </summary>
+        public DistanceMatrix()
+            : this(2)
+        {
+        }
+
+        /// <summary>
         /// Public Constructor.
         /// </summary>
         /// <param name="z"></param>

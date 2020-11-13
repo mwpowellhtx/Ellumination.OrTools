@@ -19,9 +19,9 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
         }
 
         public LocationDistanceMatrix(params string[] locations)
-            : base(locations.Length)
+            : base(locations.Distinct().Count())
         {
-            this.Locations = locations.ToHashSet();
+            this.Locations = locations.Distinct().ToHashSet();
 
             /* We know that no matter what else, the Identity diagonal is always zero.
              * In other words, a location distance to itself is ZERO. ALWAYS. */
@@ -112,6 +112,13 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
         }
 
         /// <summary>
+        /// Gets the DistinctKeys necessary to index both mirrored sides of the matrix
+        /// along its identity diagonal.
+        /// </summary>
+        private IEnumerable<(string x, string y)> DistinctKeys => this.Locations
+            .Zip(this.Locations, (x, y) => (x, y)).Distinct(KeyEqualityComparer.Comparer);
+
+        /// <summary>
         /// Returns whether the Matrix as a whole IsReady.
         /// </summary>
         /// <returns></returns>
@@ -120,13 +127,42 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
         /// <see cref="Locations"/> are all aligned properly.</remarks>
         public override bool IsReady()
         {
-            var keys = this.Locations.Zip(this.Locations, (x, y) => (x, y))
-                .Distinct(KeyEqualityComparer.Comparer);
+            var keys = this.DistinctKeys.ToArray();
 
             // TODO: TBD: or do we simply assume that the identity diagonal is always zero?
             return this.IsSquare && base.IsReady() && keys.All(key =>
                 (key.x == key.y && this[key.x, key.y] == default)
                     || this[key.x, key.y] == this[key.y, key.x]);
         }
+
+        /// <summary>
+        /// Return the <see cref="LocationDistanceMatrix"/> based on the contributions
+        /// Merging <paramref name="a"/> with <paramref name="b"/>.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static LocationDistanceMatrix Merge(LocationDistanceMatrix a, LocationDistanceMatrix b)
+        {
+            // Which both inform the DistinctKeys of the contributing matrices, but we do not need the keys.
+            var result = new LocationDistanceMatrix(a.Locations.Concat(b.Locations).ToArray());
+
+            int? GetMergeValue(LocationDistanceMatrix matrix, (string x, string y) key) =>
+                !new[] { key.x, key.y }.All(matrix.Locations.Contains) ? null : matrix[key.x, key.y];
+
+            void OnMergeDistinctKey((string x, string y) key) =>
+                result[key.x, key.y] = GetMergeValue(a, key) ?? GetMergeValue(b, key);
+
+            result.DistinctKeys.ToList().ForEach(OnMergeDistinctKey);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Merges this Matrix with the <paramref name="other"/> Matrix.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public virtual LocationDistanceMatrix Merge(LocationDistanceMatrix other) => Merge(this, other);
     }
 }
