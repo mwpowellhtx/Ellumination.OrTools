@@ -58,8 +58,8 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// method is invoked both indices will have already been validated and should be
         /// correct for the domain model specific calculation.
         /// </summary>
-        /// <param name="i"></param>
-        /// <param name="j"></param>
+        /// <param name="i">Node from which whose transit arc cost is being evaluated.</param>
+        /// <param name="j">Node to which whose transit arc cost is being evaluated.</param>
         /// <returns>Returns the calculated route arc cost in the current Dimension.</returns>
         protected virtual int OnEvaluateTransit(int i, int j) => default;
 
@@ -69,7 +69,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// have already been validated and should be corrrect for the domain model specific
         /// calculation.
         /// </summary>
-        /// <param name="i"></param>
+        /// <param name="i">Index of the node whose transit arc cost is being evaluated.</param>
         /// <returns>Returns the calculated route arc cost in the current Dimension.</returns>
         protected virtual int OnEvaluateUnaryTransit(int i) => default;
 
@@ -82,8 +82,8 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <see cref="Context.NodeCount"/>, regardless of the incorporated
         /// <see cref="Context.Edges"/> factor.
         /// </summary>
-        /// <param name="index"></param>
-        /// <param name="default"></param>
+        /// <param name="index">The Index being screend for validity.</param>
+        /// <param name="default">The Default value being returned when screened out.</param>
         /// <returns></returns>
         protected virtual long? EvaluateIndex(long index, long @default = default) =>
             index < this.Context.StartEdge || index >= this.Context.NodeCount ? @default : (long?)null;
@@ -96,9 +96,9 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// That is for the Dimension author to evaluate the most appropriate implementation
         /// for his or her routing model.
         /// </summary>
-        /// <param name="i"></param>
-        /// <param name="j"></param>
-        /// <param name="default"></param>
+        /// <param name="i">Node from which whose transit arc cost is being evaluated.</param>
+        /// <param name="j">Node to which whose transit arc cost is being evaluated.</param>
+        /// <param name="default">The Default value being returned when screend out.</param>
         /// <returns></returns>
         /// <see cref="EvaluateIndex"/>
         protected virtual long? OnEvaluateIndices(long i, long j, long @default = default) =>
@@ -111,8 +111,8 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// as those are valid, then we pass those normalized indices for qualitative evaluation
         /// aligned with the domain model.
         /// </summary>
-        /// <param name="i"></param>
-        /// <param name="j"></param>
+        /// <param name="i">Node from which whose transit arc cost is being evaluated.</param>
+        /// <param name="j">Node to which whose transit arc cost is being evaluated.</param>
         /// <returns></returns>
         /// <see cref="OnEvaluateIndices"/>
         /// <see cref="OnEvaluateTransit(int, int)"/>
@@ -133,7 +133,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// as those are valid, then we pass those normalized indices for qualitative evaluation
         /// aligned with the domain model.
         /// </summary>
-        /// <param name="i"></param>
+        /// <param name="i">Index of the node whose transit arc cost is being evaluated.</param>
         /// <returns></returns>
         /// <see cref="EvaluateIndex"/>
         /// <see cref="OnEvaluateUnaryTransit(int)"/>
