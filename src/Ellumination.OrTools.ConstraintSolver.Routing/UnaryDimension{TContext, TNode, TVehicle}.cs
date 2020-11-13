@@ -5,7 +5,7 @@ using System.Text;
 namespace Ellumination.OrTools.ConstraintSolver.Routing
 {
     using RoutingModel = Google.OrTools.ConstraintSolver.RoutingModel;
-    using OnEvaluateTransitDelegate = Google.OrTools.ConstraintSolver.LongLongToLong;
+    using OnEvaluateTransitDelegate = Google.OrTools.ConstraintSolver.LongToLong;
 
     /// <summary>
     /// 
@@ -13,32 +13,32 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     /// <typeparam name="TNode"></typeparam>
     /// <typeparam name="TVehicle"></typeparam>
     /// <typeparam name="TContext"></typeparam>
-    public abstract class Dimension<TNode, TVehicle, TContext>
+    public abstract class UnaryDimension<TNode, TVehicle, TContext>
         : Dimension<TNode, TVehicle, TContext, OnEvaluateTransitDelegate>
         where TContext : Context<TNode, TVehicle>
     {
         /// <inheritdoc/>
-        protected override long OnEvaluateTransit(long i, long j) => this.IsPositive
-            ? Math.Max(default, base.OnEvaluateTransit(i, j))
-            : base.OnEvaluateTransit(i, j)
+        protected override long OnEvaluateUnaryTransit(long i) => this.IsPositive
+            ? Math.Max(default, base.OnEvaluateUnaryTransit(i))
+            : base.OnEvaluateUnaryTransit(i)
             ;
 
         /// <inheritdoc/>
-        protected override OnEvaluateTransitDelegate EvaluationCallback => this.OnEvaluateTransit;
+        protected override OnEvaluateTransitDelegate EvaluationCallback => this.OnEvaluateUnaryTransit;
 
         /// <inheritdoc/>
         protected override int OnRegisterCallbackWithModel(OnEvaluateTransitDelegate callback)
         {
             int RegisterCallbackWith(RoutingModel model) => this.IsPositive
-                ? model.RegisterPositiveTransitCallback(callback)
-                : model.RegisterTransitCallback(callback)
+                ? model.RegisterPositiveUnaryTransitCallback(callback)
+                : model.RegisterUnaryTransitCallback(callback)
                 ;
 
             return RegisterCallbackWith(this.Context.Model);
         }
 
         /// <inheritdoc/>
-        protected Dimension(TContext context, bool positive, bool shouldRegister = true)
+        protected UnaryDimension(TContext context, bool positive, bool shouldRegister = true)
             : base(context, positive, shouldRegister)
         {
         }
