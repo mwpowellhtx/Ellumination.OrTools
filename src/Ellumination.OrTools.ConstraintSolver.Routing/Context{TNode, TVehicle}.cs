@@ -42,7 +42,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     {
         /// <summary>
         /// Gets or Sets the Nodes. Nodes aligns with <see cref="Context.NodeCount"/>
-        /// in the sense that a <c>+1</c> <see cref="Context.Edge"/> buffer may be
+        /// in the sense that a <c>+1</c> <see cref="Context.Edges"/> buffer may be
         /// included at <see cref="IncludeEdge.IncludeStart"/> and, or
         /// <see cref="IncludeEdge.IncludeEnd"/>.
         /// </summary>
@@ -80,10 +80,10 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="depot">Meaning &quot;home base&quot; or &quot;headquarters&quot;,
         /// basically where ever the vehicles are operating as their base of operations for
         /// scheduling purposes.</param>
-        /// <param name="edgee"></param>
+        /// <param name="edges"></param>
         protected Context(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, int depot = 0
-            , IncludeEdge edgee = default)
-            : this(nodes, vehicles, depot, edgee, null)
+            , IncludeEdge edges = default)
+            : this(nodes, vehicles, depot, edges, null)
         {
         }
 
@@ -95,11 +95,11 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="depot">Meaning &quot;home base&quot; or &quot;headquarters&quot;,
         /// basically where ever the vehicles are operating as their base of operations for
         /// scheduling purposes.</param>
-        /// <param name="edgee"></param>
+        /// <param name="edges"></param>
         /// <param name="modelParameters"></param>
         protected Context(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, int depot = 0
-            , IncludeEdge edgee = default, RoutingModelParameters modelParameters = null)
-            : base(nodes.OrEmpty().Count() + edge.Summarize(), vehicles.OrEmpty().Count(), depot, edgee, modelParameters)
+            , IncludeEdge edges = default, RoutingModelParameters modelParameters = null)
+            : base(nodes.OrEmpty().Count() + edges.Summarize(), vehicles.OrEmpty().Count(), depot, edges, modelParameters)
         {
             // TODO: TBD: verify that the depot index is valid, that is, within range of the nodes.
             this.Nodes = nodes.OrEmpty().ToArray();
@@ -113,10 +113,10 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="vehicles">The number of vehicles involved in the Context.</param>
         /// <param name="starts">Not every Vehicle necessarily Starts at the same location.</param>
         /// <param name="ends">Additionally, not every Vehicle may End at the same location.</param>
-        /// <param name="edgee"></param>
+        /// <param name="edges"></param>
         protected Context(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, IEnumerable<int> starts, IEnumerable<int> ends
-            , IncludeEdge edgee = default)
-            : this(nodes, vehicles, starts, ends, edgee, null)
+            , IncludeEdge edges = default)
+            : this(nodes, vehicles, starts, ends, edges, null)
         {
         }
 
@@ -127,11 +127,11 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="vehicles">The number of vehicles involved in the Context.</param>
         /// <param name="starts">Not every Vehicle necessarily Starts at the same location.</param>
         /// <param name="ends">Additionally, not every Vehicle may End at the same location.</param>
-        /// <param name="edgee"></param>
+        /// <param name="edges"></param>
         /// <param name="modelParameters"></param>
         protected Context(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, IEnumerable<int> starts, IEnumerable<int> ends
-            , IncludeEdge edgee = default, RoutingModelParameters modelParameters = null)
-            : base(nodes.OrEmpty().Count() + edge.Summarize(), vehicles.OrEmpty().Count(), starts, ends, edgee, modelParameters)
+            , IncludeEdge edges = default, RoutingModelParameters modelParameters = null)
+            : base(nodes.OrEmpty().Count() + edges.Summarize(), vehicles.OrEmpty().Count(), starts, ends, edges, modelParameters)
         {
             this.Nodes = nodes.OrEmpty().ToArray();
             this.Vehicles = vehicles.OrEmpty().ToArray();
