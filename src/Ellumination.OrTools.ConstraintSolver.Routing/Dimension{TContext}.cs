@@ -80,7 +80,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// closure by the Dimension. Index must be within the appropriate
         /// <see cref="Context.StartEdge"/> or not in exces of
         /// <see cref="Context.NodeCount"/>, regardless of the incorporated
-        /// <see cref="Context.Edge"/> factor.
+        /// <see cref="Context.Edges"/> factor.
         /// </summary>
         /// <param name="index"></param>
         /// <param name="default"></param>
