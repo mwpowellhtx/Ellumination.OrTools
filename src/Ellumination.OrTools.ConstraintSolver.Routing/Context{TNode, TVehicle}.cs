@@ -5,6 +5,7 @@ using System.Text;
 
 namespace Ellumination.OrTools.ConstraintSolver.Routing
 {
+    using Distances;
     using Google.OrTools.ConstraintSolver;
 
     // https://developers.google.com/optimization/routing/pickup_delivery
@@ -56,6 +57,22 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         public virtual IEnumerable<TVehicle> Vehicles { get; set; }
 
         /// <summary>
+        /// Gets or Sets the <see cref="Context.DistancesMatrix"/>.
+        /// </summary>
+        /// <remarks><see cref="Context{TNode, TVehicle}"/> must allow for an expression
+        /// of the <see cref="Context.DistancesMatrix"/>. However, we think that
+        /// <see cref="Context{TNode, TVehicle}"/> lacks sufficient context, all
+        /// punning aside, in order to determine appropriate serialization, merging,
+        /// updates, with the matrix that informs that
+        /// <see cref="Context{TNode, TVehicle}"/>.</remarks>
+        /// <see cref="Context.DistancesMatrix"/>
+        public new virtual LocationDistanceMatrix DistancesMatrix
+        {
+            get => base.DistancesMatrix as LocationDistanceMatrix;
+            set => base.DistancesMatrix = value;
+        }
+
+        /// <summary>
         /// Protected Context Constructor with unspecied <see cref="RoutingModelParameters"/>.
         /// </summary>
         /// <param name="nodes">The number of nodes or locations involved in the Context.</param>
@@ -63,9 +80,10 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="depot">Meaning &quot;home base&quot; or &quot;headquarters&quot;,
         /// basically where ever the vehicles are operating as their base of operations for
         /// scheduling purposes.</param>
-        /// <param name="edge"></param>
-        protected Context(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, int depot = 0, IncludeEdge edge = default)
-            : this(nodes, vehicles, depot, edge, null)
+        /// <param name="edgee"></param>
+        protected Context(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, int depot = 0
+            , IncludeEdge edgee = default)
+            : this(nodes, vehicles, depot, edgee, null)
         {
         }
 
@@ -77,10 +95,11 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="depot">Meaning &quot;home base&quot; or &quot;headquarters&quot;,
         /// basically where ever the vehicles are operating as their base of operations for
         /// scheduling purposes.</param>
-        /// <param name="edge"></param>
+        /// <param name="edgee"></param>
         /// <param name="modelParameters"></param>
-        protected Context(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, int depot = 0, IncludeEdge edge = default, RoutingModelParameters modelParameters = null)
-            : base(nodes.OrEmpty().Count() + edge.Summarize(), vehicles.OrEmpty().Count(), depot, edge, modelParameters)
+        protected Context(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, int depot = 0
+            , IncludeEdge edgee = default, RoutingModelParameters modelParameters = null)
+            : base(nodes.OrEmpty().Count() + edge.Summarize(), vehicles.OrEmpty().Count(), depot, edgee, modelParameters)
         {
             // TODO: TBD: verify that the depot index is valid, that is, within range of the nodes.
             this.Nodes = nodes.OrEmpty().ToArray();
@@ -94,9 +113,10 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="vehicles">The number of vehicles involved in the Context.</param>
         /// <param name="starts">Not every Vehicle necessarily Starts at the same location.</param>
         /// <param name="ends">Additionally, not every Vehicle may End at the same location.</param>
-        /// <param name="edge"></param>
-        protected Context(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, IEnumerable<int> starts, IEnumerable<int> ends, IncludeEdge edge = default)
-            : this(nodes, vehicles, starts, ends, edge, null)
+        /// <param name="edgee"></param>
+        protected Context(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, IEnumerable<int> starts, IEnumerable<int> ends
+            , IncludeEdge edgee = default)
+            : this(nodes, vehicles, starts, ends, edgee, null)
         {
         }
 
@@ -107,10 +127,11 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="vehicles">The number of vehicles involved in the Context.</param>
         /// <param name="starts">Not every Vehicle necessarily Starts at the same location.</param>
         /// <param name="ends">Additionally, not every Vehicle may End at the same location.</param>
-        /// <param name="edge"></param>
+        /// <param name="edgee"></param>
         /// <param name="modelParameters"></param>
-        protected Context(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, IEnumerable<int> starts, IEnumerable<int> ends, IncludeEdge edge = default, RoutingModelParameters modelParameters = null)
-            : base(nodes.OrEmpty().Count() + edge.Summarize(), vehicles.OrEmpty().Count(), starts, ends, edge, modelParameters)
+        protected Context(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, IEnumerable<int> starts, IEnumerable<int> ends
+            , IncludeEdge edgee = default, RoutingModelParameters modelParameters = null)
+            : base(nodes.OrEmpty().Count() + edge.Summarize(), vehicles.OrEmpty().Count(), starts, ends, edgee, modelParameters)
         {
             this.Nodes = nodes.OrEmpty().ToArray();
             this.Vehicles = vehicles.OrEmpty().ToArray();

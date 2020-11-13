@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace Ellumination.OrTools.ConstraintSolver.Routing
 {
+    using Distances;
     using Google.OrTools.ConstraintSolver;
     using static IncludeEdge;
 
@@ -23,17 +24,17 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// Gets the Edge whether <see cref="IncludeStart"/> or <see cref="IncludeEnd"/> edges
         /// are included in the modeled <see cref="NodeCount"/>.
         /// </summary>
-        public IncludeEdge Edge { get; }
+        public IncludeEdge Edges { get; }
 
         /// <summary>
         /// 
         /// </summary>
-        public int StartEdge => this.Edge.Summarize(IncludeStart);
+        public int StartEdge => this.Edges.Summarize(IncludeStart);
 
         /// <summary>
         /// 
         /// </summary>
-        public int EndEdge => this.Edge.Summarize(IncludeEnd);
+        public int EndEdge => this.Edges.Summarize(IncludeEnd);
 
         /// <summary>
         /// 
@@ -43,9 +44,9 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <summary>
         /// Gets the NodeCount. May not reflect the actual count of
         /// <see cref="Context{TNode, TVehicle}.Nodes"/>, as a function of the
-        /// <see cref="Edge"/>, <see cref="StartEdge"/> and <see cref="EndEdge"/>.
+        /// <see cref="Edges"/>, <see cref="StartEdge"/> and <see cref="EndEdge"/>.
         /// </summary>
-        /// <see cref="Edge"/>
+        /// <see cref="Edges"/>
         /// <see cref="StartEdge"/>
         /// <see cref="EndEdge"/>
         /// <see cref="IncludeStart"/>
@@ -99,6 +100,15 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         private RoutingModelParameters ModelParameters { get; }
 
         /// <summary>
+        /// Gets or Sets the DistancesMatrix.
+        /// </summary>
+        /// <remarks><see cref="Context"/> must allow for an expression of the DistancesMatrix.
+        /// However, we think that <see cref="Context"/> lacks sufficient context, all punning
+        /// aside, in order to determine appropriate serialization, merging, updates, with the
+        /// matrix that informs that <see cref="Context"/>.</remarks>
+        public virtual DistanceMatrix DistancesMatrix { get; set; }
+
+        /// <summary>
         /// Initializes the Context.
         /// </summary>
         /// <returns></returns>
@@ -137,12 +147,26 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
                 || TryInitializeEndpoints(this.NodeCount, this.VehicleCount, this.Endpoints);
         }
 
-        protected Context(IncludeEdge edge = default, RoutingModelParameters modelParameters = null)
-            : this(default, edge, null)
-        {
-        }
+        ////// TODO: TBD: not sure why we sketched these two ctors in...
+        //// TODO: TBD: are these ctors even a thing?
+        //protected Context(IncludeEdge edges = default, RoutingModelParameters modelParameters = null)
+        //    : this(default, edges, null)
+        //{
+        //}
 
-        protected Context(int depot, IncludeEdge edge = default, RoutingModelParameters modelParameters = default)
+        //protected Context(int depot, IncludeEdge edges = default, RoutingModelParameters modelParameters = default)
+        //{
+        //}
+
+        /// <summary>
+        /// Default Protected Constructor.
+        /// </summary>
+        /// <param name="vehicleCount"></param>
+        /// <param name="nodeCount"></param>
+        /// <param name="depot"></param>
+        /// <param name="edges"></param>
+        protected Context(int nodeCount, int vehicleCount, int depot = default, IncludeEdge edges = default)
+            : this(nodeCount, vehicleCount, depot, edges, null)
         {
         }
 
@@ -152,24 +176,13 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="vehicleCount"></param>
         /// <param name="nodeCount"></param>
         /// <param name="depot"></param>
-        /// <param name="edge"></param>
-        protected Context(int nodeCount, int vehicleCount, int depot = default, IncludeEdge edge = default)
-            : this(nodeCount, vehicleCount, depot, edge, null)
-        {
-        }
-
-        /// <summary>
-        /// Default Protected Constructor.
-        /// </summary>
-        /// <param name="vehicleCount"></param>
-        /// <param name="nodeCount"></param>
-        /// <param name="depot"></param>
-        /// <param name="edge"></param>
+        /// <param name="edges"></param>
         /// <param name="modelParameters"></param>
-        protected Context(int nodeCount, int vehicleCount, int depot = default, IncludeEdge edge = default, RoutingModelParameters modelParameters = default)
+        protected Context(int nodeCount, int vehicleCount, int depot = default, IncludeEdge edges = default, RoutingModelParameters modelParameters = default)
         {
             this.NodeCount = nodeCount;
             this.VehicleCount = vehicleCount;
+            this.Edges = edges;
             // TODO: TBD: verify that depot indexes are correct...
             this.Depot = depot;
             this.ModelParameters = modelParameters;
@@ -183,9 +196,9 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="nodeCount"></param>
         /// <param name="starts"></param>
         /// <param name="ends"></param>
-        /// <param name="edge"></param>
-        protected Context(int nodeCount, int vehicleCount, IEnumerable<int> starts, IEnumerable<int> ends, IncludeEdge edge = default)
-            : this(nodeCount, vehicleCount, starts, ends, edge, null)
+        /// <param name="edges"></param>
+        protected Context(int nodeCount, int vehicleCount, IEnumerable<int> starts, IEnumerable<int> ends, IncludeEdge edges = default)
+            : this(nodeCount, vehicleCount, starts, ends, edges, null)
         {
         }
 
@@ -196,13 +209,13 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="nodeCount"></param>
         /// <param name="starts"></param>
         /// <param name="ends"></param>
-        /// <param name="edge"></param>
+        /// <param name="edges"></param>
         /// <param name="modelParameters"></param>
-        protected Context(int nodeCount, int vehicleCount, IEnumerable<int> starts, IEnumerable<int> ends, IncludeEdge edge = default, RoutingModelParameters modelParameters)
+        protected Context(int nodeCount, int vehicleCount, IEnumerable<int> starts, IEnumerable<int> ends, IncludeEdge edges = default, RoutingModelParameters modelParameters = null)
         {
             this.NodeCount = nodeCount;
             this.VehicleCount = vehicleCount;
-            this.Edge = edge;
+            this.Edges = edges;
             // TODO: TBD: verify that depot indexes are correct...
             this.Endpoints = starts.Zip(ends, (start, end) => (start, end)).ToArray();
             this.ModelParameters = modelParameters;
