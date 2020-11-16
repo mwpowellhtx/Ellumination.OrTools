@@ -20,7 +20,7 @@
 
     <PropertyGroup>
         <RootNamespace>Ellumination.OrTools</RootNamespace>
-        <BumpAssemblyVersionsVersion>1.6.0</BumpAssemblyVersionsVersion>
+        <BumpAssemblyVersionsVersion>1.7.0</BumpAssemblyVersionsVersion>
     </PropertyGroup>
 
     <PropertyGroup>
