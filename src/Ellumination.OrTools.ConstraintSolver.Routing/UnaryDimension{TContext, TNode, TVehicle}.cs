@@ -8,11 +8,14 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     using OnEvaluateTransitDelegate = Google.OrTools.ConstraintSolver.LongToLong;
 
     /// <summary>
-    /// 
+    /// Specifies the Unary Transit Evaluation Callback.
     /// </summary>
     /// <typeparam name="TNode"></typeparam>
     /// <typeparam name="TVehicle"></typeparam>
     /// <typeparam name="TContext"></typeparam>
+    /// <see cref="Dimension{TNode, TVehicle, TContext, TCallback}"/>
+    /// <see cref="OnEvaluateTransitDelegate"/>
+    /// <see cref="Context{TNode, TVehicle}"/>
     public abstract class UnaryDimension<TNode, TVehicle, TContext>
         : Dimension<TNode, TVehicle, TContext, OnEvaluateTransitDelegate>
         where TContext : Context<TNode, TVehicle>

@@ -8,15 +8,21 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
 
     // TODO: TBD: ditto basically a placeholder at this moment...
     /// <summary>
-    /// 
+    /// Dimension naturally supports the Binary version of the Transit Evaluation Callback.
+    /// Unless otherwise specified via the
+    /// <see cref="UnaryDimension{TNode, TVehicle, TContext}"/>, assume that the Binary
+    /// callback will be invoked.
     /// </summary>
-    /// <typeparam name="TNode"></typeparam>
-    /// <typeparam name="TVehicle"></typeparam>
-    /// <typeparam name="TContext"></typeparam>
+    /// <typeparam name="TNode">The type of the Node.</typeparam>
+    /// <typeparam name="TVehicle">The type of the Vehicle.</typeparam>
+    /// <typeparam name="TContext">The Context.</typeparam>
     /// <typeparam name="TCallback">A Callback <see cref="Delegate"/> type. We do not
     /// need to know specifically what the Delegate is at this level, only that such
     /// a callback is expected to occur when wiring up the registered callback with
     /// the Routing <see cref="Context.Model"/>.</typeparam>
+    /// <see cref="Delegate"/>
+    /// <see cref="Dimension{TContext}"/>
+    /// <see cref="Context{TNode, TVehicle}"/>
     public abstract class Dimension<TNode, TVehicle, TContext, TCallback> : Dimension<TContext>
         where TContext : Context<TNode, TVehicle>
         where TCallback : Delegate
