@@ -2,10 +2,10 @@
 
     <PropertyGroup>
         <TargetFramework>netcoreapp2.1</TargetFramework>
-        <Version>3.0.8.13339</Version>
-        <AssemblyVersion>3.0.8.13339</AssemblyVersion>
-        <FileVersion>3.0.8.13339</FileVersion>
-        <DebugVersionStrategy>patch</DebugVersionStrategy>
+        <Version>3.0.8.30262</Version>
+        <AssemblyVersion>3.0.8.30262</AssemblyVersion>
+        <FileVersion>3.0.8.30262</FileVersion>
+        <!-- <DebugVersionStrategy>patch</DebugVersionStrategy> -->
         <Configurations>Debug</Configurations>
     </PropertyGroup>
 
