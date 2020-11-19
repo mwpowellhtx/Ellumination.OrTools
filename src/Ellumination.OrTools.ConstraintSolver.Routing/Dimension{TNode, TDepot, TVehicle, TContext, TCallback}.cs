@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -8,12 +9,13 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
 
     // TODO: TBD: ditto basically a placeholder at this moment...
     /// <summary>
-    /// Dimension naturally supports the Binary version of the Transit Evaluation Callback.
-    /// Unless otherwise specified via the
-    /// <see cref="UnaryDimension{TNode, TVehicle, TContext}"/>, assume that the Binary
-    /// callback will be invoked.
+    /// Dimension naturally supports the Binary version of the Transit Evaluation
+    /// Callback. Unless otherwise specified via the
+    /// <see cref="UnaryDimension{TNode, TDepot, TVehicle, TContext}"/>, assume that
+    /// the Binary callback will be invoked.
     /// </summary>
     /// <typeparam name="TNode">The type of the Node.</typeparam>
+    /// <typeparam name="TDepot"></typeparam>
     /// <typeparam name="TVehicle">The type of the Vehicle.</typeparam>
     /// <typeparam name="TContext">The Context.</typeparam>
     /// <typeparam name="TCallback">A Callback <see cref="Delegate"/> type. We do not
@@ -22,11 +24,14 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     /// the Routing <see cref="Context.Model"/>.</typeparam>
     /// <see cref="Delegate"/>
     /// <see cref="Dimension{TContext}"/>
-    /// <see cref="Context{TNode, TVehicle}"/>
-    public abstract class Dimension<TNode, TVehicle, TContext, TCallback> : Dimension<TContext>
-        where TContext : Context<TNode, TVehicle>
+    /// <see cref="Context{TNode, TDepot, TVehicle}"/>
+    public abstract class Dimension<TNode, TDepot, TVehicle, TContext, TCallback> : Dimension<TContext>
+        where TDepot : TNode
+        where TContext : Context<TNode, TDepot, TVehicle>
         where TCallback : Delegate
     {
+        // TODO: TBD: need to connect the dots between registered callbacks and the corresponding matrix...
+        // TODO: TBD: either corresponding to the Dimension matrix itself, or vehicle specific matrix...
         /// <inheritdoc/>
         protected override DistanceMatrix CreateMatrix(Context context)
         {
@@ -36,16 +41,13 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
                 // TODO: TBD: also involving context...
                 var noviContext_Nodes = noviContext.Nodes;
                 var locations = noviContext_Nodes.OfType<ILocatable>().Select(x => x.Location).ToArray();
+                // TODO: TBD: validate that we have the same number of locations as we do the nodes themselves...
+                // TODO: TBD: ...which we should have.
                 return new LocationDistanceMatrix(locations);
             }
 
             return base.CreateMatrix(context);
         }
-
-        /// <summary>
-        /// Gets whether Dimension Is considered Positive for transit callback purposes.
-        /// </summary>
-        protected virtual bool IsPositive { get; }
 
         /// <summary>
         /// Connects the dots given <paramref name="onRegister"/> and the expected
@@ -67,7 +69,18 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// </summary>
         /// <param name="callback">The Callback being Registered.</param>
         /// <returns>The Index of the Registered <paramref name="callback"/>.</returns>
-        protected abstract int OnRegisterCallbackWithModel(TCallback callback);
+        protected virtual int OnRegisterCallbackWithModel(TCallback callback) =>
+            this.OnRegisterCallbackWithModel(callback, default);
+
+        /// <summary>
+        /// Registers the <paramref name="callback"/> With the <see cref="Context.Model"/>.
+        /// Returns the Index of the Registered <paramref name="callback"/>.
+        /// </summary>
+        /// <param name="callback">The Callback being Registered.</param>
+        /// <param name="positive">Whether the <paramref name="callback"/>
+        /// is considered Positive by the Model.</param>
+        /// <returns>The Index of the Registered <paramref name="callback"/>.</returns>
+        protected abstract int OnRegisterCallbackWithModel(TCallback callback, bool positive);
 
         /// <summary>
         /// Gets the EvaluationCallback that will be registered.
@@ -75,22 +88,40 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         protected abstract TCallback EvaluationCallback { get; }
 
         /// <summary>
+        /// Gets the OnZeroTransitCost, however, must override this concerning Unary etc.
+        /// </summary>
+        protected abstract TCallback OnZeroTransitCost { get; }
+
+        /// <summary>
+        /// Gets the <see cref="ICollection{T}"/> of RegisteredCallbackIndexes. Most Dimensions
+        /// register a single Callback for an overarching Dimension that applies for all
+        /// <see cref="Context.VehicleCount"/> elements. However, sometimes, we want to
+        /// allow for multiple possible Vehicle specific callbacks to occur, in which
+        /// case, we must allow for a collection of such Registered Callbacks.
+        /// </summary>
+        /// <remarks>The first <em>Registered Callback</em> will alway sbe the
+        /// <see cref="OnZeroTransitCost"/> Callback. Callbacks in addition to that
+        /// will start at index <c>1</c>.</remarks>
+        protected virtual ICollection<int> RegisteredCallbackIndexes { get; } = new List<int>();
+
+        /// <summary>
         /// Protected Constructor.
         /// </summary>
         /// <param name="context"></param>
-        /// <param name="positive"></param>
         /// <param name="shouldRegister">Most Dimensions will go ahead and Register with the
         /// Model, but not all. There can be corner cases that Register Callbacks in a Vehicle
-        /// specific manner, for instance.</param>
-        protected Dimension(TContext context, bool positive, bool shouldRegister = true)
+        /// specific manner, for instance. When <c>true</c>, in this case, we do allow for a
+        /// default registration.</param>
+        protected Dimension(TContext context, bool shouldRegister = true)
             : base(context)
         {
-            this.IsPositive = positive;
+            // We always expect there to be a Zero Callback.
+            this.RegisteredCallbackIndexes.Add(this.OnRegisterCallback(this.OnRegisterCallbackWithModel, this.OnZeroTransitCost));
 
             if (shouldRegister)
             {
                 // TODO: TBD: which we could potentially further condition these elements based on Coefficients perhaps...
-                this.RegisteredCallbackIndex = this.OnRegisterCallback(this.OnRegisterCallbackWithModel, this.EvaluationCallback);
+                this.RegisteredCallbackIndexes.Add(this.OnRegisterCallback(this.OnRegisterCallbackWithModel, this.EvaluationCallback));
             }
         }
     }

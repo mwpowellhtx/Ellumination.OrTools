@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
 
 namespace Ellumination.OrTools.ConstraintSolver.Routing
 {
@@ -14,10 +14,8 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     /// be evaluated for validatity, whether in binary or unary form. Second, the transit
     /// arc cost must be evaluated once the indices have been validated, again whether in
     /// binary or unary form. Overall, Dimension does not have enough contextual information
-    /// to know whether <see cref="RoutingModel.RegisterTransitCallback"/>,
-    /// <see cref="RoutingModel.RegisterPositiveTransitCallback"/>,
-    /// <see cref="RoutingModel.RegisterUnaryTransitCallback"/> or
-    /// <see cref="RoutingModel.RegisterPositiveUnaryTransitCallback"/> should be invoked
+    /// to know whether <see cref="RoutingModel.RegisterTransitCallback"/> or
+    /// <see cref="RoutingModel.RegisterUnaryTransitCallback"/> should be invoked
     /// when registering with the <see cref="Context.Model"/>. Any additional bits like
     /// domain specific constraints, etc, are also a derived issue, up to the subscriber
     /// to implement. What Dimension can provide, however, is sufficient framework scaffold
@@ -26,16 +24,31 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     /// <typeparam name="TContext"></typeparam>
     /// <see cref="RoutingModel"/>
     /// <see cref="RoutingModel.RegisterTransitCallback"/>
-    /// <see cref="RoutingModel.RegisterPositiveTransitCallback"/>
     /// <see cref="RoutingModel.RegisterUnaryTransitCallback"/>
-    /// <see cref="RoutingModel.RegisterPositiveUnaryTransitCallback"/>
     public abstract class Dimension<TContext> : Dimension
         where TContext : Context
     {
         /// <summary>
-        /// Gets or Sets the Registered Callback Index.
+        /// Gets the Default or Zero Transit Cost, <c>default</c> or <c>0L</c>.
         /// </summary>
-        protected virtual int? RegisteredCallbackIndex { get; set; }
+        protected virtual long ZeroTransitCost { get; } = default;
+
+        /// <summary>
+        /// Gets the IntraDepotTransitCost. Default Cost prohibits Transit between Depots
+        /// in a low-cost-wins Routing Model, <c>1 &lt;&lt; 16</c>, or <em>64 times 1024</em>.
+        /// Essentially, we want to leave adequate room for any Coefficients to take effect,
+        /// as well as particularly well within any <see cref="int.MaxValue"/> or
+        /// <see cref="long.MaxValue"/> overruns.
+        /// </summary>
+        /// <see cref="InterDepotTransitCost"/>
+        protected virtual long IntraDepotTransitCost { get; } = 1 << 16;
+
+        /// <summary>
+        /// Conversely to <see cref="IntraDepotTransitCost"/>, always permit Transit between
+        /// Depot and non Depot Nodes. Default Cost is the <c>default</c>, or <c>0</c>.
+        /// </summary>
+        /// <see cref="IntraDepotTransitCost"/>
+        protected virtual long InterDepotTransitCost { get; } = default;
 
         /// <summary>
         /// Gets the <typeparamref name="TContext"/> associated with the
@@ -74,19 +87,61 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         protected virtual int OnEvaluateUnaryTransit(int i) => default;
 
         /// <summary>
-        /// Evaluates the <paramref name="index"/> and returns either the
-        /// <paramref name="default"/> or <c>null</c> consequently, which either
-        /// seals the response, or leaves transit evaluation open for subsequent
-        /// closure by the Dimension. Index must be within the appropriate
-        /// <see cref="Context.StartEdge"/> or not in exces of
-        /// <see cref="Context.NodeCount"/>, regardless of the incorporated
-        /// <see cref="Context.Edges"/> factor.
+        /// Returns whether the <see cref="Context.DepotCoordinates"/> Contain the
+        /// <paramref name="index"/>.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        private bool GetDepotCoordinatesContainIndex(long index) =>
+            this.Context.DepotCoordinates.Any(x => x == index);
+
+        /// <summary>
+        /// 
         /// </summary>
         /// <param name="index">The Index being screend for validity.</param>
-        /// <param name="default">The Default value being returned when screened out.</param>
+        /// <param name="cost">The Cost incurred when Evaluation determines
+        /// whether <paramref name="index"/> is a Depot.</param>
+        /// <param name="default">The Default value being returned when screened.</param>
         /// <returns></returns>
-        protected virtual long? EvaluateIndex(long index, long @default = default) =>
-            index < this.Context.StartEdge || index >= this.Context.NodeCount ? @default : (long?)null;
+        protected virtual long? OnEvaluateIndex(long index, long? cost = null, long @default = default) =>
+            this.GetDepotCoordinatesContainIndex(index) ? (cost ?? @default) : (long?)null;
+
+        /// <summary>
+        /// Evaluates whether <see cref="IntraDepotTransitCost"/> or
+        /// <see cref="InterDepotTransitCost"/> occurs given <paramref name="depots"/>.
+        /// Defaults to <c>null</c>. <paramref name="depots"/> may be either One or Two
+        /// elements, depending on whether the Binary or Unary Transit evaluation occurs.
+        /// </summary>
+        /// <param name="depots"></param>
+        /// <returns></returns>
+        /// <see cref="OnEvaluateTransit(long, long)"/>
+        /// <see cref="OnEvaluateUnaryTransit(long)"/>
+        protected virtual long? OnEvaluateIntraOrInterDepotTransitCost(params bool[] depots)
+        {
+            void OnValidateDepots(int length)
+            {
+                // Expecting One or Two flags, Unary or Binary Transit evaluation, respectively.
+                if (length == 1 || length == 2)
+                {
+                    return;
+                }
+
+                throw new InvalidOperationException($"Invalid number of {nameof(depots)}:"
+                    + $" [{string.Join(", ", depots.Select(x => $"{x}".ToLower()))}]"
+                )
+                {
+                    Data = {
+                        { nameof(length), length },
+                        { nameof(depots), depots }
+                    }
+                };
+            }
+
+            OnValidateDepots(depots.Length);
+
+            return depots.Length > 1 && depots.All(x => x) ? this.IntraDepotTransitCost
+                : depots.Any(x => x) ? this.InterDepotTransitCost : (long?)null;
+        }
 
         /// <summary>
         /// In this implementation, the most common usage is for both<paramref name="i"/> and
@@ -100,51 +155,48 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="j">Node to which whose transit arc cost is being evaluated.</param>
         /// <param name="default">The Default value being returned when screend out.</param>
         /// <returns></returns>
-        /// <see cref="EvaluateIndex"/>
+        /// <see cref="OnEvaluateIndex"/>
         protected virtual long? OnEvaluateIndices(long i, long j, long @default = default) =>
-            this.EvaluateIndex(i, @default) ?? this.EvaluateIndex(j, @default);
+            this.OnEvaluateIntraOrInterDepotTransitCost(
+                this.GetDepotCoordinatesContainIndex(i)
+                , this.GetDepotCoordinatesContainIndex(j)
+            )
+            ?? this.OnEvaluateIndex(i, this.IntraDepotTransitCost, @default)
+            ?? this.OnEvaluateIndex(j, this.IntraDepotTransitCost, @default)
+            ;
 
         /// <summary>
         /// Callback that occurs when <see cref="RoutingModel.RegisterTransitCallback"/>
-        /// or <see cref="RoutingModel.RegisterPositiveTransitCallback"/>. In this version
-        /// of the callback we evaluate the indices concerning the model nodes, and as long
-        /// as those are valid, then we pass those normalized indices for qualitative evaluation
-        /// aligned with the domain model.
+        /// is invoked. In this version of the callback we evaluate the indices concerning
+        /// the model nodes, and as long as those are valid, then we pass those normalized
+        /// indices for qualitative evaluation aligned with the domain model.
         /// </summary>
         /// <param name="i">Node from which whose transit arc cost is being evaluated.</param>
         /// <param name="j">Node to which whose transit arc cost is being evaluated.</param>
         /// <returns></returns>
         /// <see cref="OnEvaluateIndices"/>
         /// <see cref="OnEvaluateTransit(int, int)"/>
-        protected virtual long OnEvaluateTransit(long i, long j)
-        {
-            (int i, int j, int delta) CalculateNormalizedIndexes(int delta) =>
-                ((int)i + delta, (int)j + delta, delta);
-
-            var indexes = CalculateNormalizedIndexes(-this.Context.StartEdge);
-
-            return this.OnEvaluateIndices(i, j) ?? this.OnEvaluateTransit(indexes.i, indexes.j);
-        }
+        protected virtual long OnEvaluateTransit(long i, long j) =>
+            // We must only discern between regular Nodes and Depot Nodes.
+            this.OnEvaluateIndices(i, j)
+                ?? this.OnEvaluateTransit((int)i, (int)j);
 
         /// <summary>
         /// Callback that occurs when <see cref="RoutingModel.RegisterUnaryTransitCallback"/>
-        /// or <see cref="RoutingModel.RegisterPositiveUnaryTransitCallback"/>. In this version
-        /// of the callback we evaluate the indices concerning the model nodes, and as long
-        /// as those are valid, then we pass those normalized indices for qualitative evaluation
-        /// aligned with the domain model.
+        /// is invoked. In this version of the callback we evaluate the indices concerning the
+        /// model nodes, and as long as those are valid, then we pass those normalized indices
+        /// for qualitative evaluation aligned with the domain model.
         /// </summary>
         /// <param name="i">Index of the node whose transit arc cost is being evaluated.</param>
         /// <returns></returns>
-        /// <see cref="EvaluateIndex"/>
+        /// <see cref="OnEvaluateIndex"/>
         /// <see cref="OnEvaluateUnaryTransit(int)"/>
-        protected virtual long OnEvaluateUnaryTransit(long i)
-        {
-            (int i, int delta) CalculateNormalizedIndex(int delta) =>
-                ((int)i + delta, delta);
-
-            var index = CalculateNormalizedIndex(-this.Context.StartEdge);
-
-            return this.EvaluateIndex(i) ?? this.OnEvaluateUnaryTransit(index.i);
-        }
+        protected virtual long OnEvaluateUnaryTransit(long i) =>
+            this.OnEvaluateIntraOrInterDepotTransitCost(
+                this.GetDepotCoordinatesContainIndex(i)
+            )
+            // Important that we make the transition so to speak to Int32 here...
+            ?? this.OnEvaluateUnaryTransit((int)i)
+            ;
     }
 }
