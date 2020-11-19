@@ -6,7 +6,10 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
 {
     using Distances;
     using Google.OrTools.ConstraintSolver;
-    using static IncludeEdge;
+    // These make sense as aliases, but should not make them first class derivations.
+    using IEndpoints = IEnumerable<(int start, int end)>;
+    // This is because we want to keep these close to the generic IEnumerable.
+    using IEndpointCoordinates = IEnumerable<int>;
 
     // TODO: TBD: then from here, context invokes model ability to search...
     // TODO: TBD: with or without search params...
@@ -21,37 +24,9 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     public abstract class Context : IDisposable
     {
         /// <summary>
-        /// Gets the Edge whether <see cref="IncludeStart"/> or <see cref="IncludeEnd"/> edges
-        /// are included in the modeled <see cref="NodeCount"/>.
+        /// Gets the NodeCount. Note that <em>Nodes</em>, so called, also include the
+        /// <em>Depots</em>.
         /// </summary>
-        public IncludeEdge Edges { get; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public int StartEdge => this.Edges.Summarize(IncludeStart);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public int EndEdge => this.Edges.Summarize(IncludeEnd);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public int EdgeCount => this.StartEdge + this.EndEdge;
-
-        /// <summary>
-        /// Gets the NodeCount. May not reflect the actual count of
-        /// <see cref="Context{TNode, TVehicle}.Nodes"/>, as a function of the
-        /// <see cref="Edges"/>, <see cref="StartEdge"/> and <see cref="EndEdge"/>.
-        /// </summary>
-        /// <see cref="Edges"/>
-        /// <see cref="StartEdge"/>
-        /// <see cref="EndEdge"/>
-        /// <see cref="IncludeStart"/>
-        /// <see cref="IncludeEnd"/>
-        /// <see cref="IncludeEdge"/>
         public int NodeCount { get; }
 
         /// <summary>
@@ -68,7 +43,44 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// Gets the Vehicle Start and End Endpoints. Each of the Endpoint indices
         /// must align with the <see cref="NodeCount"/>.
         /// </summary>
-        public virtual IEnumerable<(int start, int end)> Endpoints { get; protected set; }
+        public virtual IEndpoints Endpoints { get; private set; }
+
+        /// <summary>
+        /// Returns the Decoupled <paramref name="ep"/> Endpoint.
+        /// </summary>
+        /// <param name="ep">An Endpoint to be Decoupled.</param>
+        /// <returns></returns>
+        private static IEndpointCoordinates DecoupleEndpoint((int start, int end) ep)
+        {
+            var (start, end) = ep;
+            yield return start;
+            yield return end;
+        }
+
+        /// <summary>
+        /// Gets the DepotCoordinates based upon the Coupled <see cref="Endpoints"/>.
+        /// </summary>
+        public virtual IEndpointCoordinates DepotCoordinates => this.Endpoints.OrEmpty()
+            .SelectMany(DecoupleEndpoint).OrderBy(x => x).Distinct();
+
+        /// <summary>
+        /// Returns whether <paramref name="index"/> aligned with <see cref="NodeCount"/>
+        /// Is considered a Depot.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public virtual bool IsNodeAtIndexDepot(int index)
+        {
+            if (index < 0 || index >= this.NodeCount)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index)
+                    , $"{nameof(index)} {index} out of range"
+                    + $" with {nameof(this.NodeCount)} count {this.NodeCount}"
+                );
+            }
+
+            return true;
+        }
 
         private RoutingModel _model;
 
@@ -91,100 +103,344 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         protected virtual Solver Solver => this.Model?.solver();
 
         /// <summary>
-        /// Gets or Sets the Parameters associated with the Context. May be Null, in which
-        /// case nothing is relayed to the <see cref="Model"/>, or Set up until the moment
-        /// when <see cref="Model"/> is warmed up, at which point the opportunity will have
-        /// been lost to have set or configured the Parameters accordingly.
+        /// Gets or Sets the Parameters associated with the Context. May be <c>null</c>,
+        /// in which case nothing is relayed to the <see cref="Model"/>, or Set up until
+        /// the moment when <see cref="Model"/> is warmed up, at which point the
+        /// opportunity will have been lost to have set or configured the Parameters
+        /// accordingly.
         /// </summary>
         /// <see cref="Model"/>
         private RoutingModelParameters ModelParameters { get; }
 
         /// <summary>
-        /// Gets or Sets the DistancesMatrix.
+        /// Gets the SearchParameters.
         /// </summary>
-        /// <remarks><see cref="Context"/> must allow for an expression of the DistancesMatrix.
-        /// However, we think that <see cref="Context"/> lacks sufficient context, all punning
-        /// aside, in order to determine appropriate serialization, merging, updates, with the
-        /// matrix that informs that <see cref="Context"/>.</remarks>
-        public virtual DistanceMatrix DistancesMatrix { get; set; }
+        protected RoutingSearchParameters SearchParameters { get; private set; }
+
+        //// TODO: TBD: getting to search params...
+        //// TODO: TBD: will need to consider how the closure to run the search should operate...
+        //// TODO: TBD: with or without params...
+        //// TODO: TBD: then, I think, also including the closure with solution, nodes, vehicles, etc...
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <returns></returns>
+        //public Context OnSearchParameters()
 
         /// <summary>
-        /// Initializes the Context.
+        /// Gets or Sets the DistancesMatrix.
+        /// </summary>
+        /// <remarks><see cref="Context"/> must allow for an expression of the
+        /// <see cref="DistanceMatrix"/>. However, we think that <see cref="Context"/>
+        /// lacks sufficient context, all punning aside, in order to determine
+        /// appropriate serialization, merging, updates, with the matrix that
+        /// informs that <see cref="Context"/>.</remarks>
+        public virtual DistanceMatrix Distances { get; set; }
+
+        /// <summary>
+        /// Initializes the Context using either <see cref="Depot"/> or
+        /// <see cref="Endpoints"/>. Assumes that the contributing factors
+        /// have already been Validated prior to invoking this method.
         /// </summary>
         /// <returns></returns>
-        protected virtual bool TryOnInitialize()
+        private bool TryOnInitialize()
         {
-            bool TryInitializeDepot(int nodeCount, int vehicleCount, int? depot)
+            var (nodeCount, vehicleCount, depot, eps) = (
+                this.NodeCount
+                , this.VehicleCount
+                , this.Depot
+                , this.Endpoints
+            );
+
+            bool TryInitializeDepot()
             {
-                var tried = depot != null;
                 var actual = depot ?? default;
 
-                if (tried)
+                if (depot != null)
                 {
                     this.Manager = new RoutingIndexManager(nodeCount, vehicleCount, actual);
                     this.Endpoints = Enumerable.Range(0, vehicleCount).Select(_ => (actual, actual)).ToArray();
+                    return true;
                 }
 
-                return tried;
+                return false;
             }
 
-            bool TryInitializeEndpoints(int nodeCount, int vehicleCount, IEnumerable<(int start, int end)> endpoints)
+            bool TryInitializeEndpoints()
             {
-                var tried = endpoints != null;
-                var actual = endpoints.OrEmpty();
+                var actual = eps.OrEmpty();
 
-                if (tried)
+                if (eps != null)
                 {
                     var starts = actual.Select(x => x.start).ToArray();
                     var ends = actual.Select(x => x.end).ToArray();
                     this.Manager = new RoutingIndexManager(nodeCount, vehicleCount, starts, ends);
+                    return true;
                 }
 
-                return tried;
+                return false;
             }
 
-            return TryInitializeDepot(this.NodeCount, this.VehicleCount, this.Depot)
-                || TryInitializeEndpoints(this.NodeCount, this.VehicleCount, this.Endpoints);
+            return TryInitializeDepot() || TryInitializeEndpoints();
         }
 
-        ////// TODO: TBD: not sure why we sketched these two ctors in...
-        //// TODO: TBD: are these ctors even a thing?
-        //protected Context(IncludeEdge edges = default, RoutingModelParameters modelParameters = null)
-        //    : this(default, edges, null)
-        //{
-        //}
+        /// <summary>
+        /// Renders a <see cref="string"/> Message informing a Validation
+        /// <see cref="Exception"/>.
+        /// </summary>
+        /// <param name="pairs">The Pairs being combined into a message.</param>
+        /// <returns></returns>
+        /// <see cref="string.Join"/>
+        protected static string RenderOutOfRangeMessage(params (string key, object value)[] pairs)
+        {
+            string RenderPair((string key, object value) pair) => $"{pair.key}: {pair.value}";
+            return $"{{ {string.Join(", ", pairs.Select(RenderPair))} }} out of range";
+        }
 
-        //protected Context(int depot, IncludeEdge edges = default, RoutingModelParameters modelParameters = default)
-        //{
-        //}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="enclosure"></param>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        protected static string RenderArray<T>(string enclosure, params T[] values)
+        {
+            string RenderValue(T value) => $"{value}";
+            return string.Join(string.Join(", ", values.Select(RenderValue)), enclosure.ToArray());
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        protected static IEnumerable<T> Range<T>(params T[] values)
+        {
+            foreach (var value in values)
+            {
+                yield return value;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        protected static string RenderArray<T>(params T[] values) => RenderArray("[]", values);
+
+        /// <summary>
+        /// Validates that the <paramref name="depot"/> is correct given
+        /// <paramref name="nodeCount"/>.
+        /// </summary>
+        /// <param name="depot">A Depot being Validated.</param>
+        /// <param name="nodeCount">The NodeCount informing Depot Validation.</param>
+        /// <returns>The Depot following Validation.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when Validation fails.</exception>
+        /// <remarks>Some Validation required, otherwise we incur the risk of silent failure.</remarks>
+        /// <see cref="RenderOutOfRangeMessage"/>
+        private static int ValidateDepot(int depot, int nodeCount)
+        {
+            if (depot < 0 || depot >= nodeCount)
+            {
+                throw new ArgumentOutOfRangeException(nameof(depot), RenderOutOfRangeMessage(
+                    (nameof(depot), depot)
+                    , (nameof(nodeCount), nodeCount)
+                ))
+                {
+                    Data = {
+                        { nameof(depot), depot },
+                        { nameof(nodeCount), nodeCount }
+                    }
+                };
+            }
+
+            return depot;
+        }
+
+        /// <summary>
+        /// Validates the Decoupled Endpoint <paramref name="coord"/> at the
+        /// <paramref name="index"/>, given <paramref name="nodeCount"/>.
+        /// </summary>
+        /// <param name="coord">The Coordinate being Validated.</param>
+        /// <param name="index">The Index of the Decoupled Coordinate.</param>
+        /// <param name="nodeCount">The number of Nodes.</param>
+        /// <returns>The Validated <paramref name="coord"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when Validation fails.</exception>
+        /// <remarks>Ditto <see cref="ValidateDepot"/> remarks.</remarks>
+        /// <see cref="ValidateDepot"/>
+        /// <see cref="RenderOutOfRangeMessage"/>
+        private static int ValidateDecoupledEndpointCoord(int coord, int index, int nodeCount)
+        {
+            try
+            {
+                return ValidateDepot(coord, nodeCount);
+            }
+            catch (ArgumentOutOfRangeException _)
+            {
+                throw new ArgumentOutOfRangeException(nameof(coord), RenderOutOfRangeMessage(
+                    (nameof(coord), coord)
+                    , (nameof(index), index)
+                    , (nameof(nodeCount), nodeCount)
+                ))
+                {
+                    Data = {
+                        { nameof(coord), coord },
+                        { nameof(index), index },
+                        { nameof(nodeCount), nodeCount }
+                    }
+                };
+            }
+        }
+
+        /// <summary>
+        /// Validates the <see cref="Endpoints"/> <paramref name="coords"/> given
+        /// <paramref name="vehicleCount"/> and <paramref name="nodeCount"/>.
+        /// </summary>
+        /// <param name="nodeCount">The number of Nodes.</param>
+        /// <param name="vehicleCount">The number of Vehicles.</param>
+        /// <param name="coords">The Endpoint Coordinates being Validated.</param>
+        /// <returns>The Validated <paramref name="coords"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when Validation fails.</exception>
+        /// <remarks>Ditto <see cref="ValidateDepot"/> remarks.</remarks>
+        /// <see cref="RenderOutOfRangeMessage"/>
+        /// <see cref="ValidateDecoupledEndpointCoord"/>
+        private static IEndpointCoordinates ValidateEndpointCoords(int nodeCount, int vehicleCount, IEndpointCoordinates coords)
+        {
+            coords = coords.OrEmpty().ToArray();
+            var coords_Count = coords.Count();
+
+            if (coords_Count != vehicleCount)
+            {
+                throw new ArgumentOutOfRangeException(nameof(coords), RenderOutOfRangeMessage(
+                    (nameof(nodeCount), nodeCount)
+                    , (nameof(vehicleCount), vehicleCount)
+                    , (nameof(coords), coords)
+                ))
+                {
+                    Data = {
+                        { nameof(nodeCount), nodeCount },
+                        { nameof(vehicleCount), vehicleCount },
+                        { nameof(coords), coords }
+                    }
+                };
+            }
+
+            int OnValidateEndpointCoord(int coord, int index) =>
+                ValidateDecoupledEndpointCoord(coord, index, nodeCount);
+
+            return coords.Select(OnValidateEndpointCoord).ToArray();
+        }
+
+        /// <summary>
+        /// Zips the <paramref name="starts"/> and <paramref name="ends"/> Endpoints Coordinates
+        /// given <paramref name="nodeCount"/> and <paramref name="vehicleCount"/>.
+        /// </summary>
+        /// <param name="nodeCount">The number of Nodes.</param>
+        /// <param name="vehicleCount">The number of Vehicles.</param>
+        /// <param name="starts">The Endpoint Start Coordinates being zipped.</param>
+        /// <param name="ends">The Endpoint End Coordinates being zipped.</param>
+        /// <returns>The Zipped Endpoint Coordinates following Validation.</returns>
+        /// <remarks>Ditto <see cref="ValidateDepot"/> remarks.</remarks>
+        /// <see cref="ValidateEndpointCoords"/>
+        /// <see cref="Enumerable.Zip"/>
+        private static IEndpoints ZipEndpointCoords(int nodeCount, int vehicleCount
+            , IEndpointCoordinates starts, IEndpointCoordinates ends) =>
+            ValidateEndpointCoords(nodeCount, vehicleCount, starts).Zip(
+                ValidateEndpointCoords(nodeCount, vehicleCount, ends)
+                , (start, end) => (start, end)
+            ).ToArray();
+
+        /// <summary>
+        /// Validates the <paramref name="eps"/> given <paramref name="nodeCount"/>
+        /// and <paramref name="vehicleCount"/>.
+        /// </summary>
+        /// <param name="nodeCount">The numbre of Nodes.</param>
+        /// <param name="vehicleCount">The number of Vehicles.</param>
+        /// <param name="eps">The Endpoints being Validated.</param>
+        /// <returns>The Validated <paramref name="eps"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when Validation fails.</exception>
+        /// <remarks>Ditto <see cref="ValidateDepot"/> remarks.</remarks>
+        /// <see cref="RenderOutOfRangeMessage"/>
+        /// <see cref="ValidateDecoupledEndpointCoord"/>
+        private static IEndpoints ValidateEndpoints(int nodeCount, int vehicleCount, IEndpoints eps)
+        {
+            eps = eps.OrEmpty().ToArray();
+            var eps_Count = eps.Count();
+
+            if (eps_Count != vehicleCount)
+            {
+                throw new ArgumentOutOfRangeException(nameof(eps), RenderOutOfRangeMessage(
+                    (nameof(nodeCount), nodeCount)
+                    , (nameof(vehicleCount), vehicleCount)
+                    , (nameof(eps), eps)
+                ))
+                {
+                    Data = {
+                        { nameof(nodeCount), nodeCount },
+                        { nameof(vehicleCount), vehicleCount },
+                        { nameof(eps), eps }
+                    }
+                };
+            }
+
+            (int start, int end) OnValidateEndpoint((int start, int end) ep, int index)
+            {
+                var (start, end) = ep;
+
+                return (
+                    ValidateDecoupledEndpointCoord(start, index, nodeCount)
+                    , ValidateDecoupledEndpointCoord(end, index, nodeCount)
+                );
+            }
+
+            return eps.Select(OnValidateEndpoint).ToArray();
+        }
 
         /// <summary>
         /// Default Protected Constructor.
         /// </summary>
-        /// <param name="vehicleCount"></param>
-        /// <param name="nodeCount"></param>
-        /// <param name="depot"></param>
-        /// <param name="edges"></param>
-        protected Context(int nodeCount, int vehicleCount, int depot = default, IncludeEdge edges = default)
-            : this(nodeCount, vehicleCount, depot, edges, null)
+        /// <param name="nodeCount">The number of Nodes in the model.</param>
+        /// <param name="vehicleCount">The number of Vehicles in the model.</param>
+        protected Context(int nodeCount, int vehicleCount)
+            : this(nodeCount, vehicleCount, default)
+        {
+        }
+
+        // TODO: TBD: so may rethink the whole "edges" equation after all...
+        // TODO: TBD: for sure there needs to be better validation and exception handling involved.
+        // TODO: TBD: at the very least not to let invalid combinations fall through where the whole thing fails without explanation.
+        // TODO: TBD: but moreover for so-called "edges" or rather node versus depot establishment to be a consumer decision more than anything else.
+        // TODO: TBD: needs to be depot-aware, in the sense that we can possibly establish index evaluation based on depot versus node.
+        /// <summary>
+        /// Default Protected Constructor.
+        /// </summary>
+        /// <param name="nodeCount">The number of Nodes in the model.</param>
+        /// <param name="vehicleCount">The number of Vehicles in the model.</param>
+        /// <param name="depot">The Depot involved in the model. By default is <c>0</c>,
+        /// but it can be anything, as long as it aligns within the <em>zero based number
+        /// of nodes</em>.</param>
+        protected Context(int nodeCount, int vehicleCount, int depot)
+            : this(nodeCount, vehicleCount, depot, default)
         {
         }
 
         /// <summary>
         /// Default Protected Constructor.
         /// </summary>
-        /// <param name="vehicleCount"></param>
-        /// <param name="nodeCount"></param>
+        /// <param name="nodeCount">The number of Nodes in the model.</param>
+        /// <param name="vehicleCount">The number of Vehicles in the model.</param>
         /// <param name="depot"></param>
-        /// <param name="edges"></param>
         /// <param name="modelParameters"></param>
-        protected Context(int nodeCount, int vehicleCount, int depot = default, IncludeEdge edges = default, RoutingModelParameters modelParameters = default)
+        protected Context(int nodeCount, int vehicleCount, int depot, RoutingModelParameters modelParameters = default)
         {
             this.NodeCount = nodeCount;
             this.VehicleCount = vehicleCount;
-            this.Edges = edges;
             // TODO: TBD: verify that depot indexes are correct...
-            this.Depot = depot;
+            this.Depot = ValidateDepot(depot, nodeCount);
             this.ModelParameters = modelParameters;
             this.TryOnInitialize();
         }
@@ -192,32 +448,47 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <summary>
         /// Default Protected Constructor.
         /// </summary>
-        /// <param name="vehicleCount"></param>
-        /// <param name="nodeCount"></param>
+        /// <param name="nodeCount">The number of Nodes in the model.</param>
+        /// <param name="vehicleCount">The number of Vehicles in the model.</param>
         /// <param name="starts"></param>
         /// <param name="ends"></param>
-        /// <param name="edges"></param>
-        protected Context(int nodeCount, int vehicleCount, IEnumerable<int> starts, IEnumerable<int> ends, IncludeEdge edges = default)
-            : this(nodeCount, vehicleCount, starts, ends, edges, null)
+        protected Context(int nodeCount, int vehicleCount, IEndpointCoordinates starts, IEndpointCoordinates ends)
+            : this(nodeCount, vehicleCount, starts, ends, default)
         {
         }
 
         /// <summary>
         /// Default Protected Constructor.
         /// </summary>
-        /// <param name="vehicleCount"></param>
-        /// <param name="nodeCount"></param>
+        /// <param name="nodeCount">The number of Nodes in the model.</param>
+        /// <param name="vehicleCount">The number of Vehicles in the model.</param>
         /// <param name="starts"></param>
         /// <param name="ends"></param>
-        /// <param name="edges"></param>
-        /// <param name="modelParameters"></param>
-        protected Context(int nodeCount, int vehicleCount, IEnumerable<int> starts, IEnumerable<int> ends, IncludeEdge edges = default, RoutingModelParameters modelParameters = null)
+        /// <param name="modelParameters">The Model parameters.</param>
+        protected Context(int nodeCount, int vehicleCount, IEndpointCoordinates starts, IEndpointCoordinates ends
+            , RoutingModelParameters modelParameters = default)
         {
             this.NodeCount = nodeCount;
             this.VehicleCount = vehicleCount;
-            this.Edges = edges;
-            // TODO: TBD: verify that depot indexes are correct...
-            this.Endpoints = starts.Zip(ends, (start, end) => (start, end)).ToArray();
+            // Since we are Validating here, do not incur the cost a second time during another ctor.
+            this.Endpoints = ZipEndpointCoords(nodeCount, vehicleCount, starts, ends);
+            this.ModelParameters = modelParameters;
+            this.TryOnInitialize();
+        }
+
+        /// <summary>
+        /// Default Protected Constructor.
+        /// </summary>
+        /// <param name="nodeCount">The number of Nodes in the model.</param>
+        /// <param name="vehicleCount">The number of Vehicles in the model.</param>
+        /// <param name="eps">The Endpoints involved during the Context.</param>
+        /// <param name="modelParameters">The Model parameters.</param>
+        protected Context(int nodeCount, int vehicleCount, IEndpoints eps, RoutingModelParameters modelParameters = default)
+        {
+            this.NodeCount = nodeCount;
+            this.VehicleCount = vehicleCount;
+            // We Validate these Endpoints separately so as not to incur the cost for doing so a second time.
+            this.Endpoints = ValidateEndpoints(nodeCount, vehicleCount, eps);
             this.ModelParameters = modelParameters;
             this.TryOnInitialize();
         }
