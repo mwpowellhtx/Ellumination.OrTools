@@ -401,6 +401,18 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         }
 
         /// <summary>
+        /// Gets the Dimensions for Internal use.
+        /// </summary>
+        /// <remarks>It is a tiny bit verbose, we do admit, yet for type reasons
+        /// we must shoe in Dimensions in this manner.</remarks>
+        internal virtual ICollection<IDimension> InternalDimensions { get; }
+
+        /// <summary>
+        /// Gets the Dimensions.
+        /// </summary>
+        public virtual IEnumerable<IDimension> Dimensions => this.InternalDimensions;
+
+        /// <summary>
         /// Default Protected Constructor.
         /// </summary>
         /// <param name="nodeCount">The number of Nodes in the model.</param>
