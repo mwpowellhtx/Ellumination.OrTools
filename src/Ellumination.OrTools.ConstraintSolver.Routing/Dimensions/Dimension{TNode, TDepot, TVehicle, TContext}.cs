@@ -42,8 +42,8 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         }
 
         /// <inheritdoc/>
-        protected Dimension(TContext context, bool shouldRegister = true)
-            : base(context, shouldRegister)
+        protected Dimension(TContext context, int coefficient, bool shouldRegister = true)
+            : base(context, coefficient, shouldRegister)
         {
             this.OnZeroTransitCost = delegate { return this.ZeroTransitCost; };
         }

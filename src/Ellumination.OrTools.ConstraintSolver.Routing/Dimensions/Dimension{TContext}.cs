@@ -57,11 +57,13 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         protected new virtual TContext Context => base.Context as TContext;
 
         /// <summary>
-        /// Protected Constructor.
+        /// Constructs a Dimension given <paramref name="context"/> and
+        /// <paramref name="coefficient"/>.
         /// </summary>
         /// <param name="context"></param>
-        protected Dimension(TContext context)
-            : base(context)
+        /// <param name="coefficient"></param>
+        protected Dimension(TContext context, int coefficient)
+            : base(context, coefficient)
         {
         }
 

@@ -105,15 +105,17 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         protected virtual ICollection<int> RegisteredCallbackIndexes { get; } = new List<int>();
 
         /// <summary>
-        /// Protected Constructor.
+        /// Constructs a Dimension given <paramref name="context"/>,
+        /// <paramref name="coefficient"/>, and whether <paramref name="shouldRegister"/>.
         /// </summary>
         /// <param name="context"></param>
+        /// <param name="coefficient"></param>
         /// <param name="shouldRegister">Most Dimensions will go ahead and Register with the
         /// Model, but not all. There can be corner cases that Register Callbacks in a Vehicle
         /// specific manner, for instance. When <c>true</c>, in this case, we do allow for a
         /// default registration.</param>
-        protected Dimension(TContext context, bool shouldRegister = true)
-            : base(context)
+        protected Dimension(TContext context, int coefficient, bool shouldRegister = true)
+            : base(context, coefficient)
         {
             // We always expect there to be a Zero Callback.
             this.RegisteredCallbackIndexes.Add(this.OnRegisterCallback(this.OnRegisterCallbackWithModel, this.OnZeroTransitCost));

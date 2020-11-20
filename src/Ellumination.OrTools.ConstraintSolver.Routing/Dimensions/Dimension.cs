@@ -10,7 +10,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     /// <summary>
     /// 
     /// </summary>
-    public abstract class Dimension
+    public abstract class Dimension : IDimension
     {
         /// <summary>
         /// Gets the Id associated with the Dimension.
@@ -22,19 +22,19 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// </summary>
         protected virtual Context Context { get; }
 
+        private string _name;
+
         /// <summary>
-        /// Gets the Dimension Name. This is used especially when Registering the Dimension
-        /// with the <see cref="Context.Model"/> and when obtaining the corresponding
-        /// <see cref="RoutingDimension"/>. Defaults simply to the <see cref="object.GetType"/>
-        /// <see cref="MemberInfo.Name"/>. Override in order to furnish a more specific Name
-        /// depending upon the Dimension use case.
+        /// Gets the Name of the Dimension especially for use with <see cref="Context.Model"/>.
+        /// Override in order to specialize the Name in accordance with your Dimension. Defaults
+        /// to <see cref="Type.FullName"/> via <see cref="object.GetType"/>.
         /// </summary>
-        public virtual string Name => this.GetType().Name;
+        public virtual string Name => this._name ?? (this._name = this.GetType().FullName);
 
         // TODO: TBD: is there a safer manner in which to identify whether the dimension has been added to the model?
         /// <summary>
-        /// Gets the <see cref="RoutingDimension"/> corresponding to the <see cref="Context.Model"/> and
-        /// <see cref="Name"/>, or Die in the process.
+        /// Gets the <see cref="RoutingDimension"/> corresponding to the
+        /// <see cref="Context.Model"/> and <see cref="Name"/>, or Die in the process.
         /// </summary>
         public virtual RoutingDimension RoutingDimensionOrDie => this.Context.Model.GetDimensionOrDie(this.Name);
 
@@ -82,14 +82,30 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         protected DistanceMatrix this[Guid key] => this.GetMatrix(key);
 
         /// <summary>
-        /// 
+        /// Gets the Coefficient for use during <see cref="Context.Model"/> registration.
+        /// </summary>
+        protected int Coefficient { get; }
+
+        /// <summary>
+        /// Constructs a Dimension given <paramref name="context"/> and
+        /// <paramref name="coefficient"/>.
         /// </summary>
         /// <param name="context"></param>
-        protected Dimension(Context context)
+        /// <param name="coefficient"></param>
+        protected Dimension(Context context, int coefficient)
         {
             this.Context = context;
 
+            /* TODO: TBD: Borderline bidirectional relationship going on here, but there is
+             * not enough, we think, to justify a dependency on our Bidirectionals package.
+             * Of course, this could change and the cost/benefit is there after all:
+             * https://nuget.org/packages/Ellumination.Collections.Bidirectionals */
+
+            context.InternalDimensions.Add(this);
+
             this.Distances = new Dictionary<Guid, DistanceMatrix>();
+
+            this.Coefficient = coefficient;
 
             void ValidateMatrix(DistanceMatrix _)
             {
