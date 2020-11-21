@@ -36,17 +36,15 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
             }
         }
 
-        private static TContext Apply(TContext context, params IVisitor<TContext>[] visitors)
-        {
-            foreach (var visitor in visitors)
-            {
-                context = visitor.Apply(context);
-            }
-
-            // TODO: TBD: apply visitors...
-            // TODO: TBD: these have the potential to mutate the base context.
-            return context;
-        }
+        /// <summary>
+        /// Applies each of the <paramref name="visitors"/> instances to the
+        /// <paramref name="context"/>, allowing for each opportunity to potentially
+        /// mutate the Context accordingly.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="visitors"></param>
+        /// <returns></returns>
+        private TContext Apply(TContext context, params IVisitor<TContext>[] visitors) => visitors.Aggregate(context, (g, x) => x.Apply(g));
 
         /// <summary>
         /// Applies any Visitors to the <paramref name="context"/> prior to
@@ -55,7 +53,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        protected virtual TContext ApplyVisitors(TContext context) => Apply(context, this.Visitors.ToArray());
+        protected virtual TContext ApplyVisitors(TContext context) => this.Apply(context, this.Visitors.ToArray());
 
         /// <summary>
         /// Adds the Dimensions corresponding with the <paramref name="context"/>.
