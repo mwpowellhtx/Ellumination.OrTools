@@ -37,6 +37,15 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         }
 
         /// <summary>
+        /// Applies the <paramref name="visitor"/> to the <paramref name="context"/>
+        /// in the <see cref="Apply"/> Aggregate.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="visitor"></param>
+        /// <returns></returns>
+        protected virtual TContext OnAggregateVisitor(TContext context, IVisitor<TContext> visitor) => visitor.Apply(context);
+
+        /// <summary>
         /// Applies each of the <paramref name="visitors"/> instances to the
         /// <paramref name="context"/>, allowing for each opportunity to potentially
         /// mutate the Context accordingly.
@@ -44,7 +53,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="context"></param>
         /// <param name="visitors"></param>
         /// <returns></returns>
-        private TContext Apply(TContext context, params IVisitor<TContext>[] visitors) => visitors.Aggregate(context, (g, x) => x.Apply(g));
+        private TContext Apply(TContext context, params IVisitor<TContext>[] visitors) => visitors.Aggregate(context, this.OnAggregateVisitor);
 
         /// <summary>
         /// Applies any Visitors to the <paramref name="context"/> prior to
