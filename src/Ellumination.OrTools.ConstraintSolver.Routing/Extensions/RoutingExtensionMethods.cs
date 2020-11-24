@@ -17,5 +17,16 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// exposing publicly. Let the consumer decide what other extensions to involve in
         /// his or her mix.</remarks>
         public static IEnumerable<T> OrEmpty<T>(this IEnumerable<T> values) => values ?? Array.Empty<T>();
+
+        /// <summary>
+        /// Decouples the Endpoint <paramref name="ep"/>.
+        /// </summary>
+        /// <param name="ep"></param>
+        /// <returns></returns>
+        public static IEnumerable<int> DecoupleEndpoint(this (int start, int end) ep)
+        {
+            yield return ep.start;
+            yield return ep.end;
+        }
     }
 }
