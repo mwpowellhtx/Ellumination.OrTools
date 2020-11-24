@@ -10,25 +10,15 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     /// <summary>
     /// Specifies the Unary Transit Evaluation Callback.
     /// </summary>
-    /// <typeparam name="TNode"></typeparam>
-    /// <typeparam name="TDepot"></typeparam>
-    /// <typeparam name="TVehicle"></typeparam>
     /// <typeparam name="TContext"></typeparam>
+    /// <see cref="Context"/>
     /// <see cref="OnEvaluateTransitDelegate"/>
-    /// <see cref="Context{TNode, TDepot, TVehicle}"/>
-    /// <see cref="Dimension{TNode, TDepot, TVehicle, TContext, TCallback}"/>
-    public abstract class UnaryDimension<TNode, TDepot, TVehicle, TContext>
-        : Dimension<TNode, TDepot, TVehicle, TContext, OnEvaluateTransitDelegate>
-        where TDepot : TNode
-        where TContext : Context<TNode, TDepot, TVehicle>
+    public abstract class UnaryDimension<TContext> : Dimension<TContext, OnEvaluateTransitDelegate>
+        where TContext : Context
     {
-        /// <summary>
-        /// Gets the Unary Dimension Zero Transit Cost response.
-        /// </summary>
-        protected sealed override OnEvaluateTransitDelegate OnZeroTransitCost { get; }
-
         /// <inheritdoc/>
-        protected override OnEvaluateTransitDelegate EvaluationCallback => this.OnEvaluateUnaryTransit;
+        protected sealed override OnEvaluateTransitDelegate OnZeroTransitCost =>
+            this.DefaultCallbacks.ZeroTransitCostUnaryCallback;
 
         /// <inheritdoc/>
         protected override int OnRegisterCallbackWithModel(OnEvaluateTransitDelegate callback, bool positive)
@@ -45,7 +35,6 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         protected UnaryDimension(TContext context, int coefficient, bool shouldRegister = true)
             : base(context, coefficient, shouldRegister)
         {
-            this.OnZeroTransitCost = delegate { return this.ZeroTransitCost; };
         }
     }
 }

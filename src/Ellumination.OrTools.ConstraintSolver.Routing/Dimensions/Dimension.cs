@@ -1,17 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Google.OrTools.ConstraintSolver;
 
 namespace Ellumination.OrTools.ConstraintSolver.Routing
 {
     using Distances;
-    using Google.OrTools.ConstraintSolver;
+    using OnEvaluateBinaryTransitDelegate = LongLongToLong;
+    using OnEvaluateUnaryTransitDelegate = LongToLong;
 
     /// <summary>
     /// 
     /// </summary>
     public abstract class Dimension : IDimension
     {
+        /// <summary>
+        /// Gets the ZeroTransitCost.
+        /// </summary>
+        protected virtual long ZeroTransitCost { get; } = default;
+
         /// <summary>
         /// Gets the Id associated with the Dimension.
         /// </summary>
@@ -30,6 +37,15 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// to <see cref="Type.FullName"/> via <see cref="object.GetType"/>.
         /// </summary>
         public virtual string Name => this._name ?? (this._name = this.GetType().FullName);
+
+        /// <summary>
+        /// Gets the <see cref="ICollection{T}"/> of RegisteredCallbackIndexes. Most Dimensions
+        /// register a single Callback for an overarching Dimension that applies for all
+        /// <see cref="Context.VehicleCount"/> elements. However, sometimes, we want to
+        /// allow for multiple possible Vehicle specific callbacks to occur, in which
+        /// case, we must allow for a collection of such Registered Callbacks.
+        /// </summary>
+        protected virtual ICollection<int> RegisteredCallbackIndexes { get; } = new List<int>();
 
         // TODO: TBD: is there a safer manner in which to identify whether the dimension has been added to the model?
         /// <summary>
@@ -87,6 +103,11 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         protected int Coefficient { get; }
 
         /// <summary>
+        /// Gets the Default Binary and Unary Callbacks.
+        /// </summary>
+        protected virtual Callbacks DefaultCallbacks { get; }
+
+        /// <summary>
         /// Constructs a Dimension given <paramref name="context"/> and
         /// <paramref name="coefficient"/>.
         /// </summary>
@@ -95,6 +116,8 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         protected Dimension(Context context, int coefficient)
         {
             this.Context = context;
+
+            this.DefaultCallbacks = new Callbacks(this.ZeroTransitCost);
 
             /* TODO: TBD: Borderline bidirectional relationship going on here, but there is
              * not enough, we think, to justify a dependency on our Bidirectionals package.
@@ -113,6 +136,82 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
             }
 
             ValidateMatrix(this[this.Id]);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        protected class Callbacks
+        {
+            /// <summary>
+            /// Gets the Zero value.
+            /// </summary>
+            private long Zero { get; }
+
+            /// <summary>
+            /// Internal constructor.
+            /// </summary>
+            /// <param name="zero"></param>
+            internal Callbacks(long zero)
+            {
+                this.Zero = zero;
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            internal OnEvaluateBinaryTransitDelegate ZeroTransitCostBinaryCallback
+            {
+                get
+                {
+                    // TODO: TBD: refactor from the intermediate classes...
+                    long OnEvaluateTransit(long fromIndex, long toIndex) => this.Zero;
+
+                    return OnEvaluateTransit;
+                }
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            internal OnEvaluateBinaryTransitDelegate EvaluateBinaryTransitCallback
+            {
+                get
+                {
+                    // TODO: TBD: refactor from the intermediate classes...
+                    long OnEvaluateTransit(long fromIndex, long toIndex) => this.Zero;
+
+                    return OnEvaluateTransit;
+                }
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            internal OnEvaluateUnaryTransitDelegate ZeroTransitCostUnaryCallback
+            {
+                get
+                {
+                    // TODO: TBD: refactor from the intermediate classes...
+                    long OnEvaluateTransit(long index) => this.Zero;
+
+                    return OnEvaluateTransit;
+                }
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            internal OnEvaluateUnaryTransitDelegate EvaluateUnaryTransitCallback
+            {
+                get
+                {
+                    // TODO: TBD: refactor from the intermediate classes...
+                    long OnEvaluateTransit(long index) => this.Zero;
+
+                    return OnEvaluateTransit;
+                }
+            }
         }
     }
 }
