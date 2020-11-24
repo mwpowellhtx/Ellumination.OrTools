@@ -18,15 +18,20 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     /// prior to running the solution to assignment.
     /// </summary>
     /// <typeparam name="TContext"></typeparam>
-    public abstract class RoutingProblemSolver<TContext> : IRoutingProblemSolver<TContext>
+    /// <typeparam name="TAssign"></typeparam>
+    /// <see cref="Context"/>
+    /// <see cref="RoutingAssignmentEventArgs{TContext}"/>
+    public abstract class AssignableRoutingProblemSolver<TContext, TAssign>
+        : IAssignableRoutingProblemSolver<TContext, TAssign>
         where TContext : Context
+        where TAssign : RoutingAssignmentEventArgs<TContext>
     {
         /// <summary>
-        /// Gets the Visitors which apply for the <see cref="RoutingProblemSolver{TContext}"/>.
-        /// Override in order to specify the Visitors that Apply to the
-        /// <typeparamref name="TContext"/>. Ordering or other constraints are
-        /// completely left to consumer discretion as to how to present those Visitors,
-        /// in what order, etc.
+        /// Gets the Visitors which apply for the
+        /// <see cref="AssignableRoutingProblemSolver{TContext, TAssign}"/>. Override in order
+        /// to specify the Visitors that Apply to the <typeparamref name="TContext"/>. Ordering
+        /// or other constraints are completely left to consumer discretion as to how to present
+        /// those Visitors, in what order, etc.
         /// </summary>
         protected virtual IEnumerable<IVisitor<TContext>> Visitors
         {
@@ -78,11 +83,105 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         protected virtual RoutingSearchParameters SearchParameters { get; }
 
         /// <summary>
+        /// Returns a Created <see cref="RoutingAssignmentEventArgs{TContext}"/> given
+        /// <paramref name="context"/>, <paramref name="nodeIndex"/>, and
+        /// <paramref name="vehicleIndex"/>.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="vehicleIndex"></param>
+        /// <param name="nodeIndex"></param>
+        /// <returns></returns>
+        protected virtual TAssign CreateAssignEventArgs(TContext context, int vehicleIndex, int nodeIndex) =>
+            (TAssign)Activator.CreateInstance(typeof(TAssign), context, vehicleIndex, nodeIndex);
+
+        /// <inheritdoc/>
+        public virtual event EventHandler<TAssign> Assigning;
+
+        /// <inheritdoc/>
+        public virtual event EventHandler<TAssign> Assign;
+
+        /// <inheritdoc/>
+        public virtual event EventHandler<TAssign> Assigned;
+
+        /// <summary>
+        /// Event dispatcher On <see cref="Assigning"/> of <paramref name="e"/> arguments.
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void OnAssigningSolution(TAssign e) => this.Assigning?.Invoke(this, e);
+
+        /// <summary>
+        /// Event dispatcher On <see cref="Assign"/> of <paramref name="e"/> arguments.
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void OnAssignSolution(TAssign e) => this.Assign?.Invoke(this, e);
+
+        /// <summary>
+        /// Event dispatcher On <see cref="Assigned"/> of <paramref name="e"/> arguments.
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void OnAssignedSolution(TAssign e) => this.Assigned?.Invoke(this, e);
+
+        /// <summary>
+        /// Callback occurs OnProcessSolution given <paramref name="context"/>,
+        /// <paramref name="nodeIndex"/>, and <paramref name="vehicleIndex"/>.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="vehicleIndex"></param>
+        /// <param name="nodeIndex"></param>
+        /// <see cref="TryProcessSolution"/>
+        protected virtual void OnProcessSolution(TContext context, int vehicleIndex, int nodeIndex)
+        {
+            var e = this.CreateAssignEventArgs(context, vehicleIndex, nodeIndex);
+
+            this.OnAssigningSolution(e);
+
+            this.OnAssignSolution(e);
+
+            this.OnAssignedSolution(e);
+        }
+
+        /// <summary>
+        /// Tries to Process the <see cref="Assignment"/> <paramref name="solution"/>.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="solution"></param>
+        /// <returns></returns>
+        /// <see cref="OnProcessSolution"/>
+        protected virtual bool TryProcessSolution(TContext context, Assignment solution)
+        {
+            var context_Model = context.Model;
+            var context_Manager = context.Manager;
+            var context_VehicleCount = context.VehicleCount;
+
+            // i: vehicle index, specifically declared int for clarity.
+            for (int vehicleIndex = 0; vehicleIndex < context_VehicleCount; vehicleIndex++)
+            {
+                long j;
+
+                // j: node index, specifically declared long for clarity.
+                for (j = context_Model.Start(vehicleIndex); !context_Model.IsEnd(j); j = solution.Value(context_Model.NextVar(j)))
+                {
+                    this.OnProcessSolution(context, vehicleIndex, context_Manager.IndexToNode(j));
+                }
+
+                // TODO: TBD: is this really necessary?
+                // TODO: TBD: according to at least one example, it may be necessary...
+                // TODO: TBD: https://developers.google.com/optimization/routing/vrp
+                this.OnProcessSolution(context, vehicleIndex, context_Manager.IndexToNode(j));
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Tries to Solve the <paramref name="context"/> <see cref="Context.Model"/>
         /// given <paramref name="searchParameters"/>. Receives the
         /// <paramref name="solution"/> prior to response.
         /// </summary>
-        /// <param name="context">The Context whose Model is being Solved.</param>
+        /// <param name="context">The Context whose Model is being Solved. Assumes that the
+        /// <see cref="Visitors"/> have all been applied and any <see cref="Context"/> mutations
+        /// that were going to occur have all occurred. So, should be safe now to add dimensions
+        /// to the <see cref="Context.Model"/>.</param>
         /// <param name="searchParameters">The SearchParameters influencing the
         /// solution.</param>
         /// <param name="solution">Receives the Solution on response.</param>
@@ -118,9 +217,13 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
                 return;
             }
 
+            // Problem solver owns the Solution so therefore we can use it here.
             using (solution)
             {
-                // TODO: TBD: this is where we unpack the assignment vis-a-vis solution...
+                if (!this.TryProcessSolution(context, solution))
+                {
+                    // TODO: TBD: log when processing could not be accomplished...
+                }
             }
         }
 
