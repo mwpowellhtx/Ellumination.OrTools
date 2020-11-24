@@ -21,7 +21,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     /// are desired, then create a new Context instance with those moving parts having been
     /// mutated.
     /// </summary>
-    public abstract class Context : IDisposable
+    public class Context : IDisposable
     {
         /// <summary>
         /// Gets the NodeCount. Note that <em>Nodes</em>, so called, also include the
@@ -417,7 +417,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// </summary>
         /// <param name="nodeCount">The number of Nodes in the model.</param>
         /// <param name="vehicleCount">The number of Vehicles in the model.</param>
-        protected Context(int nodeCount, int vehicleCount)
+        public Context(int nodeCount, int vehicleCount)
             : this(nodeCount, vehicleCount, default)
         {
         }
@@ -435,7 +435,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="depot">The Depot involved in the model. By default is <c>0</c>,
         /// but it can be anything, as long as it aligns within the <em>zero based number
         /// of nodes</em>.</param>
-        protected Context(int nodeCount, int vehicleCount, int depot)
+        public Context(int nodeCount, int vehicleCount, int depot)
             : this(nodeCount, vehicleCount, depot, default)
         {
         }
@@ -447,7 +447,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="vehicleCount">The number of Vehicles in the model.</param>
         /// <param name="depot"></param>
         /// <param name="modelParameters"></param>
-        protected Context(int nodeCount, int vehicleCount, int depot, RoutingModelParameters modelParameters = default)
+        public Context(int nodeCount, int vehicleCount, int depot, RoutingModelParameters modelParameters = default)
         {
             this.NodeCount = nodeCount;
             this.VehicleCount = vehicleCount;
@@ -464,7 +464,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="vehicleCount">The number of Vehicles in the model.</param>
         /// <param name="starts"></param>
         /// <param name="ends"></param>
-        protected Context(int nodeCount, int vehicleCount, IEndpointCoordinates starts, IEndpointCoordinates ends)
+        public Context(int nodeCount, int vehicleCount, IEndpointCoordinates starts, IEndpointCoordinates ends)
             : this(nodeCount, vehicleCount, starts, ends, default)
         {
         }
@@ -477,7 +477,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="starts"></param>
         /// <param name="ends"></param>
         /// <param name="modelParameters">The Model parameters.</param>
-        protected Context(int nodeCount, int vehicleCount, IEndpointCoordinates starts, IEndpointCoordinates ends
+        public Context(int nodeCount, int vehicleCount, IEndpointCoordinates starts, IEndpointCoordinates ends
             , RoutingModelParameters modelParameters = default)
         {
             this.NodeCount = nodeCount;
@@ -495,7 +495,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="vehicleCount">The number of Vehicles in the model.</param>
         /// <param name="eps">The Endpoints involved during the Context.</param>
         /// <param name="modelParameters">The Model parameters.</param>
-        protected Context(int nodeCount, int vehicleCount, IEndpoints eps, RoutingModelParameters modelParameters = default)
+        public Context(int nodeCount, int vehicleCount, IEndpoints eps, RoutingModelParameters modelParameters = default)
         {
             this.NodeCount = nodeCount;
             this.VehicleCount = vehicleCount;
