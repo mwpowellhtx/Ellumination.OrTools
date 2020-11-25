@@ -30,12 +30,16 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <returns></returns>
         protected override Context CreateContext() => new Context(13, 3);
 
+        /// <inheritdoc/>
         protected override void OnVerifySolution(params (int vehicle, int node)[] solution)
         {
             base.OnVerifySolution(solution);
 
             // We are expecting a solution involving all three vehicles.
-            solution.Select(x => x.vehicle).Distinct().OrderBy(x => x).AssertCollectionEqual(Range(0, 1, 2));
+            var expectedVehicles = Range(0, 1, 2);
+
+            solution.Select(x => x.vehicle).Distinct()
+                .OrderBy(x => x).AssertCollectionEqual(expectedVehicles);
         }
 
         /// <summary>
