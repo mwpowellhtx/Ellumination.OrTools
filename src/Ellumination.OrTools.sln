@@ -63,7 +63,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".parent", ".parent", "{FFF9
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ellumination.OrTools.ConstraintSolver.Routing", "Ellumination.OrTools.ConstraintSolver.Routing\Ellumination.OrTools.ConstraintSolver.Routing.csproj", "{8531A58B-9DDA-4645-A3B1-C2525DA8CD30}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Ellumination.OrTools.ConstraintSolver.Routing", "Test.Ellumination.OrTools.ConstraintSolver.Routing\Test.Ellumination.OrTools.ConstraintSolver.Routing.csproj", "{95BD7C33-5318-49F0-8D92-7388859EE2B3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Ellumination.OrTools.ConstraintSolver.Routing", "Test.Ellumination.OrTools.ConstraintSolver.Routing\Test.Ellumination.OrTools.ConstraintSolver.Routing.csproj", "{95BD7C33-5318-49F0-8D92-7388859EE2B3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ellumination.OrTools.Fibonacci", "Ellumination.OrTools.Fibonacci\Ellumination.OrTools.Fibonacci.csproj", "{9B5FE512-4500-4251-95F5-89BB5AA0BFEE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Ellumination.OrTools.Fibonacci", "Test.Ellumination.OrTools.Fibonacci\Test.Ellumination.OrTools.Fibonacci.csproj", "{A02FBBD4-70DF-4ED8-A1A6-5E7888A3509A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -131,6 +135,14 @@ Global
 		{95BD7C33-5318-49F0-8D92-7388859EE2B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{95BD7C33-5318-49F0-8D92-7388859EE2B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{95BD7C33-5318-49F0-8D92-7388859EE2B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B5FE512-4500-4251-95F5-89BB5AA0BFEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B5FE512-4500-4251-95F5-89BB5AA0BFEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B5FE512-4500-4251-95F5-89BB5AA0BFEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B5FE512-4500-4251-95F5-89BB5AA0BFEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A02FBBD4-70DF-4ED8-A1A6-5E7888A3509A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A02FBBD4-70DF-4ED8-A1A6-5E7888A3509A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A02FBBD4-70DF-4ED8-A1A6-5E7888A3509A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A02FBBD4-70DF-4ED8-A1A6-5E7888A3509A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -154,6 +166,8 @@ Global
 		{FFF962A4-3C6F-4A44-87C9-FDA34B3BCF3B} = {5EDB9086-DACF-4D1D-A3F6-91C826684B38}
 		{8531A58B-9DDA-4645-A3B1-C2525DA8CD30} = {327DE516-77D1-42D4-8DCE-484E40AD3885}
 		{95BD7C33-5318-49F0-8D92-7388859EE2B3} = {141E2837-1247-4E33-B5A0-64D0ECCBFDBA}
+		{9B5FE512-4500-4251-95F5-89BB5AA0BFEE} = {141E2837-1247-4E33-B5A0-64D0ECCBFDBA}
+		{A02FBBD4-70DF-4ED8-A1A6-5E7888A3509A} = {141E2837-1247-4E33-B5A0-64D0ECCBFDBA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7966AFF7-6884-4957-984E-1CC9AFE4FDF2}
