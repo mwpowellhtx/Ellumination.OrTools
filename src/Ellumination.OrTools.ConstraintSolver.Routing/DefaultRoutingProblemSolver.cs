@@ -14,7 +14,6 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <inheritdoc/>
         protected override DefaultRoutingAssignmentEventArgs CreateAssignEventArgs(
             Context context, int vehicleIndex, int nodeIndex) =>
-            (DefaultRoutingAssignmentEventArgs)Activator.CreateInstance(
-                typeof(DefaultRoutingAssignmentEventArgs), context, vehicleIndex, nodeIndex);
+            new DefaultRoutingAssignmentEventArgs(context, vehicleIndex, nodeIndex);
     }
 }
