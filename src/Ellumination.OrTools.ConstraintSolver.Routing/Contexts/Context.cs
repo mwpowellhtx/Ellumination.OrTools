@@ -405,7 +405,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// </summary>
         /// <remarks>It is a tiny bit verbose, we do admit, yet for type reasons
         /// we must shoe in Dimensions in this manner.</remarks>
-        internal virtual ICollection<IDimension> InternalDimensions { get; }
+        internal virtual ICollection<IDimension> InternalDimensions { get; } = new List<IDimension>();
 
         /// <summary>
         /// Gets the Dimensions.
