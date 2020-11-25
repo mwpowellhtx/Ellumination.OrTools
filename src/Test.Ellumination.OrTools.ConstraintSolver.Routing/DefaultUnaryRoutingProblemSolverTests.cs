@@ -64,6 +64,35 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
                 , depot: pair.node == 0
                 , even: pair.node % 2 == 0)).ToArray();
 
+            void ReportValidateSolution()
+            {
+                const string squareBrackets ="[]";
+
+                this.OutputHelper.WriteLine($"{nameof(validate)}: {squareBrackets[0]}");
+
+                var i = 0;
+
+                foreach (var x in validate)
+                {
+                    var rendered = RenderTupleAssociates(
+                        (nameof(x.vehicle), Render(x.vehicle))
+                        , (nameof(x.node), Render(x.node))
+                        , (nameof(x.depot), Render(x.depot))
+                        , (nameof(x.even), Render(x.even))
+                    );
+
+                    const char comma = ',';
+
+                    var prefix = $" /* [{i}] */ ";
+
+                    this.OutputHelper.WriteLine($"    {(i++ == 0 ? "" : $"{comma} ")}{prefix}{rendered}");
+                }
+
+                this.OutputHelper.WriteLine($"{squareBrackets[1]}");
+            }
+
+            ReportValidateSolution();
+
             var depotOrEven = validate.Select(x => x.depot || x.even).ToArray();
 
             var areAllDepotOrEven = depotOrEven.All(x => x);

@@ -7,6 +7,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     using Xunit;
     using Xunit.Abstractions;
     using Xwellbehaved;
+    using static String;
 
     /// <summary>
     /// Test fixture base class.
@@ -36,6 +37,53 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
             {
                 yield return value;
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <param name="callback"></param>
+        /// <returns></returns>
+        protected static string Render<T>(T value, Func<T, string> callback = null)
+        {
+            callback = callback ?? (x => $"{x}");
+            return callback.Invoke(value);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        protected static string Render(bool value) => Render(value, x => $"{x}".ToLower());
+
+        /// <summary>
+        /// Renders the Associate <paramref name="pairs"/>.
+        /// </summary>
+        /// <param name="pairs"></param>
+        /// <returns></returns>
+        protected static IEnumerable<string> RenderAssociates(params (string name, string value)[] pairs)
+        {
+            foreach (var pair in pairs)
+            {
+                const char colon = ':';
+                yield return Join($"{colon} ", pair.name, pair.value);
+            }
+        }
+
+        /// <summary>
+        /// Renders the Associate <paramref name="pairs"/> as a Tuple.
+        /// </summary>
+        /// <param name="pairs"></param>
+        /// <returns></returns>
+        protected static string RenderTupleAssociates(params (string name, string value)[] pairs)
+        {
+            var rendered = RenderAssociates(pairs);
+            const char comma = ',';
+            const string curlyBraces = "{}";
+            return Join(Join($"{comma} ", rendered), curlyBraces.ToArray());
         }
 
         /// <summary>
