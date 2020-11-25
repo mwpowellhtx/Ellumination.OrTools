@@ -21,6 +21,17 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
             (T)Activator.CreateInstance(typeof(T), args);
 
         /// <summary>
+        /// Adds the <typeparamref name="TDimension"/> in the Default <see cref="Context"/>.
+        /// </summary>
+        /// <typeparam name="TDimension"></typeparam>
+        /// <param name="context"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static Context AddDefaultDimension<TDimension>(this Context context, params object[] args)
+            where TDimension : Dimension =>
+            context.AddDimension<Context, TDimension>(args);
+
+        /// <summary>
         /// Adds the <typeparamref name="TDimension"/> corresponding with the
         /// <typeparamref name="TContext"/> <paramref name="context"/>. Activates the
         /// <typeparamref name="TDimension"/> instance using the public constructor
