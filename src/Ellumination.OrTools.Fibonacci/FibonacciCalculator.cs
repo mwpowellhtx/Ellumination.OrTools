@@ -8,6 +8,8 @@ namespace Ellumination.OrTools
     /// <summary>
     /// FibonacciCalculator calculates the sequence of numbers in the Fibonacci Sequence.
     /// </summary>
+    /// <see cref="!:https://mathsisfun.com/numbers/fibonacci-sequence.html"/>
+    /// <see cref="!:https://en.wikipedia.org/wiki/Fibonacci_number"/>
     public class FibonacciCalculator : IEnumerable<int>
     {
         /// <summary>
