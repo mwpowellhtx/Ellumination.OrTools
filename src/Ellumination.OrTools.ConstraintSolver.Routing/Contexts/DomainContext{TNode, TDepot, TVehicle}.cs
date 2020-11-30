@@ -30,21 +30,22 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     // https://github.com/mwpowellhtx/Ellumination.OrTools
 
     /// <summary>
-    /// See also <see cref="Context"/> for notes. Same concerns vetted with this Context as with
-    /// the base class. Basically, if changes to the moving parts, either <see cref="Nodes"/>
-    /// or <see cref="Vehicles"/> or both, then we suggest creating a fresh <see cref="Context"/>
-    /// instance.
+    /// See also <see cref="RoutingContext"/> for notes. Same concerns vetted with this
+    /// Context as with the base class. Basically, if changes to the moving parts, either
+    /// <see cref="Nodes"/> or <see cref="Vehicles"/> or both, then we suggest creating
+    /// a fresh <see cref="RoutingContext"/> instance.
     /// </summary>
-    /// <typeparam name="TNode">From a domain modeling perspective &quot;Node&quot; is simply
-    /// a moniker. Used to represent the destination or points of interest being traversed by
-    /// each <typeparamref name="TVehicle"/>.</typeparam>
-    /// <typeparam name="TDepot">Some of the <see cref="Nodes"/> must of needs also be considered
-    /// a Depot. The work of the Context ctors is to sort out the various permutations how that
-    /// may be expressed when configuring your domain specific Context.</typeparam>
+    /// <typeparam name="TNode">From a domain modeling perspective &quot;Node&quot; is
+    /// simply a moniker. Used to represent the destination or points of interest being
+    /// traversed by each <typeparamref name="TVehicle"/>.</typeparam>
+    /// <typeparam name="TDepot">Some of the <see cref="Nodes"/> must of needs also be
+    /// considered a Depot. The work of the Context ctors is to sort out the various
+    /// permutations how that may be expressed when configuring your domain specific
+    /// Context.</typeparam>
     /// <typeparam name="TVehicle">From a domain modeling perspective, &quot;Vehicle&quot;
     /// is just a moniker. Used to represent whatever or whom ever is traversing the network
     /// of <typeparamref name="TNode"/> instances during the Routing solution.</typeparam>
-    public abstract class DomainContext<TNode, TDepot, TVehicle> : Context
+    public abstract class DomainContext<TNode, TDepot, TVehicle> : RoutingContext
         where TDepot : TNode
     {
         /// <summary>
@@ -62,18 +63,27 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <returns></returns>
         public static bool IsDepot(TNode node) => node is TDepot;
 
-        /// <inheritdoc/>
-        public override bool IsNodeAtIndexDepot(int index) =>
-            base.IsNodeAtIndexDepot(index)
-                && this.Nodes.ElementAtOrDefault(index) is TDepot;
-
-        // TODO: TBD: it may have value, but not sure it makes as much sense apart from an index aligned Nodes...
-        // TODO: TBD: especially considering depots may potentially occur literally ANYWHERE among the Nodes.
         /// <summary>
-        /// Gets the Depots from among the Nodes used to inform the model.
+        /// Returns whether the <see cref="Nodes"/> At the <paramref name="node"/>
+        /// index Is a <typeparamref name="TDepot"/>.
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        private bool IsNodeDepot(int node) => IsDepot(this.Nodes.ElementAtOrDefault(node));
+
+        /// <inheritdoc/>
+        public override bool IsNodeAtIndexDepot(long index) => this.IsNodeDepot(this.IndexToNode(index));
+
+        /// <summary>
+        /// Gets the Depots from among the Nodes used to inform the model. The only caveat
+        /// we should mention with this property is the loss of proper modeling perspective
+        /// Index versus Node comprehension.
         /// </summary>
         /// <remarks>Note that it is not about edges so much as which <see cref="Nodes"/>
         /// represent a <typeparamref name="TDepot"/>.</remarks>
+        /// <see cref="ManagerContext.IndexToNode"/>
+        /// <see cref="ManagerContext.NodeToIndex"/>
+        /// <see cref="ManagerContext.NodesToIndices"/>
         public virtual IEnumerable<TDepot> Depots => this.Nodes.OfType<TDepot>();
 
         /// <summary>
@@ -102,19 +112,6 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         private static int FindEndpointCoord(IEnumerable<TNode> nodes, TVehicle vehicle
             , Func<TVehicle, TNode, bool> depotSelector = default) =>
             nodes.ToList().FindIndex(node => node is TDepot && depotSelector?.Invoke(vehicle, node) == true);
-
-        /// <summary>
-        /// Gets <c>null</c> <see cref="RoutingModelParameters"/>.
-        /// </summary>
-        /// <remarks>We do this for consistency throughout and because in a couple
-        /// of instances we cannot differentiate between ambiguous <c>default</c>
-        /// and <c>default(<see cref="RoutingModelParameters"/>)</c>.</remarks>
-        private static RoutingModelParameters NullModelParameters => default;
-
-        /// <summary>
-        /// Gets the DefaultDepot, or <c>0</c>.
-        /// </summary>
-        private static int DefaultDepot = default;
 
         /// <summary>
         /// Validates the <paramref name="depot"/> given <paramref name="nodes"/>.
@@ -276,21 +273,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="nodes">The number of nodes or locations involved in the Context.</param>
         /// <param name="vehicles">The number of vehicles involved in the Context.</param>
         public DomainContext(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles)
-            : this(nodes, vehicles, DefaultDepot, NullModelParameters)
-        {
-        }
-
-        /// <summary>
-        /// Constructs a Context knowing about one <paramref name="depot"/> across
-        /// the range of <paramref name="vehicles"/>.
-        /// </summary>
-        /// <param name="nodes">The number of nodes or locations involved in the Context.</param>
-        /// <param name="vehicles">The number of vehicles involved in the Context.</param>
-        /// <param name="depot">Meaning &quot;home base&quot; or &quot;headquarters&quot;,
-        /// basically where ever the vehicles are operating as their base of operations for
-        /// scheduling purposes.</param>
-        public DomainContext(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, int depot)
-            : this(nodes, vehicles, depot, NullModelParameters)
+            : this(nodes, vehicles, default(int))
         {
         }
 
@@ -302,25 +285,14 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="depot">Meaning &quot;home base&quot; or &quot;headquarters&quot;,
         /// basically where ever the vehicles are operating as their base of operations for
         /// scheduling purposes.</param>
-        /// <param name="modelParameters"></param>
-        public DomainContext(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, int depot, RoutingModelParameters modelParameters)
-            : base(nodes.OrEmpty().Count(), vehicles.OrEmpty().Count(), ValidateDepot(depot, nodes), modelParameters)
+        /// <param name="modelParams">Optional model parameters.</param>
+        public DomainContext(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles
+            , int depot, RoutingModelParameters modelParams = default)
+            : base(nodes.OrEmpty().Count(), vehicles.OrEmpty().Count()
+                  , ValidateDepot(depot, nodes), modelParams)
         {
             this.Nodes = nodes.OrEmpty().ToArray();
             this.Vehicles = vehicles.OrEmpty().ToArray();
-        }
-
-        /// <summary>
-        /// Constructs a Context knowing about Endpoint <paramref name="starts"/>
-        /// and <paramref name="ends"/> Coordinates.
-        /// </summary>
-        /// <param name="nodes">The number of nodes or locations involved in the Context.</param>
-        /// <param name="vehicles">The number of vehicles involved in the Context.</param>
-        /// <param name="starts">Not every Vehicle necessarily Starts at the same location.</param>
-        /// <param name="ends">Additionally, not every Vehicle may End at the same location.</param>
-        public DomainContext(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, IEndpointCoordinates starts, IEndpointCoordinates ends)
-            : this(nodes, vehicles, starts, ends, NullModelParameters)
-        {
         }
 
         /// <summary>
@@ -331,12 +303,13 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="vehicles">The number of vehicles involved in the Context.</param>
         /// <param name="starts">Not every Vehicle necessarily Starts at the same location.</param>
         /// <param name="ends">Additionally, not every Vehicle may End at the same location.</param>
-        /// <param name="modelParameters"></param>
+        /// <param name="modelParams">Optional Model parameters.</param>
         public DomainContext(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles
-            , IEndpointCoordinates starts, IEndpointCoordinates ends, RoutingModelParameters modelParameters)
+            , IEndpointCoordinates starts, IEndpointCoordinates ends
+            , RoutingModelParameters modelParams = default)
             : base(nodes.OrEmpty().Count(), vehicles.OrEmpty().Count()
                   , ValidateEndpointCoords(nodes, vehicles, starts)
-                  , ValidateEndpointCoords(nodes, vehicles, ends), modelParameters)
+                  , ValidateEndpointCoords(nodes, vehicles, ends), modelParams)
         {
             this.Nodes = nodes.OrEmpty().ToArray();
             this.Vehicles = vehicles.OrEmpty().ToArray();
@@ -348,52 +321,28 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// </summary>
         /// <param name="nodes">The number of nodes or locations involved in the Context.</param>
         /// <param name="vehicles">The number of vehicles involved in the Context.</param>
-        /// <param name="depotSelector"></param>
-        public DomainContext(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, Func<TVehicle, TNode, bool> depotSelector)
-            : this(nodes, vehicles, depotSelector, NullModelParameters)
+        /// <param name="depotSelector">A Depot selector.</param>
+        /// <param name="modelParams">Optional Model parameters.</param>
+        public DomainContext(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles
+            , Func<TVehicle, TNode, bool> depotSelector, RoutingModelParameters modelParams = default)
+            : this(nodes, vehicles, vehicles.OrEmpty()
+                  .Select(vehicle => FindEndpointCoord(nodes, vehicle, depotSelector)).ToArray(), modelParams)
         {
         }
 
         /// <summary>
-        /// Constructs a Context with the ability to invoke a <paramref name="depotSelector"/>
-        /// for each of the <paramref name="vehicles"/> and <paramref name="nodes"/>.
+        /// Constructs a Context knowing about Endpoint Starts and Ends
+        /// <paramref name="epCoords"/>.
         /// </summary>
         /// <param name="nodes">The number of nodes or locations involved in the Context.</param>
         /// <param name="vehicles">The number of vehicles involved in the Context.</param>
-        /// <param name="depotSelector"></param>
-        /// <param name="modelParameters"></param>
-        public DomainContext(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, Func<TVehicle, TNode, bool> depotSelector
-            , RoutingModelParameters modelParameters)
-            : this(nodes, vehicles, vehicles.OrEmpty()
-                  .Select(vehicle => FindEndpointCoord(nodes, vehicle, depotSelector)).ToArray(), modelParameters)
-        {
-        }
-
-        /// <summary>
-        /// Constructs a Context knowing about Endpoint Starts and Ends
-        /// <paramref name="epCoords"/>.
-        /// </summary>
-        /// <param name="nodes"></param>
-        /// <param name="vehicles"></param>
-        /// <param name="epCoords"></param>
-        public DomainContext(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, IEndpointCoordinates epCoords)
-            : this(nodes, vehicles, epCoords, NullModelParameters)
-        {
-        }
-
-        /// <summary>
-        /// Constructs a Context knowing about Endpoint Starts and Ends
-        /// <paramref name="epCoords"/>.
-        /// </summary>
-        /// <param name="nodes"></param>
-        /// <param name="vehicles"></param>
-        /// <param name="epCoords"></param>
-        /// <param name="modelParameters"></param>
+        /// <param name="epCoords">The endpoint coordinates.</param>
+        /// <param name="modelParams">Optional model parameters.</param>
         public DomainContext(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, IEndpointCoordinates epCoords
-            , RoutingModelParameters modelParameters)
+            , RoutingModelParameters modelParams = default)
             // Whether it validates once, no need to repeat the request.
             : base(nodes.OrEmpty().Count(), vehicles.OrEmpty().Count()
-                  , ValidateEndpointCoords(nodes, vehicles, epCoords), epCoords, modelParameters)
+                  , ValidateEndpointCoords(nodes, vehicles, epCoords), epCoords, modelParams)
             //      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^
         {
             this.Nodes = nodes.OrEmpty().ToArray();
@@ -403,23 +352,14 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <summary>
         /// Constructs a Context knowing about the Endpoint <paramref name="eps"/> tuples.
         /// </summary>
-        /// <param name="nodes"></param>
-        /// <param name="vehicles"></param>
-        /// <param name="eps"></param>
-        public DomainContext(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, IEndpoints eps)
-            : this(nodes, vehicles, eps, NullModelParameters)
-        {
-        }
-
-        /// <summary>
-        /// Constructs a Context knowing about the Endpoint <paramref name="eps"/> tuples.
-        /// </summary>
-        /// <param name="nodes"></param>
-        /// <param name="vehicles"></param>
-        /// <param name="eps"></param>
-        /// <param name="modelParameters"></param>
-        public DomainContext(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, IEndpoints eps, RoutingModelParameters modelParameters)
-            : base(nodes.OrEmpty().Count(), vehicles.OrEmpty().Count(), ValidateEndpoints(nodes, vehicles, eps), modelParameters)
+        /// <param name="nodes">The number of nodes or locations involved in the Context.</param>
+        /// <param name="vehicles">The number of vehicles involved in the Context.</param>
+        /// <param name="eps">The Depot endpoints.</param>
+        /// <param name="modelParams">Optional model parameters.</param>
+        public DomainContext(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles
+            , IEndpoints eps, RoutingModelParameters modelParams = default)
+            : base(nodes.OrEmpty().Count(), vehicles.OrEmpty().Count()
+                  , ValidateEndpoints(nodes, vehicles, eps), modelParams)
         {
         }
     }
