@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.1</TargetFramework>
+        <Version>3.0.8.30262</Version>
+        <AssemblyVersion>3.0.8.30262</AssemblyVersion>
+        <FileVersion>3.0.8.30262</FileVersion>
+        <!-- <DebugVersionStrategy>patch</DebugVersionStrategy> -->
+        <Configurations>Debug</Configurations>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <RootNamespace>Ellumination.OrTools.ConstraintSolver.Samples</RootNamespace>
+    </PropertyGroup>
+
+    <ImportGroup>
+        <Import Project="..\..\Dotnet.Unit.Testing.props" />
+    </ImportGroup>
+
+    <!-- ReSharper disable UnknownProperty -->
+    <ItemGroup>
+        <PackageReference Include="Google.OrTools" Version="$(GoogleOrToolsVersion)" />
+    </ItemGroup>
+    <!-- ReSharper restore UnknownProperty -->
+
+    <ItemGroup>
+        <ProjectReference Include="..\Ellumination.OrTools.ConstraintSolver.Core\Ellumination.OrTools.ConstraintSolver.Core.csproj" />
+        <ProjectReference Include="..\Ellumination.OrTools.Csp.Problems\Ellumination.OrTools.Csp.Problems.csproj" />
+        <ProjectReference Include="..\Ellumination.OrTools.Samples.Sudoku\Ellumination.OrTools.Samples.Sudoku.csproj" />
+    </ItemGroup>
+
+</Project>
