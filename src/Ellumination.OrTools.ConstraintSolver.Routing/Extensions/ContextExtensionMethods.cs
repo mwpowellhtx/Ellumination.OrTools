@@ -21,15 +21,16 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
             (T)Activator.CreateInstance(typeof(T), args);
 
         /// <summary>
-        /// Adds the <typeparamref name="TDimension"/> in the Default <see cref="Context"/>.
+        /// Adds the <typeparamref name="TDimension"/> in the Default
+        /// <see cref="RoutingContext"/>.
         /// </summary>
         /// <typeparam name="TDimension"></typeparam>
         /// <param name="context"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public static Context AddDefaultDimension<TDimension>(this Context context, params object[] args)
+        public static RoutingContext AddDefaultDimension<TDimension>(this RoutingContext context, params object[] args)
             where TDimension : Dimension =>
-            context.AddDimension<Context, TDimension>(args);
+            context.AddDimension<RoutingContext, TDimension>(args);
 
         /// <summary>
         /// Adds the <typeparamref name="TDimension"/> corresponding with the
@@ -51,7 +52,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// subsequently adds the Dimension instance to the <see cref="Context.Dimensions"/>
         /// collection.</remarks>
         public static TContext AddDimension<TContext, TDimension>(this TContext context, params object[] args)
-            where TContext : Context
+            where TContext : RoutingContext
             where TDimension : Dimension
         {
             IEnumerable<object> OnEnumerateArguments()
