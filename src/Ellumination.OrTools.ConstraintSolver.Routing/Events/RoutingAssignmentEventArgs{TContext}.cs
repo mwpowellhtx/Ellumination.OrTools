@@ -6,9 +6,9 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     /// Provides a set of <see cref="EventArgs"/> for use during the Routing Assignment process.
     /// </summary>
     /// <typeparam name="TContext"></typeparam>
-    /// <see cref="Routing.Context"/>
+    /// <see cref="RoutingContext"/>
     public class RoutingAssignmentEventArgs<TContext> : EventArgs
-        where TContext : Context
+        where TContext : RoutingContext
     {
         /// <summary>
         /// Gets the Context.

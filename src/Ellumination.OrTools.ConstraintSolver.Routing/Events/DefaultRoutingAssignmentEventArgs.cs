@@ -5,16 +5,16 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     /// <summary>
     /// Provides a set of <see cref="EventArgs"/> for use during the Routing Assignment process.
     /// </summary>
-    /// <see cref="Routing.Context"/>
-    public class DefaultRoutingAssignmentEventArgs : RoutingAssignmentEventArgs<Context>
+    /// <see cref="RoutingContext"/>
+    public class DefaultRoutingAssignmentEventArgs : RoutingAssignmentEventArgs<RoutingContext>
     {
         /// <summary>
         /// Internal constructor.
         /// </summary>
-        /// <param name="context">A <see cref="Context"/> instance.</param>
+        /// <param name="context">A <see cref="RoutingContext"/> instance.</param>
         /// <param name="vehicleIndex">A Vehicle index.</param>
         /// <param name="nodeIndex">A Node index.</param>
-        internal DefaultRoutingAssignmentEventArgs(Context context, int vehicleIndex, int nodeIndex)
+        internal DefaultRoutingAssignmentEventArgs(RoutingContext context, int vehicleIndex, int nodeIndex)
             : base(context, vehicleIndex, nodeIndex)
         {
         }
