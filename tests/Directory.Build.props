@@ -1,0 +1,16 @@
+<Project>
+
+    <!-- ReSharper disable UnknownProperty -->
+    <PropertyGroup>
+        <ParentDirectoryBuildPropsPath Condition="'$(ParentDirectoryBuildPropsPath)' == ''">$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)..\'))</ParentDirectoryBuildPropsPath>
+    </PropertyGroup>
+
+    <ImportGroup>
+        <Import Project="$(ParentDirectoryBuildPropsPath)" Condition="'$(ParentDirectoryBuildPropsPath)' != '' And Exists('$(ParentDirectoryBuildPropsPath)')" />
+    </ImportGroup>
+
+    <PropertyGroup>
+        <RootNamespace>Ellumination.OrTools.Sat.Parameters</RootNamespace>
+    </PropertyGroup>
+
+</Project>
