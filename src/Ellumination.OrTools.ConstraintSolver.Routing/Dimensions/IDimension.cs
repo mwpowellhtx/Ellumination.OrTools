@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Ellumination.OrTools.ConstraintSolver.Routing
+﻿namespace Ellumination.OrTools.ConstraintSolver.Routing
 {
     /// <summary>
-    /// 
+    /// Represents a simple <see cref="Dimension"/>.
     /// </summary>
     public interface IDimension
     {
