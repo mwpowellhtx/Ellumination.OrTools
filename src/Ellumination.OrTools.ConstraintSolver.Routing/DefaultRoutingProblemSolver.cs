@@ -5,15 +5,15 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     /// <summary>
     /// Represents a Default <see cref="AssignableRoutingProblemSolver{TContext, TAssign}"/>.
     /// </summary>
-    /// <see cref="Context"/>
+    /// <see cref="RoutingContext"/>
     /// <see cref="RoutingAssignmentEventArgs{TContext}"/>
     public abstract class DefaultRoutingProblemSolver
-        : AssignableRoutingProblemSolver<Context, DefaultRoutingAssignmentEventArgs>
-            , IAssignableRoutingProblemSolver<Context, DefaultRoutingAssignmentEventArgs>
+        : AssignableRoutingProblemSolver<RoutingContext, DefaultRoutingAssignmentEventArgs>
+            , IAssignableRoutingProblemSolver<RoutingContext, DefaultRoutingAssignmentEventArgs>
     {
         /// <inheritdoc/>
         protected override DefaultRoutingAssignmentEventArgs CreateAssignEventArgs(
-            Context context, int vehicleIndex, int nodeIndex) =>
+            RoutingContext context, int vehicleIndex, int nodeIndex) =>
             new DefaultRoutingAssignmentEventArgs(context, vehicleIndex, nodeIndex);
     }
 }

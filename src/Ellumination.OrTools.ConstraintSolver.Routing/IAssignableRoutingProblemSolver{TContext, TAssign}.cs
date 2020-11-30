@@ -10,10 +10,10 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     /// <typeparam name="TContext">The Context type.</typeparam>
     /// <typeparam name="TAssign">The <see cref="Assigning"/>, etc,
     /// <see cref="EventArgs"/>.</typeparam>
-    /// <see cref="Context"/>
+    /// <see cref="RoutingContext"/>
     /// <see cref="RoutingAssignmentEventArgs{TContext}"/>
     public interface IAssignableRoutingProblemSolver<TContext, TAssign> : IDisposable
-        where TContext : Context
+        where TContext : RoutingContext
         where TAssign : RoutingAssignmentEventArgs<TContext>
     {
         /// <summary>
