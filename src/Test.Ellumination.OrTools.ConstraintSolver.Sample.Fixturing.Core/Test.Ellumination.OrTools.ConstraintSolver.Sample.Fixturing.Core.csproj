@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.1</TargetFramework>
+        <Version>1.1.5.31664</Version>
+        <AssemblyVersion>1.1.5.31664</AssemblyVersion>
+        <FileVersion>1.1.5.31664</FileVersion>
+        <DebugVersionStrategy>patch</DebugVersionStrategy>
+        <Configurations>Debug</Configurations>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Platform)' == 'AnyCPU'">
+        <PlatformTarget>x64</PlatformTarget>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <RootNamespace>Ellumination.Constraints.Sample.Fixturing</RootNamespace>
+    </PropertyGroup>
+
+    <ImportGroup>
+        <Import Project="..\..\Dotnet.Unit.Testing.Slim.props" />
+    </ImportGroup>
+
+    <!-- ReSharper disable UnknownProperty -->
+    <ItemGroup>
+        <PackageReference Include="Google.OrTools" Version="$(GoogleOrToolsVersion)" />
+        <PackageReference Include="Google.Protobuf" Version="$(GoogleProtobufVersion)" />
+        <!-- TODO: TBD: capture 'Newtonsoft.Json' version at a 'Directory.Build.props' level... -->
+        <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    </ItemGroup>
+    <!-- ReSharper restore UnknownProperty -->
+
+    <ItemGroup>
+        <None Remove="ExportedSolverModel.dat" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="ExportedSolverModel.dat">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+</Project>
