@@ -1,0 +1,69 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Configurations>Debug;Release</Configurations>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <Version>1.2.0.16200</Version>
+        <AssemblyVersion>1.2.0.16200</AssemblyVersion>
+        <FileVersion>1.2.0.16200</FileVersion>
+        <PackageVersion>1.2.0.16200</PackageVersion>
+        <!--<ReleaseVersionStrategy>minor</ReleaseVersionStrategy>-->
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <Description>Provides the basis for a first class experience specifying SAT-CP solver parameters.</Description>
+        <PackageTags>Google; Operations; Research; Tools; SAT; CP; CSP; constraint; satisfaction; problem; solver; parameter; parameters; Variant; IVariant</PackageTags>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Platform)' == 'AnyCPU'">
+        <PlatformTarget>x64</PlatformTarget>
+        <DocumentationFile>bin\$(Configuration)\netstandard2.0\Ellumination.OrTools.Sat.Parameters.xml</DocumentationFile>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <DebugOrToolsSatParametersCodeGeneration Condition="'$(Configuration)' == 'Debug'">true</DebugOrToolsSatParametersCodeGeneration>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <RootNamespace>Ellumination.OrTools.Sat.Parameters</RootNamespace>
+    </PropertyGroup>
+
+    <Target Name="DeleteCodeGenerationDependenciesBeforeRestore" BeforeTargets="Clean" Condition="false">
+        <PropertyGroup>
+            <PackagesRootDirectory>..\packages\</PackagesRootDirectory>
+        </PropertyGroup>
+        <ItemGroup>
+            <PackagesToClean Include="$(PackagesRootDirectory).tools" />
+            <PackagesToClean Include="$(PackagesRootDirectory)dotnet-ortools-sat-cg" />
+            <PackagesToClean Include="$(PackagesRootDirectory)Ellumination.ortools.sat.codegeneration.buildtime" />
+            <PackagesToClean Include="$(PackagesRootDirectory)Ellumination.ortools.sat.codegeneration.core" />
+        </ItemGroup>
+        <RemoveDir Directories="@(PackagesToClean)" ContinueOnError="true" />
+    </Target>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Ellumination.OrTools.Sat.Parameters.Core\Ellumination.OrTools.Sat.Parameters.Core.csproj" />
+    </ItemGroup>
+
+    <!-- ReSharper disable UnknownProperty -->
+    <ItemGroup>
+        <PackageReference Include="Google.OrTools" Version="$(GoogleOrToolsVersion)" PrivateAssets="all" />
+        <PackageReference Include="$(ElluminationOrToolsSatCodeGenerationBuildTimeDependency)" Version="$(ElluminationOrToolsSatCodeGenerationVersion)">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+    <!-- ReSharper restore UnknownProperty -->
+
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+            <_Parameter1>Test.Ellumination.OrTools.Sat.Parameters</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+
+</Project>
