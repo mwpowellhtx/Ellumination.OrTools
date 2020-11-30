@@ -1,0 +1,99 @@
+<Project>
+
+    <!-- TODO: TBD: we may need to perform BumpAssemblyVersions versioning in this case, but for now, leaving it out. -->
+
+    <PropertyGroup>
+        <Antlr4RuntimeDependency>Antlr4.Runtime</Antlr4RuntimeDependency>
+        <ElluminationProtobufAntlrDependency>Ellumination.Protobuf.Antlr</ElluminationProtobufAntlrDependency>
+        <ElluminationProtobufDescriptorsDependency>Ellumination.Protobuf.Descriptors</ElluminationProtobufDescriptorsDependency>
+        <ElluminationCollectionsBidirectionalsDependency>Ellumination.Collections.Bidirectionals</ElluminationCollectionsBidirectionalsDependency>
+        <ElluminationCollectionsVariantsDependency>Ellumination.Collections.Variants</ElluminationCollectionsVariantsDependency>
+        <ElluminationCombinatoricsCombinatorialsDependency>Ellumination.Combinatorics.Combinatorials</ElluminationCombinatoricsCombinatorialsDependency>
+        <ElluminationOrToolsSatCodeGenerationCoreDependency>Ellumination.OrTools.Sat.CodeGeneration.Core</ElluminationOrToolsSatCodeGenerationCoreDependency>
+        <!-- TODO: TBD: we were considering this in terms of a CGR generators plugin approach. That
+         may yet work, but we think will depend on also moving forward into netcore3.0 territory,
+         which we are not quite there yet. -->
+        <!--<GoogleOrToolsDependency>Google.OrTools</GoogleOrToolsDependency>-->
+        <!--<GoogleOrToolsRuntimeDependency>Google.OrTools.runtime.win-x64</GoogleOrToolsRuntimeDependency>-->
+        <AdditionalAssetPackagePath>lib\netcoreapp2.1</AdditionalAssetPackagePath>
+        <!-- Was netstandard2.0 path when we were considering the proper CGR path, but failing that, we are now trying a `straight´ netcoreapp2.1 tool approach. -->
+        <!--<AdditionalAssetPackagePath>lib\netstandard2.0</AdditionalAssetPackagePath>-->
+        <AssetsDirectoryPath>Assets\</AssetsDirectoryPath>
+    </PropertyGroup>
+
+    <!-- TODO: TBD: this is a poor man's effort to ensure that dependencies are `resolved´ prior to invoking CG, ... -->
+    <!-- TODO: TBD: ... and/or packaging a `fat´ package for internal CG delivery during subsequent solution build configurations. -->
+    <!-- ReSharper disable UnknownProperty -->
+    <Target Name="ResolveCodeGenerationAssemblyDependencies" BeforeTargets="GenerateNuspec">
+
+        <PropertyGroup>
+            <PackageDependencyDirectory>..\packages\</PackageDependencyDirectory>
+            <Antlr4RuntimeLibraryPath>lib\netstandard1.1\</Antlr4RuntimeLibraryPath>
+            <Antlr4RuntimeVersion>4.6.6</Antlr4RuntimeVersion>
+            <ElluminationProtobufAntlrVersion>1.0.13.16833</ElluminationProtobufAntlrVersion>
+            <ElluminationProtobufDescriptorsVersion>1.0.11.16833</ElluminationProtobufDescriptorsVersion>
+            <ElluminationCollectionsBidirectionalsVersion>1.1.4.17959</ElluminationCollectionsBidirectionalsVersion>
+            <ElluminationCollectionsVariantsVersion>1.1.0.26740</ElluminationCollectionsVariantsVersion>
+            <!-- TODO: TBD: this version will probably `work´ ... `1.2.7.27709´, but there is a more recent `1.2.7.29189´ ... -->
+            <ElluminationCombinatoricsCombinatorialsVersion>1.2.7.27709</ElluminationCombinatoricsCombinatorialsVersion>
+            <GoogleOrToolsVersion>7.3.7083</GoogleOrToolsVersion>
+            <ElluminationProtobufLibraryPath>lib\netstandard2.0\</ElluminationProtobufLibraryPath>
+            <ElluminationCollectionsLibraryPath>lib\netstandard2.0\</ElluminationCollectionsLibraryPath>
+            <ElluminationCombinatoricsLibraryPath>lib\netstandard2.0\</ElluminationCombinatoricsLibraryPath>
+            <GoogleOrToolsLibraryPath>ref\netstandard2.0\</GoogleOrToolsLibraryPath>
+            <GoogleOrToolsRuntimeLibraryPath>runtimes\win-x64\native\</GoogleOrToolsRuntimeLibraryPath>
+        </PropertyGroup>
+
+        <ItemGroup>
+            <!-- TODO: TBD: also any PDB or XML files... -->
+            <!-- TODO: TBD: https://www.nuget.org/packages/Antlr4.Runtime/ -->
+            <CodeGenerationDependencyToResolve Include="$(PackageDependencyDirectory)$(Antlr4RuntimeDependency)\$(Antlr4RuntimeVersion)\$(Antlr4RuntimeLibraryPath)$(Antlr4RuntimeDependency).*" />
+            <!-- TODO: TBD: https://www.nuget.org/packages/Ellumination.Protobuf.Antlr/ -->
+            <!-- TODO: TBD: probably seeing `Property is not defined´ here, because we have a definition in Directory.Build.props already. -->
+            <CodeGenerationDependencyToResolve Include="$(PackageDependencyDirectory)$(ElluminationProtobufAntlrDependency)\$(ElluminationProtobufAntlrVersion)\$(ElluminationProtobufLibraryPath)$(ElluminationProtobufAntlrDependency).*" />
+            <!-- TODO: TBD: https://www.nuget.org/packages/Ellumination.Protobuf.Descriptors/ -->
+            <CodeGenerationDependencyToResolve Include="$(PackageDependencyDirectory)$(ElluminationProtobufDescriptorsDependency)\$(ElluminationProtobufDescriptorsVersion)\$(ElluminationProtobufLibraryPath)$(ElluminationProtobufDescriptorsDependency).*" />
+            <!-- TODO: TBD: https://www.nuget.org/packages/Ellumination.Collections.Bidirectionals/ -->
+            <CodeGenerationDependencyToResolve Include="$(PackageDependencyDirectory)$(ElluminationCollectionsBidirectionalsDependency)\$(ElluminationCollectionsBidirectionalsVersion)\$(ElluminationCollectionsLibraryPath)$(ElluminationCollectionsBidirectionalsDependency).*" />
+            <!-- TODO: TBD: https://www.nuget.org/packages/Ellumination.Collections.Variants/ -->
+            <CodeGenerationDependencyToResolve Include="$(PackageDependencyDirectory)$(ElluminationCollectionsVariantsDependency)\$(ElluminationCollectionsVariantsVersion)\$(ElluminationCollectionsLibraryPath)$(ElluminationCollectionsVariantsDependency).*" />
+            <!-- TODO: TBD: https://www.nuget.org/packages/Ellumination.Combinatorics.Combinatorials/ -->
+            <CodeGenerationDependencyToResolve Include="$(PackageDependencyDirectory)$(ElluminationCombinatoricsCombinatorialsDependency)\$(ElluminationCombinatoricsCombinatorialsVersion)\$(ElluminationCombinatoricsLibraryPath)$(ElluminationCombinatoricsCombinatorialsDependency).*" />
+            <!-- TODO: TBD: https://www.nuget.org/packages/Google.OrTools/ -->
+            <!--<CodeGenerationDependencyToResolve Include="$(PackageDependencyDirectory)$(GoogleOrToolsDependency)\$(GoogleOrToolsVersion)\$(GoogleOrToolsLibraryPath)$(GoogleOrToolsDependency).*" />-->
+            <!-- TODO: TBD: https://www.nuget.org/packages/Google.OrTools.Runtime.win-x64/ -->
+            <!--<CodeGenerationDependencyToResolve Include="$(PackageDependencyDirectory)$(GoogleOrToolsRuntimeDependency)\$(GoogleOrToolsVersion)\$(GoogleOrToolsRuntimeLibraryPath)$(GoogleOrToolsRuntimeDependency).*" />-->
+        </ItemGroup>
+
+        <Message Text="Output directory is `$(OutDir)´ ..." Importance="high" />
+        <Message Text="Resolving @(CodeGenerationDependencyToResolve->Count()) asset(s) to `$(AssetsDirectoryPath)´ directory..." Importance="high" />
+        <MakeDir Directories="$(AssetsDirectoryPath)" Condition="!Exists('$AssetsDirectoryPath')" />
+        <!-- ReSharper disable once UnknownItemGroup -->
+        <Copy SourceFiles="@(CodeGenerationDependencyToResolve)" DestinationFolder="$(AssetsDirectoryPath)" />
+    </Target>
+
+    <ItemGroup>
+        <Folder Include="$(AssetsDirectoryPath)" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- Expecting that the Assets will have already been Copied prior to the Packaging
+          steps, in fact, prior to Generating the `.nuspec´ NuGet Specification. -->
+        <AdditionalAssetsToPackage Include="$(AssetsDirectoryPath)$(Antlr4RuntimeDependency).*" />
+        <AdditionalAssetsToPackage Include="$(AssetsDirectoryPath)$(ElluminationProtobufAntlrDependency).*" />
+        <AdditionalAssetsToPackage Include="$(AssetsDirectoryPath)$(ElluminationProtobufDescriptorsDependency).*" />
+        <AdditionalAssetsToPackage Include="$(AssetsDirectoryPath)$(ElluminationCollectionsBidirectionalsDependency).*" />
+        <AdditionalAssetsToPackage Include="$(AssetsDirectoryPath)$(ElluminationCollectionsVariantsDependency).*" />
+        <AdditionalAssetsToPackage Include="$(AssetsDirectoryPath)$(ElluminationCombinatoricsCombinatorialsDependency).*" />
+        <!--<AdditionalAssetsToPackage Include="$(AssetsDirectoryPath)$(GoogleOrToolsDependency).*" />-->
+        <!--<AdditionalAssetsToPackage Include="$(AssetsDirectoryPath)$(GoogleOrToolsRuntimeDependency).*" />-->
+        <!-- This one may be discovered in the Output Directory... -->
+        <AdditionalAssetsToPackage Include="$(OutDir)$(ElluminationOrToolsSatCodeGenerationCoreDependency).*" />
+        <!-- ReSharper disable once UnknownItemGroup -->
+        <None Include="@(AdditionalAssetsToPackage)">
+            <Pack>true</Pack>
+            <PackagePath>$(AdditionalAssetPackagePath)</PackagePath>
+        </None>
+    </ItemGroup>
+
+</Project>

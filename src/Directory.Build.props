@@ -1,0 +1,36 @@
+<Project>
+
+  <!-- ReSharper disable UnknownProperty -->
+  <PropertyGroup>
+    <ParentDirectoryBuildPropsPath Condition="'$(ParentDirectoryBuildPropsPath)' == ''">$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)..\'))</ParentDirectoryBuildPropsPath>
+  </PropertyGroup>
+  <!-- ReSharper restore UnknownProperty -->
+
+  <ImportGroup>
+    <Import Project="$(ParentDirectoryBuildPropsPath)" Condition="'$(ParentDirectoryBuildPropsPath)' != '' And Exists('$(ParentDirectoryBuildPropsPath)')" />
+  </ImportGroup>
+
+  <PropertyGroup>
+    <MicrosoftCSharpVersion>4.6</MicrosoftCSharpVersion>
+    <!-- Well, I thought we could get away with the Major.Minor here, but we kind of do need to
+    know the full version in order to know the precise path of the Protocol Buffer specification
+    files in which to embed. The danger here is that this is a Greater Than Or Equal To (>=),
+    right? So we may need to be more precise in our dependencies, but we will start here, and
+    cross future bridges should they arise when they arise. -->
+    <CodeGenerationRoslynVersions>[1.1,2)</CodeGenerationRoslynVersions>
+    <CodeGenerationRoslynVersion>1.1</CodeGenerationRoslynVersion>
+    <CodeGenerationRoslynEngineVersions>[1.1,2)</CodeGenerationRoslynEngineVersions>
+    <CodeGenerationRoslynEngineVersion>1.1</CodeGenerationRoslynEngineVersion>
+    <CodeGenerationRoslynAttributesVersions>[1.1,2)</CodeGenerationRoslynAttributesVersions>
+    <CodeGenerationRoslynAttributesVersion>1.1</CodeGenerationRoslynAttributesVersion>
+    <CodeGenerationRoslynBuildTimeVersions>[1.1,2)</CodeGenerationRoslynBuildTimeVersions>
+    <CodeGenerationRoslynBuildTimeVersion>1.1</CodeGenerationRoslynBuildTimeVersion>
+    <ElluminationProtobufAntlrVersions>[1.0.13,2)</ElluminationProtobufAntlrVersions>
+    <ElluminationProtobufAntlrVersion>1.0.13.22961</ElluminationProtobufAntlrVersion>
+    <!-- True, this is the dependency. We just want the latest stable, always. -->
+    <ElluminationOrToolsSatCodeGenerationBuildTimeDependency>Ellumination.OrTools.Sat.CodeGeneration.BuildTime</ElluminationOrToolsSatCodeGenerationBuildTimeDependency>
+    <!-- Do not chase the version numbers here. Just use the latest stable version whatever it happens to be. -->
+    <ElluminationOrToolsSatCodeGenerationVersion>*</ElluminationOrToolsSatCodeGenerationVersion>
+  </PropertyGroup>
+
+</Project>
