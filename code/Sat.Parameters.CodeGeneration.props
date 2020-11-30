@@ -1,0 +1,7 @@
+<Project>
+
+    <PropertyGroup>
+        <RootNamespace>Ellumination.OrTools.Sat.CodeGeneration</RootNamespace>
+    </PropertyGroup>
+
+</Project>

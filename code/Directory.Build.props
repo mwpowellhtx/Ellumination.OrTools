@@ -1,0 +1,34 @@
+<Project>
+
+    <!-- ReSharper disable UnknownProperty -->
+    <PropertyGroup>
+        <ParentDirectoryBuildPropsPath Condition="'$(ParentDirectoryBuildPropsPath)' == ''">$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)..\'))</ParentDirectoryBuildPropsPath>
+    </PropertyGroup>
+
+    <ImportGroup>
+        <Import Project="$(ParentDirectoryBuildPropsPath)" Condition="'$(ParentDirectoryBuildPropsPath)' != '' And Exists('$(ParentDirectoryBuildPropsPath)')" />
+    </ImportGroup>
+
+    <PropertyGroup>
+        <RootNamespace>Ellumination.OrTools.Sat.CodeGeneration</RootNamespace>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <!-- Defined for internal consistency with the Ellumination.OrTools.Sat.CodeGeneration targets. -->
+        <ElluminationOrToolsSatCodeGenerationToolName>dotnet-ortools-sat-cg</ElluminationOrToolsSatCodeGenerationToolName>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <CodeGenerationRoslynVersions>[1.1,2)</CodeGenerationRoslynVersions>
+        <CodeGenerationRoslynVersion>1.1</CodeGenerationRoslynVersion>
+        <CodeGenerationRoslynEngineVersions>[1.1,2)</CodeGenerationRoslynEngineVersions>
+        <CodeGenerationRoslynEngineVersion>1.1</CodeGenerationRoslynEngineVersion>
+        <CodeGenerationRoslynAttributesVersions>[1.1,2)</CodeGenerationRoslynAttributesVersions>
+        <CodeGenerationRoslynAttributesVersion>1.1</CodeGenerationRoslynAttributesVersion>
+        <CodeGenerationRoslynBuildTimeVersions>[1.1,2)</CodeGenerationRoslynBuildTimeVersions>
+        <CodeGenerationRoslynBuildTimeVersion>1.1</CodeGenerationRoslynBuildTimeVersion>
+        <ElluminationProtobufAntlrVersions>[1.0.13,2)</ElluminationProtobufAntlrVersions>
+        <ElluminationProtobufAntlrVersion>1.0.13.22961</ElluminationProtobufAntlrVersion>
+    </PropertyGroup>
+
+</Project>
