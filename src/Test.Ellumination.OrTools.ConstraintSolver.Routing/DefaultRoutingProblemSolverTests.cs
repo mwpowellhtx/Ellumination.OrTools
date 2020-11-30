@@ -10,13 +10,13 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     /// <summary>
     /// 
     /// </summary>
-    public class DefaultUnaryRoutingProblemSolverTests
-        : DefaultRoutingProblemSolverTests<DefaultUnaryRoutingProblemSolver>
+    public class DefaultRoutingProblemSolverTests
+        : DefaultRoutingProblemSolverTests<DefaultRoutingProblemSolverFixture>
     {
         /// <summary>
         /// Constructor.
         /// </summary>
-        public DefaultUnaryRoutingProblemSolverTests(ITestOutputHelper outputHelper)
+        public DefaultRoutingProblemSolverTests(ITestOutputHelper outputHelper)
             : base(outputHelper)
         {
         }
@@ -25,11 +25,11 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// Returns a Created <see cref="DefaultUnaryRoutingProblemSolver"/>.
         /// </summary>
         /// <returns></returns>
-        protected override DefaultUnaryRoutingProblemSolver CreateProblemSolver() =>
-            new DefaultUnaryRoutingProblemSolver();
+        protected override DefaultRoutingProblemSolverFixture CreateProblemSolver() =>
+            new DefaultRoutingProblemSolverFixture();
 
         /// <inheritdoc/>
-        protected override Context VerifyContext(Context context)
+        protected override RoutingContext VerifyContext(RoutingContext context)
         {
             context = base.VerifyContext(context);
 
@@ -62,7 +62,8 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
                 pair.vehicle
                 , pair.node
                 , depot: pair.node == 0
-                , even: pair.node % 2 == 0)).ToArray();
+                , even: pair.node % 2 == 0
+                , odd: pair.node % 2 == 1)).ToArray();
 
             void ReportValidateSolution()
             {
@@ -72,13 +73,14 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
 
                 var i = 0;
 
-                foreach (var x in validate)
+                foreach (var (vehicle, node, depot, even, odd) in validate)
                 {
                     var rendered = RenderTupleAssociates(
-                        (nameof(x.vehicle), Render(x.vehicle))
-                        , (nameof(x.node), Render(x.node))
-                        , (nameof(x.depot), Render(x.depot))
-                        , (nameof(x.even), Render(x.even))
+                        (nameof(vehicle), Render(vehicle))
+                        , (nameof(node), Render(node))
+                        , (nameof(depot), Render(depot))
+                        , (nameof(even), Render(even))
+                        , (nameof(odd), Render(odd))
                     );
 
                     const char comma = ',';

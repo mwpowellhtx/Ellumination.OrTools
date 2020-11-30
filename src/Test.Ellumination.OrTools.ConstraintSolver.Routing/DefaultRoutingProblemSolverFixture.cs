@@ -4,10 +4,10 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
 {
     using Xunit;
 
-    public class DefaultUnaryRoutingProblemSolver : DefaultRoutingProblemSolver
+    public class DefaultRoutingProblemSolverFixture : DefaultRoutingProblemSolver
     {
         /// <inheritdoc/>
-        protected override void AddDimensions(Context context)
+        protected override void AddDimensions(RoutingContext context)
         {
             base.AddDimensions(context);
 
@@ -15,7 +15,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
 
             var count = context.InternalDimensions.AssertNotNull().Count;
 
-            context.AddDefaultDimension<DefaultEvenDimension>(coefficient);
+            context.AddDefaultDimension<ThirdsDimension>(coefficient);
 
             context.InternalDimensions.AssertEqual(count + 1, x => x.Count);
         }
