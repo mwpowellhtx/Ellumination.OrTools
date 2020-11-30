@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.1</TargetFramework>
+        <Version>1.1.7.13340</Version>
+        <AssemblyVersion>1.1.7.13340</AssemblyVersion>
+        <FileVersion>1.1.7.13340</FileVersion>
+        <DebugVersionStrategy>patch</DebugVersionStrategy>
+        <Configurations>Debug</Configurations>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Platform)' == 'AnyCPU'">
+        <PlatformTarget>x64</PlatformTarget>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <RootNamespace>Ellumination.OrTools.LinearSolver.Samples.Feasibility</RootNamespace>
+    </PropertyGroup>
+
+    <ImportGroup>
+        <Import Project="..\..\Dotnet.Unit.Testing.props" />
+    </ImportGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Ellumination.OrTools.LinearSolver.Core\Ellumination.OrTools.LinearSolver.Core.csproj" />
+        <ProjectReference Include="..\Ellumination.OrTools.LinearSolver.Samples.Feasibility\Ellumination.OrTools.LinearSolver.Samples.Feasibility.csproj" />
+    </ItemGroup>
+
+</Project>
