@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <!-- ReSharper disable UnknownProperty -->
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.1</TargetFramework>
+        <Version>1.3.0.181</Version>
+        <AssemblyVersion>1.3.0.181</AssemblyVersion>
+        <FileVersion>1.3.0.181</FileVersion>
+        <!--<DebugVersionStrategy>minor</DebugVersionStrategy>-->
+        <Configurations>Debug</Configurations>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Platform)' == 'AnyCPU'">
+        <PlatformTarget>x64</PlatformTarget>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Remove="Kingdom.OrTools.Sat.Parameters.Tests.csproj.DotSettings" />
+    </ItemGroup>
+
+    <ImportGroup>
+        <Import Project="..\..\Dotnet.Unit.Testing.props" />
+    </ImportGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Google.OrTools" Version="$(GoogleOrToolsVersion)" />
+        <PackageReference Include="Google.Protobuf" Version="$(GoogleProtobufVersion)" />
+    </ItemGroup>
+
+    <PropertyGroup>
+        <_ElluminationOrToolsSatParametersVersion>*</_ElluminationOrToolsSatParametersVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Ellumination.OrTools.Sat.Parameters.Core" Version="$(_ElluminationOrToolsSatParametersVersion)" />
+        <PackageReference Include="Ellumination.OrTools.Sat.Parameters" Version="$(_ElluminationOrToolsSatParametersVersion)" />
+    </ItemGroup>
+
+</Project>
