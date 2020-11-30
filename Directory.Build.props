@@ -1,0 +1,127 @@
+<Project>
+
+    <PropertyGroup>
+        <Authors>Michael W. Powell</Authors>
+        <Company>Ellumination Technologies</Company>
+        <Product>Ellumination.OrTools</Product>
+        <Copyright>Copyright &#169; 2015-2020</Copyright>
+        <!--<Copyright>Copyright (c) 2015-2019</Copyright>-->
+        <LangVersion>7.3</LangVersion>
+        <NoWarn>$(NoWarn);NU1603</NoWarn>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Platform)' == 'AnyCPU'">
+        <WarningLevel>2</WarningLevel>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <PackageProjectUrl>http://github.com/mwpowellhtx/Ellumination.OrTools</PackageProjectUrl>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <RootNamespace>Ellumination.OrTools</RootNamespace>
+        <BumpAssemblyVersionsVersion>1.7.0</BumpAssemblyVersionsVersion>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <!-- We can probably most likely track the Google version numbers according to
+         their Major.Minor only and not worry about the Build or Patch numbers themselves.
+         Additionally, except in places where we must adopt the Protobuf dependency
+         directly, we could otherwise leave that out as well, as this depedency tracks
+         seamlessly with the OrTools, or its runtime surrogate, dependencies. -->
+        <!-- TODO: TBD: v3.13.0 / https://www.nuget.org/packages/Google.Protobuf/3.13.0 -->
+        <GoogleProtobufVersions>[3.10,4)</GoogleProtobufVersions>
+        <GoogleProtobufVersion>3.10.0</GoogleProtobufVersion>
+        <!-- Well, I thought we could get away with the Major.Minor here, but we do need
+         to know the full version in order to know the precise path of the Protocol Buffer
+         specification files in which to embed. The danger here is that this is a Greater
+         Than Or Equal To (>=), right? So we may need to be more precise in our dependencies,
+         but we will start here, and cross future bridges should they arise when they arise. -->
+        <GoogleOrToolsDependency>Google.OrTools</GoogleOrToolsDependency>
+        <!-- TODO: TBD: v8.0.8283 / https://www.nuget.org/packages/Google.OrTools/8.0.8283 -->
+        <GoogleOrToolsVersions>[7.4,8)</GoogleOrToolsVersions>
+        <GoogleOrToolsVersion>7.4.7247</GoogleOrToolsVersion>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <MicrosoftBuildVersions>[15.9.20,16)</MicrosoftBuildVersions>
+        <MicrosoftBuildVersion>15.9.20</MicrosoftBuildVersion>
+        <MicrosoftCodeAnalysisVersions>[2.10.0,3)</MicrosoftCodeAnalysisVersions>
+        <MicrosoftCodeAnalysisVersion>2.10.0</MicrosoftCodeAnalysisVersion>
+        <MicrosoftCodeAnalysisCSharpVersions>[2.10.0,3)</MicrosoftCodeAnalysisCSharpVersions>
+        <MicrosoftCodeAnalysisCSharpVersion>2.10.0</MicrosoftCodeAnalysisCSharpVersion>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <ValidationVersions>[2.4.22,3)</ValidationVersions>
+        <ValidationVersion>2.4.22</ValidationVersion>
+    </PropertyGroup>
+
+    <ImportGroup>
+        <!-- Pathing is always relative to the $(ProjectDir). -->
+        <Import Project="Licensing.props" />
+    </ImportGroup>
+
+    <ItemGroup>
+        <PackageReference Include="BumpAssemblyVersions" Version="$(BumpAssemblyVersionsVersion)">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <!-- ReSharper disable UnknownProperty -->
+    <ItemGroup Condition="'$(ReleaseVersionStrategy)' == '' And Exists('..\packages\BumpAssemblyVersions\$(BumpAssemblyVersionsVersion)\build\BumpAssemblyVersions.targets')">
+        <BumpVersionSpec Include="Version" BuildProviderTemplate="Increment" Condition="'$(Configuration)' == 'Release'" />
+        <BumpVersionSpec Include="AssemblyVersion" BuildProviderTemplate="Increment" Condition="'$(Configuration)' == 'Release'" />
+        <BumpVersionSpec Include="FileVersion" BuildProviderTemplate="Increment" Condition="'$(Configuration)' == 'Release'" />
+        <BumpVersionSpec Include="PackageVersion" BuildProviderTemplate="Increment" Condition="'$(Configuration)' == 'Release'" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(ReleaseVersionStrategy)' == 'patch' And Exists('..\packages\BumpAssemblyVersions\$(BumpAssemblyVersionsVersion)\build\BumpAssemblyVersions.targets')">
+        <BumpVersionSpec Include="Version" PatchProviderTemplate="Increment" BuildProviderTemplate="SecondsSinceMidnight" Condition="'$(Configuration)' == 'Release'" />
+        <BumpVersionSpec Include="AssemblyVersion" PatchProviderTemplate="Increment" BuildProviderTemplate="SecondsSinceMidnight" Condition="'$(Configuration)' == 'Release'" />
+        <BumpVersionSpec Include="FileVersion" PatchProviderTemplate="Increment" BuildProviderTemplate="SecondsSinceMidnight" Condition="'$(Configuration)' == 'Release'" />
+        <BumpVersionSpec Include="PackageVersion" PatchProviderTemplate="Increment" BuildProviderTemplate="SecondsSinceMidnight" Condition="'$(Configuration)' == 'Release'" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(ReleaseVersionStrategy)' == 'minor' And Exists('..\packages\BumpAssemblyVersions\$(BumpAssemblyVersionsVersion)\build\BumpAssemblyVersions.targets')">
+        <BumpVersionSpec Include="Version" MinorProviderTemplate="Increment" PatchProviderTemplate="Increment" PatchProviderTemplateMayReset="true" BuildProviderTemplate="SecondsSinceMidnight" Condition="'$(Configuration)' == 'Release'" />
+        <BumpVersionSpec Include="AssemblyVersion" MinorProviderTemplate="Increment" PatchProviderTemplate="Increment" PatchProviderTemplateMayReset="true" BuildProviderTemplate="SecondsSinceMidnight" Condition="'$(Configuration)' == 'Release'" />
+        <BumpVersionSpec Include="FileVersion" MinorProviderTemplate="Increment" PatchProviderTemplate="Increment" PatchProviderTemplateMayReset="true" BuildProviderTemplate="SecondsSinceMidnight" Condition="'$(Configuration)' == 'Release'" />
+        <BumpVersionSpec Include="PackageVersion" MinorProviderTemplate="Increment" PatchProviderTemplate="Increment" PatchProviderTemplateMayReset="true" BuildProviderTemplate="SecondsSinceMidnight" Condition="'$(Configuration)' == 'Release'" />
+    </ItemGroup>
+
+    <!-- We want a consistent Debug Configuration versioning strategy.
+     See individual Solution Directory Build properties for Release Configuration strategies. -->
+    <ItemGroup Condition="'$(DebugVersionStrategy)' == '' And Exists('..\packages\BumpAssemblyVersions\$(BumpAssemblyVersionsVersion)\build\BumpAssemblyVersions.targets')">
+        <BumpVersionSpec Include="Version" BuildProviderTemplate="Increment" Condition="'$(Configuration)' == 'Debug'" />
+        <BumpVersionSpec Include="AssemblyVersion" BuildProviderTemplate="Increment" Condition="'$(Configuration)' == 'Debug'" />
+        <BumpVersionSpec Include="FileVersion" BuildProviderTemplate="Increment" Condition="'$(Configuration)' == 'Debug'" />
+        <BumpVersionSpec Include="PackageVersion" BuildProviderTemplate="Increment" Condition="'$(Configuration)' == 'Debug'" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(DebugVersionStrategy)' == 'patch' And Exists('..\packages\BumpAssemblyVersions\$(BumpAssemblyVersionsVersion)\build\BumpAssemblyVersions.targets')">
+        <BumpVersionSpec Include="Version" PatchProviderTemplate="Increment" BuildProviderTemplate="SecondsSinceMidnight" Condition="'$(Configuration)' == 'Debug'" />
+        <BumpVersionSpec Include="AssemblyVersion" PatchProviderTemplate="Increment" BuildProviderTemplate="SecondsSinceMidnight" Condition="'$(Configuration)' == 'Debug'" />
+        <BumpVersionSpec Include="FileVersion" PatchProviderTemplate="Increment" BuildProviderTemplate="SecondsSinceMidnight" Condition="'$(Configuration)' == 'Debug'" />
+        <BumpVersionSpec Include="PackageVersion" PatchProviderTemplate="Increment" BuildProviderTemplate="SecondsSinceMidnight" Condition="'$(Configuration)' == 'Debug'" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(DebugVersionStrategy)' == 'minor' And Exists('..\packages\BumpAssemblyVersions\$(BumpAssemblyVersionsVersion)\build\BumpAssemblyVersions.targets')">
+        <BumpVersionSpec Include="Version" MinorProviderTemplate="Increment" PatchProviderTemplate="Increment" PatchProviderTemplateMayReset="true" BuildProviderTemplate="Increment" Condition="'$(Configuration)' == 'Debug'" />
+        <BumpVersionSpec Include="AssemblyVersion" MinorProviderTemplate="Increment" PatchProviderTemplate="Increment" PatchProviderTemplateMayReset="true" BuildProviderTemplate="Increment" Condition="'$(Configuration)' == 'Debug'" />
+        <BumpVersionSpec Include="FileVersion" MinorProviderTemplate="Increment" PatchProviderTemplate="Increment" PatchProviderTemplateMayReset="true" BuildProviderTemplate="Increment" Condition="'$(Configuration)' == 'Debug'" />
+        <BumpVersionSpec Include="PackageVersion" MinorProviderTemplate="Increment" PatchProviderTemplate="Increment" PatchProviderTemplateMayReset="true" BuildProviderTemplate="Increment" Condition="'$(Configuration)' == 'Debug'" />
+    </ItemGroup>
+    <!-- ReSharper restore UnknownProperty -->
+
+    <!-- ReSharper disable UnknownProperty -->
+    <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+        <!-- Depending on 'PackageOutputPath' is still the right thing to do, as is 'PackageId'.
+         Where we run into difficulty is when we try to deliver into a single location, especially
+         for similarly named packages. -->
+        <Exec Command="if exist &quot;$(PackageOutputPath)$(PackageId).*.nupkg&quot; del /f &quot;$(PackageOutputPath)$(PackageId).*.nupkg&quot;" />
+    </Target>
+    <!-- ReSharper restore UnknownProperty -->
+
+</Project>
