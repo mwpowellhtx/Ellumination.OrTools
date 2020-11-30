@@ -15,7 +15,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     /// <typeparam name="TAssign"></typeparam>
     /// <typeparam name="TProblemSolver"></typeparam>
     public abstract class TestFixtureBase<TContext, TAssign, TProblemSolver> : TestFixtureBase
-        where TContext : Context
+        where TContext : RoutingContext
         where TAssign : RoutingAssignmentEventArgs<TContext>
         where TProblemSolver : AssignableRoutingProblemSolver<TContext, TAssign>
     {

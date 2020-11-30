@@ -11,8 +11,8 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     /// 
     /// </summary>
     public abstract class DefaultRoutingProblemSolverTests<TProblemSolver>
-        : TestFixtureBase<Context, DefaultRoutingAssignmentEventArgs, TProblemSolver>
-        where TProblemSolver : AssignableRoutingProblemSolver<Context, DefaultRoutingAssignmentEventArgs>
+        : TestFixtureBase<RoutingContext, DefaultRoutingAssignmentEventArgs, TProblemSolver>
+        where TProblemSolver : AssignableRoutingProblemSolver<RoutingContext, DefaultRoutingAssignmentEventArgs>
     {
         /// <summary>
         /// Protected constructor.
@@ -28,7 +28,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <c>3</c> <em>Vehicles</em>, and a single <c>0</c> <em>Depot</em>.
         /// </summary>
         /// <returns></returns>
-        protected override Context CreateContext() => new Context(13, 3);
+        protected override RoutingContext CreateContext() => new RoutingContext(13, 3);
 
         /// <inheritdoc/>
         protected override void OnVerifySolution(params (int vehicle, int node)[] solution)
@@ -36,10 +36,11 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
             base.OnVerifySolution(solution);
 
             // We are expecting a solution involving all three vehicles.
-            var expectedVehicles = Range(0, 1, 2);
+            var expectedVehicles = Range(0, 1, 2).ToArray();
 
-            solution.Select(x => x.vehicle).Distinct()
-                .OrderBy(x => x).AssertCollectionEqual(expectedVehicles);
+            var actualVehicles = solution.Select(x => x.vehicle).Distinct().OrderBy(x => x).ToArray();
+
+            actualVehicles.AssertCollectionEqual(expectedVehicles);
         }
 
         /// <summary>
