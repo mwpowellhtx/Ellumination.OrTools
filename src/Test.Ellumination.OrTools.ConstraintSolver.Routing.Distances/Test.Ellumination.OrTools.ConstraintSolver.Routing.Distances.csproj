@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.1</TargetFramework>
+        <Version>1.0.0.15</Version>
+        <AssemblyVersion>1.0.0.15</AssemblyVersion>
+        <FileVersion>1.0.0.15</FileVersion>
+        <Configurations>Debug</Configurations>
+    </PropertyGroup>
+
+    <ImportGroup>
+        <Import Project="..\..\Dotnet.Unit.Testing.props" />
+    </ImportGroup>
+
+    <PropertyGroup>
+        <RootNamespace>Ellumination.OrTools.ConstraintSolver.Routing.Distances</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Ellumination.OrTools.ConstraintSolver.Routing.Distances\Ellumination.OrTools.ConstraintSolver.Routing.Distances.csproj" />
+    </ItemGroup>
+
+</Project>
