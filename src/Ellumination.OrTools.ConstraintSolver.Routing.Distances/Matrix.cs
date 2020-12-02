@@ -120,19 +120,23 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
         public virtual bool IsReady(int x, int y) => this[x, y] != null;
 
         /// <summary>
+        /// Returns a Range of <paramref name="count"/> values.
+        /// </summary>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        private static IEnumerable<int> Range(int count) => Enumerable.Range(0, count);
+
+        /// <summary>
         /// Returns whether the entire Matrix IsReady, meaning values have been assigned.
+        /// In this case, returns whether there are Not Any that are Not Ready. We think
+        /// this is more efficient than evaluating whether All are Ready.
         /// </summary>
         /// <returns></returns>
         /// <remarks>At this level we can only assume whether the Matrix is square, so
         /// therefore we have to assume that it may not be square, even though, in context,
         /// we think that it should be.</remarks>
-        public virtual bool IsReady()
-        {
-            IEnumerable<int> Range(int count) => Enumerable.Range(0, count);
-
-            // Not Any that are Not Ready, more efficient than evaluating All are Ready.
-            return !Range(this.Width).SelectMany(x => Range(this.Height).Select(y => (x, y)))
+        public virtual bool IsReady() => !Range(this.Width).SelectMany(
+            x => Range(this.Height).Select(y => (x, y)))
                 .Any(z => !IsReady(z.x, z.y));
-        }
     }
 }
