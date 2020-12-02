@@ -58,6 +58,17 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
         }
 
         /// <summary>
+        /// <see cref="ICloneable"/> compabitle constructor.
+        /// </summary>
+        /// <param name="other"></param>
+        public LocationDistanceMatrix(LocationDistanceMatrix other)
+            : base(other)
+        {
+            // Ensures that we have a clone-friendly copy of the Other instance.
+            this._locations = other._locations.OrEmpty().ToHashSet();
+        }
+
+        /// <summary>
         /// Returns the IndexOf the <paramref name="key"/> with respect to the
         /// <see cref="Locations"/>.
         /// </summary>
@@ -72,7 +83,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
 
         /// <summary>
         /// Location based Indexer especially as a function of <see cref="IndexOf"/>
-        /// and the base class <see cref="DistanceMatrix.this[int, int]"/>.
+        /// and the base class <see cref="Matrix.this[int, int]"/>.
         /// </summary>
         /// <param name="x">The <see cref="Locations"/> wise X coordinate.</param>
         /// <param name="y">The <see cref="Locations"/> wise Y coordinate.</param>

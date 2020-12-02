@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
 {
@@ -79,6 +80,15 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
             : base(values)
         {
             this.ZeroDiagonal(zero);
+        }
+
+        /// <summary>
+        /// <see cref="ICloneable"/> compatible constructor.
+        /// </summary>
+        /// <param name="other"></param>
+        public DistanceMatrix(DistanceMatrix other)
+            : base(other)
+        {
         }
 
         // TODO: TBD: may override IsReady(int x, int y) ...

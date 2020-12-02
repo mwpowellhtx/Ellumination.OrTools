@@ -9,7 +9,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
     /// <summary>
     /// Represents basic Matrix concerns.
     /// </summary>
-    public class Matrix
+    public class Matrix : IEquatable<Matrix>, ICloneable
     {
         /// <summary>
         /// Gets the Values associated with the Matrix.
@@ -90,6 +90,35 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
         public Matrix(int?[,] values) => this.Initialize(values);
 
         /// <summary>
+        /// <see cref="ICloneable"/> compatible constructor, also ensures that we achive
+        /// an element wise <see cref="CopyTo(Matrix)"/>, which also ensures that we do
+        /// not experience any <see cref="Values"/> shared references.
+        /// </summary>
+        /// <param name="other"></param>
+        public Matrix(Matrix other)
+            : this(other.Width, other.Height) => other.CopyTo(this);
+
+        /// <summary>
+        /// Copies this <see cref="Matrix"/> To the <paramref name="other"/>
+        /// given a shared <paramref name="index"/>. Override in order to handle
+        /// any instance specific responses to the same copy operation.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <param name="index"></param>
+        public virtual void CopyTo(Matrix other, (int x, int y) index) =>
+            other.Values[index.x, index.y] = this.Values[index.x, index.y];
+
+        /// <summary>
+        /// Copies this <see cref="Matrix"/> To the <paramref name="other"/>
+        /// given a shared set of <see cref="GetIndices"/>.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <see cref="CopyTo(Matrix, ValueTuple{int, int})"/>
+        public virtual void CopyTo(Matrix other) =>
+            GetIndices(this).ToList()
+                .ForEach(index => this.CopyTo(other, index));
+
+        /// <summary>
         /// Indexer gets or sets the value in the Matrix.
         /// </summary>
         /// <param name="x">The <see cref="Width"/> wise X coordinate.</param>
@@ -127,6 +156,14 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
         private static IEnumerable<int> Range(int count) => Enumerable.Range(0, count);
 
         /// <summary>
+        /// Returns the Indices corresponding with the <paramref name="matrix"/>.
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <returns></returns>
+        private static IEnumerable<(int x, int y)> GetIndices(Matrix matrix) => Range(matrix.Width)
+            .SelectMany(x => Range(matrix.Height).Select(y => (x, y)));
+
+        /// <summary>
         /// Returns whether the entire Matrix IsReady, meaning values have been assigned.
         /// In this case, returns whether there are Not Any that are Not Ready. We think
         /// this is more efficient than evaluating whether All are Ready.
@@ -135,8 +172,35 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
         /// <remarks>At this level we can only assume whether the Matrix is square, so
         /// therefore we have to assume that it may not be square, even though, in context,
         /// we think that it should be.</remarks>
-        public virtual bool IsReady() => !Range(this.Width).SelectMany(
-            x => Range(this.Height).Select(y => (x, y)))
-                .Any(z => !IsReady(z.x, z.y));
+        public virtual bool IsReady() => !GetIndices(this).Any(z => !IsReady(z.x, z.y));
+
+        /// <summary>
+        /// Returns whether the 
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        private static bool SequenceEquals(Matrix a, Matrix b) =>
+            GetIndices(a).Zip(GetIndices(b), (_1, _2) => (ain: _1, bin: _2))
+                .All(z => a[z.ain.x, z.ain.y] == b[z.bin.x, z.bin.y]);
+
+        /// <summary>
+        /// Returns whether <paramref name="a"/> Equals <paramref name="b"/>.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static bool Equals(Matrix a, Matrix b) => !(a == null || b == null)
+            && (ReferenceEquals(a, b) || (
+                a.Width == b.Width && a.Height == b.Height
+                // Which by this point the dimensions should all also be aligned and vetted.
+                && (a.Width == 0 || a.Height == 0 || SequenceEquals(a, b))
+            ));
+
+        /// <inheritdoc/>
+        public virtual bool Equals(Matrix other) => Equals(this, other);
+
+        /// <inheritdoc/>
+        public virtual object Clone() => Activator.CreateInstance(GetType(), this);
     }
 }
