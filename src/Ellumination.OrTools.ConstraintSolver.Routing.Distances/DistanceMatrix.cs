@@ -16,6 +16,13 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
         public virtual int Length => this.Width;
 
         /// <summary>
+        /// Gets or Sets whether <see cref="DistanceMatrix"/> <see cref="IsMirrored"/>.
+        /// Default assumes <c>true</c>, however, this may be configured to best meet
+        /// consumer requirements.
+        /// </summary>
+        public override bool IsMirrored { get; set; } = true;
+
+        /// <summary>
         /// Zero the Diagonal to the <paramref name="value"/> value.
         /// </summary>
         /// <param name="value"></param>
@@ -28,7 +35,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
         /// <summary>
         /// Constructs a default empty distance matrix.
         /// </summary>
-        /// <see cref="DefaultLength"/>
+        /// <see cref="Matrix.DefaultLength"/>
         public DistanceMatrix()
             : this(DefaultLength)
         {
@@ -66,21 +73,5 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
         }
 
         // TODO: TBD: may override IsReady(int x, int y) ...
-
-        /// <inheritdoc/>
-        public override int? this[int x, int y]
-        {
-            get => base[x, y];
-            set
-            {
-                base[x, y] = value;
-
-                // TODO: TBD: simply validate whether this.IsSquare...
-                if (x != y && !this.IsSquare)
-                {
-                    base[y, x] = value;
-                }
-            }
-        }
     }
 }

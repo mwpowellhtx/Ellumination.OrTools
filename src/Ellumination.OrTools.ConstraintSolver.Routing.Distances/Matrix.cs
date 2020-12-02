@@ -35,6 +35,14 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
         public virtual bool IsSquare => this.Width == this.Height;
 
         /// <summary>
+        /// Gets or Sets whether the Matrix IsMirrored. This is for use when
+        /// <see cref="Matrix"/> is also <see cref="IsSquare"/>. When a
+        /// <see cref="Values"/> is set via the indexer and <see cref="IsMirrored"/>
+        /// is set to <c>true</c>, then the mirror value is also set.
+        /// </summary>
+        public virtual bool IsMirrored { get; set; } = default;
+
+        /// <summary>
         /// <c>2</c>
         /// </summary>
         internal const int DefaultLength = 2;
@@ -88,7 +96,15 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
         public virtual int? this[int x, int y]
         {
             get => this.Values[x, y];
-            set => this.Values[x, y] = value;
+            set
+            {
+                this.Values[x, y] = value;
+
+                if (x != y && this.IsMirrored && this.IsSquare)
+                {
+                    this.Values[y, x] = value;
+                }
+            }
         }
 
         /// <summary>
