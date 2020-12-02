@@ -175,7 +175,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
         public virtual bool IsReady() => !GetIndices(this).Any(z => !IsReady(z.x, z.y));
 
         /// <summary>
-        /// Returns whether the 
+        /// Returns whether the <paramref name="a"/> Sequence Equals <paramref name="b"/>.
         /// </summary>
         /// <param name="a"></param>
         /// <param name="b"></param>
