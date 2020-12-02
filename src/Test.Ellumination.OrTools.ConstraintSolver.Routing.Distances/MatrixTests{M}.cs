@@ -32,6 +32,11 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
         protected virtual int ExpectedHeight { get; }
 
         /// <summary>
+        /// Gets whether ExpectedMirrored.
+        /// </summary>
+        protected virtual bool ExpectedMirrored { get; } = default;
+
+        /// <summary>
         /// Gets whether ExpectedSquare.
         /// </summary>
         /// <see cref="ExpectedWidth"/>
@@ -135,6 +140,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
             actual.AssertEqual(this.ExpectedWidth, _ => _.Width);
             actual.AssertEqual(this.ExpectedHeight, _ => _.Height);
             actual.AssertEqual(this.ExpectedSquare, _ => _.IsSquare);
+            actual.AssertEqual(this.ExpectedMirrored, _ => _.IsMirrored);
             indices.AssertEqual(this.ExpectedCount, _ => _.Count());
             void OnVerifyMatrixValueAtIndex((int x, int y) index) => VerifyMatrixValue(actual, index);
             indices.ToList().ForEach(OnVerifyMatrixValueAtIndex);

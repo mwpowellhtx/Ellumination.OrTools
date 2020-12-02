@@ -31,6 +31,9 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
         /// <inheritdoc/>
         protected override int ExpectedHeight => this.ExpectedLength;
 
+        /// <inheritdoc/>
+        protected override bool ExpectedMirrored { get; } = true;
+
         /// <summary>
         /// Verifies the <paramref name="matrix"/> value at the <paramref name="index"/>.
         /// </summary>
