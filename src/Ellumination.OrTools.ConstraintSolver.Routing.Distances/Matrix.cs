@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
 {
@@ -126,20 +128,11 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
         /// we think that it should be.</remarks>
         public virtual bool IsReady()
         {
-            var (width, height) = (this.Width, this.Height);
+            IEnumerable<int> Range(int count) => Enumerable.Range(0, count);
 
-            for (var x = 0; x < width; x++)
-            {
-                for (var y = 0; y < height; y++)
-                {
-                    if (!IsReady(x, y))
-                    {
-                        return false;
-                    }
-                }
-            }
-
-            return true;
+            // Not Any that are Not Ready, more efficient than evaluating All are Ready.
+            return !Range(this.Width).SelectMany(x => Range(this.Height).Select(y => (x, y)))
+                .Any(z => !IsReady(z.x, z.y));
         }
     }
 }
