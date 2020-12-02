@@ -7,10 +7,10 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <Version>2.19.1.16319</Version>
-        <AssemblyVersion>2.19.1.16319</AssemblyVersion>
-        <FileVersion>2.19.1.16319</FileVersion>
-        <PackageVersion>2.19.1.16319</PackageVersion>
+        <Version>2.19.1.16337</Version>
+        <AssemblyVersion>2.19.1.16337</AssemblyVersion>
+        <FileVersion>2.19.1.16337</FileVersion>
+        <PackageVersion>2.19.1.16337</PackageVersion>
         <!--<ReleaseVersionStrategy>patch</ReleaseVersionStrategy>-->
     </PropertyGroup>
 
@@ -22,5 +22,14 @@
     <PropertyGroup Condition="'$(Platform)' == 'AnyCPU'">
         <DocumentationFile>bin\$(Configuration)\netstandard2.0\Ellumination.OrTools.Core.xml</DocumentationFile>
     </PropertyGroup>
+
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+            <_Parameter1>Ellumination.OrTools.ConstraintSolver.Routing</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+            <_Parameter1>Ellumination.OrTools.ConstraintSolver.Routing.Distances</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
 
 </Project>
