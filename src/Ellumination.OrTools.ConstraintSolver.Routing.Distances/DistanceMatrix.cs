@@ -62,11 +62,20 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
         }
 
         /// <summary>
+        /// Constructs the distance matric given a default <paramref name="values"/>.
+        /// </summary>
+        /// <param name="values"></param>
+        public DistanceMatrix(int?[,] values)
+            : this(values, default)
+        {
+        }
+
+        /// <summary>
         /// Constructs the distance matrix given a default <paramref name="values"/>.
         /// </summary>
         /// <param name="values"></param>
         /// <param name="zero">Optionally specify the Zero along the diagonal.</param>
-        public DistanceMatrix(int?[,] values, int zero = default)
+        public DistanceMatrix(int?[,] values, int zero)
             : base(values)
         {
             this.ZeroDiagonal(zero);
