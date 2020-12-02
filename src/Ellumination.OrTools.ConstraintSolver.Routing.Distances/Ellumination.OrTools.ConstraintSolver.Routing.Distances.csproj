@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <RootNamespace>Ellumination.OrTools.ConstraintSolver.Routing.Distances</RootNamespace>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <Version>1.0.0.19</Version>
+        <AssemblyVersion>1.0.0.19</AssemblyVersion>
+        <FileVersion>1.0.0.19</FileVersion>
+        <PackageVersion>1.0.0.19</PackageVersion>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <!-- TODO: TBD: review description, tags, etc... -->
+        <Description>Provides a convenient, easy to use wrapper for Constraint Satisfaction Programming based on the Google OR-tools.</Description>
+        <PackageTags>Google;Operations;Research;Tools;wrapper;dispose;disposable;CLR;object;host;constraint;satisfaction;problem;solver;CP;CSP;variable;variables;int;integer;bool;boolean;solution</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Remove="Ellumination.OrTools.ConstraintSolver.Routing.Distances.csproj.DotSettings" />
+    </ItemGroup>
+
+    <PropertyGroup Condition="'$(Platform)' == 'AnyCPU'">
+        <DefineConstants Condition="'$(Configuration)' == 'Debug'">DEBUG</DefineConstants>
+        <DocumentationFile>bin\$(Configuration)\netstandard2.0\Ellumination.OrTools.ConstraintSolver.Routing.Distances.xml</DocumentationFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Ellumination.OrTools.Core\Ellumination.OrTools.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!--<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+            <_Parameter1>Test.Ellumination.OrTools.ConstraintSolver.Routing</_Parameter1>
+        </AssemblyAttribute>-->
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+            <_Parameter1>Test.$(MSBuildProjectName)</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+
+</Project>
