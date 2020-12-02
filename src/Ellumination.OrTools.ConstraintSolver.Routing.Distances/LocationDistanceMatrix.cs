@@ -11,7 +11,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
     /// Represents a <see cref="DistanceMatrix"/> that is oriented towards
     /// geo-centric <see cref="Locations"/> usage.
     /// </summary>
-    public class LocationDistanceMatrix : DistanceMatrix
+    public class LocationDistanceMatrix : DistanceMatrix, IEquatable<LocationDistanceMatrix>
     {
         private HashSet<string> _locations;
 
@@ -145,6 +145,26 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
                 (key.x == key.y && this[key.x, key.y] == default)
                     || this[key.x, key.y] == this[key.y, key.x]);
         }
+
+        /// <inheritdoc/>
+        public override bool Equals(Matrix other) => (
+            other is LocationDistanceMatrix location
+                && Equals(location) ) || base.Equals(other)
+            ;
+
+        /// <summary>
+        /// Returns whether <paramref name="a"/> Equals <paramref name="b"/>.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        /// <see cref="Matrix.Equals(Matrix, Matrix)"/>
+        public static bool Equals(LocationDistanceMatrix a, LocationDistanceMatrix b) =>
+            Matrix.Equals(a, b) && a.Locations.SequenceEqual(b.Locations)
+            ;
+
+        /// <inheritdoc/>
+        public virtual bool Equals(LocationDistanceMatrix other) => Equals(this, other);
 
         /// <summary>
         /// Return the <see cref="LocationDistanceMatrix"/> based on the contributions

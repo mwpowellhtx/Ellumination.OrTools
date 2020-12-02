@@ -8,7 +8,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
     /// <summary>
     /// Represents basic distance matrix concerns.
     /// </summary>
-    public class DistanceMatrix : Matrix
+    public class DistanceMatrix : Matrix, IEquatable<DistanceMatrix>
     {
         // TODO: TBD: may also validate IsSquare...
         /// <summary>
@@ -92,5 +92,16 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
         }
 
         // TODO: TBD: may override IsReady(int x, int y) ...
+
+        /// <summary>
+        /// Returns whether <paramref name="a"/> Equals <paramref name="b"/>.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static bool Equals(DistanceMatrix a, DistanceMatrix b) => Matrix.Equals(a, b);
+
+        /// <inheritdoc/>
+        public virtual bool Equals(DistanceMatrix other) => Equals(this, other);
     }
 }
