@@ -8,10 +8,10 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <Version>1.0.0.142</Version>
-        <AssemblyVersion>1.0.0.142</AssemblyVersion>
-        <FileVersion>1.0.0.142</FileVersion>
-        <PackageVersion>1.0.0.142</PackageVersion>
+        <Version>1.0.0.145</Version>
+        <AssemblyVersion>1.0.0.145</AssemblyVersion>
+        <FileVersion>1.0.0.145</FileVersion>
+        <PackageVersion>1.0.0.145</PackageVersion>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -32,6 +32,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Ellumination.OrTools.Core\Ellumination.OrTools.Core.csproj" />
+        <ProjectReference Include="..\$(MSBuildProjectName).Distances\$(MSBuildProjectName).Distances.csproj" />
     </ItemGroup>
 
     <!-- ReSharper disable UnknownProperty -->
