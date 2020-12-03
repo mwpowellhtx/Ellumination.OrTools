@@ -3,8 +3,6 @@ using System.Linq;
 
 namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
 {
-    // TODO: TBD: ditto Matrix re: Ellumination.Collections...
-    // TODO: TBD: we could potentially host this having broader use cases...
     /// <summary>
     /// Represents basic distance matrix concerns.
     /// </summary>
