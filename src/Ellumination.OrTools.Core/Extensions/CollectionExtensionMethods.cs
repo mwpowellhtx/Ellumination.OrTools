@@ -48,7 +48,10 @@ namespace Ellumination.OrTools
             try
             {
                 var comparer = EqualityComparer<T>.Default;
-                return readOnlyList.Select((x, i) => (item: x, i)).First(z => comparer.Equals(z.item, item)).i;
+
+                // This works, and perhaps saves us from having to trap a trailing exception when not found.
+                return readOnlyList.Select<T, (T item, int i)?>((x, i) => (item: x, i))
+                    .FirstOrDefault(z => comparer.Equals(z.Value.item, item))?.i ?? notFound;
             }
             catch
             {
