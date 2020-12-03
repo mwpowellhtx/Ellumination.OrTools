@@ -4,30 +4,57 @@ using System.Linq;
 
 namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
 {
-    // TODO: TBD: this one has borderline broader use cases...
-    // TODO: TBD: whether that is general enough for Ellumination.Collections...
-    // TODO: TBD: since after all it is more geared to geo-centric distance matrices...
     /// <summary>
-    /// Represents a <see cref="DistanceMatrix"/> that is oriented towards
-    /// geo-centric <see cref="Locations"/> usage.
+    /// Represents a <see cref="DistanceMatrix"/> that is oriented towards geo-centric
+    /// <see cref="Locations"/> usage. It is not the intention of this Matrix implementation to
+    /// permit in-situ, so to speak, <see cref="Locations"/> adjustments, additions, subtractions,
+    /// divisions, whatever. If a new set of Locations is required, then we create a new one. If
+    /// necessary, at times we allow for a <see cref="Merge(LocationDistanceMatrix)"/> to take
+    /// place, between two sets of Locations.
     /// </summary>
     public class LocationDistanceMatrix : DistanceMatrix, IEquatable<LocationDistanceMatrix>
     {
-        private HashSet<string> _locations;
+        private IReadOnlyList<string> _locations;
+
+        /// <summary>
+        /// We want the <see cref="Locations"/> Distinct in a case insensitive manner.
+        /// </summary>
+        private class LocationComparer : EqualityComparer<string>
+        {
+            /// <summary>
+            /// Gets an instance of the <see cref="LocationComparer"/>.
+            /// </summary>
+            internal static LocationComparer Comparer { get; } = new LocationComparer();
+
+            /// <summary>
+            /// Returns the Normalized <paramref name="s"/>.
+            /// </summary>
+            /// <param name="s"></param>
+            /// <returns></returns>
+            private static string Normalize(string s) => (s ?? string.Empty).ToLower();
+
+            /// <inheritdoc/>
+            public override bool Equals(string x, string y) => Normalize(x) == Normalize(y);
+
+            /// <inheritdoc/>
+            public override int GetHashCode(string obj) => Normalize(obj).GetHashCode();
+
+            /// <summary>
+            /// Private default constructor.
+            /// </summary>
+            private LocationComparer()
+            {
+            }
+        }
 
         /// <summary>
         /// Gets the Locations involved in the DistanceMatrix.
         /// </summary>
-        public HashSet<string> Locations
+        public IEnumerable<string> Locations
         {
             get => this._locations;
-            set
-            {
-                // TODO: TBD: which should also have a potentially precipitous effect on the underlying Matrix Values...
-                // TODO: TBD: either preservative, additional or deletorious effects...
-                // TODO: TBD: especially for subset, equal (which is a kind of subset), or superset use cases...
-                this._locations = value.OrEmpty().ToHashSet();
-            }
+            set => this._locations = value.OrEmpty().Distinct(LocationComparer.Comparer)
+                .OrderBy(s => s).AsReadOnly();
         }
 
         /// <summary>
@@ -52,9 +79,9 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
         /// </summary>
         /// <param name="locations"></param>
         public LocationDistanceMatrix(params string[] locations)
-            : base(locations.Distinct().Count())
+            : base(locations.OrEmpty().Distinct(LocationComparer.Comparer).Count())
         {
-            this.Locations = locations.Distinct().ToHashSet();
+            this.Locations = locations;
         }
 
         /// <summary>
@@ -65,24 +92,12 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
             : base(other)
         {
             // Ensures that we have a clone-friendly copy of the Other instance.
-            this._locations = other._locations.OrEmpty().ToHashSet();
+            this.Locations = other._locations;
         }
 
         /// <summary>
-        /// Returns the IndexOf the <paramref name="key"/> with respect to the
-        /// <see cref="Locations"/>.
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        public virtual int IndexOf(string key)
-        {
-            // Which the hash set should offer some uniqueness to begin with, then we also align the key.
-            int OnGetIndexOf(params (bool found, int i)[] matches) => matches.Any() ? matches.Single().i : -1;
-            return OnGetIndexOf(this.Locations.Select((x, i) => (found: x == key, i)).Where(z => z.found).ToArray());
-        }
-
-        /// <summary>
-        /// Location based Indexer especially as a function of <see cref="IndexOf"/>
+        /// Location based Indexer especially as a function of
+        /// <see cref="CollectionExtensionMethods.IndexOf{T}(IReadOnlyList{T}, T)"/>
         /// and the base class <see cref="Matrix.this[int, int]"/>.
         /// </summary>
         /// <param name="x">The <see cref="Locations"/> wise X coordinate.</param>
@@ -90,8 +105,8 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
         /// <returns></returns>
         public int? this[string x, string y]
         {
-            get => this[this.IndexOf(x), this.IndexOf(y)];
-            set => this[this.IndexOf(x), this.IndexOf(y)] = value;
+            get => this[this._locations.IndexOf(x), this._locations.IndexOf(y)];
+            set => this[this._locations.IndexOf(x), this._locations.IndexOf(y)] = value;
         }
 
         /// <summary>
@@ -109,18 +124,24 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
         /// </summary>
         private class KeyEqualityComparer : EqualityComparer<(string x, string y)>
         {
+            /// <summary>
+            /// Private default constructor.
+            /// </summary>
             private KeyEqualityComparer()
             {
             }
 
+            /// <summary>
+            /// Gets the Comparer instance for Internal use.
+            /// </summary>
             internal static KeyEqualityComparer Comparer { get; } = new KeyEqualityComparer();
 
+            /// <inheritdoc/>
             public override bool Equals((string x, string y) a, (string x, string y) b) =>
                 (a.x == b.x && a.y == b.y) || (a.x == b.y && a.y == b.x);
 
-            public override int GetHashCode((string x, string y) obj) =>
-                obj.x.GetHashCode() ^ (obj.y.GetHashCode() * 7)
-                    + obj.y.GetHashCode() ^ (obj.x.GetHashCode() * 7);
+            /// <inheritdoc/>
+            public override int GetHashCode((string x, string y) obj) => obj.GetHashCode();
         }
 
         /// <summary>
