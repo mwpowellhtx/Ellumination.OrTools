@@ -14,8 +14,6 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
     /// </summary>
     public class LocationDistanceMatrix : DistanceMatrix, IEquatable<LocationDistanceMatrix>
     {
-        private IReadOnlyList<string> _locations;
-
         /// <summary>
         /// We want the <see cref="Locations"/> Distinct in a case insensitive manner.
         /// </summary>
@@ -46,6 +44,11 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
             {
             }
         }
+
+        /// <summary>
+        /// <see cref="Locations"/> backing field, initialized on construction, just in case.
+        /// </summary>
+        private IReadOnlyList<string> _locations = Array.Empty<string>().AsReadOnly();
 
         /// <summary>
         /// Gets the Locations involved in the DistanceMatrix.
