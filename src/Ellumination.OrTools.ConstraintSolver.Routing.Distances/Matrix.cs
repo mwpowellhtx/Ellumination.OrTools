@@ -9,6 +9,10 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
     /// <summary>
     /// Represents basic Matrix concerns.
     /// </summary>
+    /// <remarks>Concerning serialization of any sort, we will refrain from direct, serialization
+    /// friendly usage. We may turn around and provide a serialization assembly, whose sole
+    /// responsibility is to bridge that gap, for either <em>XML</em>, <em>JSON</em>, or
+    /// potentially other, form factors.</remarks>
     public class Matrix : IEquatable<Matrix>, ICloneable
     {
         /// <summary>
