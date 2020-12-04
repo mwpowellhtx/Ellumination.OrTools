@@ -199,14 +199,22 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
         /// <returns></returns>
         public static LocationDistanceMatrix Merge(LocationDistanceMatrix a, LocationDistanceMatrix b)
         {
+            IEnumerable<T> Range<T>(params T[] values)
+            {
+                foreach (var value in values)
+                {
+                    yield return value;
+                }
+            }
+
             // Which both inform the DistinctKeys of the contributing matrices, but we do not need the keys.
             var result = new LocationDistanceMatrix(a.Locations.Concat(b.Locations).ToArray());
 
-            int? GetMergeValue(LocationDistanceMatrix matrix, (string x, string y) key) =>
-                !new[] { key.x, key.y }.All(matrix.Locations.Contains) ? null : matrix[key.x, key.y];
+            int? GetMergeValueOrNull(LocationDistanceMatrix matrix, (string x, string y) key) =>
+                !Range(key.x, key.y).All(matrix.Locations.Contains) ? null : matrix[key.x, key.y];
 
-            void OnMergeDistinctKey((string x, string y) key) =>
-                result[key.x, key.y] = GetMergeValue(a, key) ?? GetMergeValue(b, key);
+            void OnMergeDistinctKey((string x, string y) key) => result[key.x, key.y]
+                = GetMergeValueOrNull(a, key) ?? GetMergeValueOrNull(b, key);
 
             result.DistinctKeys.ToList().ForEach(OnMergeDistinctKey);
 
