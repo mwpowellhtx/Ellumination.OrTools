@@ -17,7 +17,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
         where M : Matrix, new()
     {
         /// <summary>
-        /// Gets the Instance.
+        /// Gets or Sets the Instance.
         /// </summary>
         protected virtual M Instance { get; set; }
 
