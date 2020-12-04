@@ -95,7 +95,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
             );
 
             $"Verify {nameof(merged)}.{nameof(merged.Locations)}".x(
-                () => merged.Locations.AssertEqual(mergeLocations.OrderBy(x => x))
+                () => merged.AssertEqual(mergeLocations.OrderBy(x => x), x => x.Locations)
             );
         }
     }
