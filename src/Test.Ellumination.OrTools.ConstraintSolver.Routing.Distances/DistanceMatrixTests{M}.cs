@@ -1,5 +1,5 @@
-﻿using System.Linq;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
 {
@@ -40,11 +40,8 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
         /// <param name="matrix"></param>
         /// <param name="index"></param>
         /// <param name="expected"></param>
-        protected override void VerifyMatrixValue(M matrix, (int x, int y) index, int? expected = null)
-        {
-            expected = index.x == index.y ? default(int) : expected;
-            matrix[index.x, index.y].AssertEqual(expected);
-        }
+        protected override void VerifyMatrixValue(M matrix, (int x, int y) index, int? expected = null) =>
+            matrix[index.x, index.y].AssertEqual(index.x == index.y ? default(int) : expected);
 
         /// <inheritdoc/>
         protected override void OnVerifyMatrixBeforeBackground(out M instance, out IEnumerable<(int x, int y)> instanceIndices)
@@ -62,9 +59,8 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
         /// 
         /// </summary>
         /// <param name="instance"></param>
-        /// <param name="instanceIndices"></param>
         [Background]
-        public void DistanceMatrixBackground(M instance, IEnumerable<(int x, int y)> instanceIndices)
+        public void DistanceMatrixBackground(M instance)
         {
             $"Verify {nameof(this.ExpectedWidth)} equal to {nameof(this.ExpectedLength)}".x(
                 () => this.ExpectedWidth.AssertEqual(this.ExpectedLength)
@@ -75,10 +71,6 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
             );
 
             $"Verify the {nameof(instance)}".x(() => instance = this.Instance.AssertNotNull());
-
-            $"Verify the {nameof(instanceIndices)}".x(
-                () => instanceIndices = this.InstanceIndices.AssertCollectionNotEmpty().ToArray()
-            );
         }
     }
 }

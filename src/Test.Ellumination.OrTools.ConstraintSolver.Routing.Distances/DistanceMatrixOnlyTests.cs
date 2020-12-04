@@ -1,6 +1,11 @@
-﻿namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace Ellumination.OrTools.ConstraintSolver.Routing.Distances
 {
+    using Xunit;
     using Xunit.Abstractions;
+    using Xwellbehaved;
 
     /// <summary>
     /// 
@@ -18,5 +23,17 @@
         /// <param name="instance"></param>
         protected override void OnCreateInstance(out DistanceMatrix instance) =>
             instance = new DistanceMatrix(this.ExpectedLength);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="instanceIndices"></param>
+        [Background]
+        public void DistanceMatrixOnlyBackground(IEnumerable<(int x, int y)> instanceIndices)
+        {
+            $"Verify the {nameof(instanceIndices)}".x(() => instanceIndices
+                = this.InstanceIndices.AssertCollectionNotEmpty().ToArray()
+            );
+        }
     }
 }
