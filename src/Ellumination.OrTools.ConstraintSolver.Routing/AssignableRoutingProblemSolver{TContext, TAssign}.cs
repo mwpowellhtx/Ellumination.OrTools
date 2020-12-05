@@ -238,9 +238,10 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="context"></param>
         /// <param name="vehicleIndex"></param>
         /// <param name="nodeIndex"></param>
+        /// <param name="previousNodeIndex"></param>
         /// <returns></returns>
-        protected virtual TAssign CreateAssignEventArgs(TContext context, int vehicleIndex, int nodeIndex) =>
-            (TAssign)Activator.CreateInstance(typeof(TAssign), context, vehicleIndex, nodeIndex);
+        protected virtual TAssign CreateAssignEventArgs(TContext context, int vehicleIndex, int nodeIndex, int? previousNodeIndex) =>
+            (TAssign)Activator.CreateInstance(typeof(TAssign), context, vehicleIndex, nodeIndex, previousNodeIndex);
 
         /// <inheritdoc/>
         public virtual event EventHandler<TAssign> Assigning;
@@ -276,10 +277,11 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="context"></param>
         /// <param name="vehicleIndex"></param>
         /// <param name="nodeIndex"></param>
+        /// <param name="previousNodeIndex"></param>
         /// <see cref="TryProcessSolution"/>
-        protected virtual void OnProcessSolution(TContext context, int vehicleIndex, int nodeIndex)
+        protected virtual void OnProcessSolution(TContext context, int vehicleIndex, int nodeIndex, int? previousNodeIndex)
         {
-            var e = this.CreateAssignEventArgs(context, vehicleIndex, nodeIndex);
+            var e = this.CreateAssignEventArgs(context, vehicleIndex, nodeIndex, previousNodeIndex);
 
             this.OnAssigningSolution(e);
 
@@ -304,17 +306,22 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
             for (int vehicleIndex = 0; vehicleIndex < context_VehicleCount; vehicleIndex++)
             {
                 long j;
+                long? previous = null;
 
                 // j: node index, specifically declared long for clarity.
                 for (j = context_Model.Start(vehicleIndex); !context_Model.IsEnd(j); j = solution.Value(context_Model.NextVar(j)))
                 {
-                    this.OnProcessSolution(context, vehicleIndex, context.IndexToNode(j));
+                    this.OnProcessSolution(context, vehicleIndex, context.IndexToNode(j)
+                        , previous.HasValue ? context.IndexToNode(previous.Value) : (int?)null);
+
+                    previous = j;
                 }
 
                 // TODO: TBD: is this really necessary?
                 // TODO: TBD: according to at least one example, it may be necessary...
                 // TODO: TBD: https://developers.google.com/optimization/routing/vrp
-                this.OnProcessSolution(context, vehicleIndex, context.IndexToNode(j));
+                this.OnProcessSolution(context, vehicleIndex, context.IndexToNode(j)
+                    , context.IndexToNode(previous.Value));
             }
 
             return true;
@@ -373,7 +380,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
                 // TODO: TBD: could it be that search params are in fact required after all?
                 var searchParams = this.SearchParameters ?? OrConstraintSolver.DefaultRoutingSearchParameters();
                 searchParams.FirstSolutionStrategy = FirstSolutionStrategyType.PathCheapestArc;
-                searchParams.LocalSearchMetaheuristic = LocalSearchMetaheuristic.GuidedLocalSearch;
+                //searchParams.LocalSearchMetaheuristic = LocalSearchMetaheuristic.GuidedLocalSearch;
                 //searchParams.TimeLimit = new Duration { Seconds = 7 };
 
                 if (!this.TrySolve(context, searchParams, out solution))
