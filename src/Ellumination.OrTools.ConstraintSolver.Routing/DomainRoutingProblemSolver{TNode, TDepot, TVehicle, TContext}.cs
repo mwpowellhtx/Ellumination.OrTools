@@ -4,8 +4,9 @@ using System.Linq;
 namespace Ellumination.OrTools.ConstraintSolver.Routing
 {
     /// <summary>
-    /// Represents a Domain specific <see cref="RoutingProblemSolver{TContext}"/>.
-    /// In which case, we happen to have knowledge are <typeparamref name="TNode"/>,
+    /// Represents a Domain specific
+    /// <see cref="AssignableRoutingProblemSolver{TContext, TAssign}"/>. In which
+    /// case, we happen to have knowledge are <typeparamref name="TNode"/>,
     /// <typeparamref name="TDepot"/>, and <typeparamref name="TVehicle"/>.
     /// </summary>
     /// <typeparam name="TNode">The Node type.</typeparam>
@@ -30,18 +31,19 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="nodeTuple">The <typeparamref name="TNode"/> and Index Tuple.</param>
         /// <param name="vehicleTuple">The <typeparamref name="TVehicle"/> and Index Tuple.</param>
         /// <returns></returns>
-        protected virtual DomainRoutingAssignmentEventArgs<TNode, TDepot, TVehicle, TContext> CreateAssignEventArgs(
-            TContext context, (int i, TVehicle vehicle) vehicleTuple, (int j, TNode node) nodeTuple) =>
+        protected virtual DomainRoutingAssignmentEventArgs<TNode, TDepot, TVehicle, TContext> CreateAssignEventArgs(TContext context
+            , (int i, TVehicle vehicle) vehicleTuple, (int j, TNode node) nodeTuple, (int? k, TNode previous) previousTuple) =>
             (DomainRoutingAssignmentEventArgs<TNode, TDepot, TVehicle, TContext>)Activator.CreateInstance(
                 typeof(DomainRoutingAssignmentEventArgs<TNode, TDepot, TVehicle, TContext>)
-                , context, vehicleTuple, nodeTuple
+                , context, vehicleTuple, nodeTuple, previousTuple
             );
 
         /// <inheritdoc/>
-        protected override DomainRoutingAssignmentEventArgs<TNode, TDepot, TVehicle, TContext> CreateAssignEventArgs(
-            TContext context, int vehicleIndex, int nodeIndex) => CreateAssignEventArgs(context
+        protected override DomainRoutingAssignmentEventArgs<TNode, TDepot, TVehicle, TContext> CreateAssignEventArgs(TContext context
+            , int vehicleIndex, int nodeIndex, int? previousNodeIndex) => CreateAssignEventArgs(context
                 , (vehicleIndex, context.Vehicles.ElementAt(vehicleIndex))
                 , (nodeIndex, context.Nodes.ElementAt(nodeIndex))
+                , (previousNodeIndex, context.Nodes.ElementAtOrDefault(previousNodeIndex ?? -1))
             );
     }
 }
