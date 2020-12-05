@@ -2,9 +2,9 @@
 
     <PropertyGroup>
         <TargetFramework>netcoreapp2.1</TargetFramework>
-        <Version>1.0.0.112</Version>
-        <AssemblyVersion>1.0.0.112</AssemblyVersion>
-        <FileVersion>1.0.0.112</FileVersion>
+        <Version>1.0.0.134</Version>
+        <AssemblyVersion>1.0.0.134</AssemblyVersion>
+        <FileVersion>1.0.0.134</FileVersion>
         <Configurations>Debug</Configurations>
     </PropertyGroup>
 
@@ -28,10 +28,6 @@
     <ItemGroup>
         <ProjectReference Include="..\Ellumination.OrTools.ConstraintSolver.Routing\Ellumination.OrTools.ConstraintSolver.Routing.csproj" />
         <ProjectReference Include="..\Ellumination.OrTools.Fibonacci\Ellumination.OrTools.Fibonacci.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="TravelingSalesman\" />
     </ItemGroup>
 
 </Project>
