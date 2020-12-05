@@ -7,13 +7,13 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     /// </summary>
     /// <see cref="RoutingContext"/>
     /// <see cref="RoutingAssignmentEventArgs{TContext}"/>
-    public abstract class DefaultRoutingProblemSolver
+    public class DefaultRoutingProblemSolver
         : AssignableRoutingProblemSolver<RoutingContext, DefaultRoutingAssignmentEventArgs>
             , IAssignableRoutingProblemSolver<RoutingContext, DefaultRoutingAssignmentEventArgs>
     {
         /// <inheritdoc/>
         protected override DefaultRoutingAssignmentEventArgs CreateAssignEventArgs(
-            RoutingContext context, int vehicleIndex, int nodeIndex) =>
-            new DefaultRoutingAssignmentEventArgs(context, vehicleIndex, nodeIndex);
+            RoutingContext context, int vehicleIndex, int nodeIndex, int? previousNodeIndex) =>
+            new DefaultRoutingAssignmentEventArgs(context, vehicleIndex, nodeIndex, previousNodeIndex);
     }
 }
