@@ -14,8 +14,9 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="context">A <see cref="RoutingContext"/> instance.</param>
         /// <param name="vehicleIndex">A Vehicle index.</param>
         /// <param name="nodeIndex">A Node index.</param>
-        internal DefaultRoutingAssignmentEventArgs(RoutingContext context, int vehicleIndex, int nodeIndex)
-            : base(context, vehicleIndex, nodeIndex)
+        /// <param name="previousNodeIndex">The Previous Node index from which Routing occurred.</param>
+        internal DefaultRoutingAssignmentEventArgs(RoutingContext context, int vehicleIndex, int nodeIndex, int? previousNodeIndex)
+            : base(context, vehicleIndex, nodeIndex, previousNodeIndex)
         {
         }
     }

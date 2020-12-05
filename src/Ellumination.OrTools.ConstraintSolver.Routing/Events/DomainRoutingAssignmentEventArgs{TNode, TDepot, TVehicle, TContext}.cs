@@ -28,6 +28,11 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         public TNode Node { get; }
 
         /// <summary>
+        /// Gets the Previous, if any.
+        /// </summary>
+        public TNode Previous { get; }
+
+        /// <summary>
         /// Internal constructor.
         /// </summary>
         /// <param name="context"></param>
@@ -36,10 +41,12 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         internal DomainRoutingAssignmentEventArgs(TContext context
             , (int i, TVehicle vehicle) vehicleTuple
             , (int j, TNode node) nodeTuple
-        ) : base(context, vehicleTuple.i, nodeTuple.j)
+            , (int? k, TNode previous) previousTuple
+        ) : base(context, vehicleTuple.i, nodeTuple.j, previousTuple.k)
         {
             this.Vehicle = vehicleTuple.vehicle;
             this.Node = nodeTuple.node;
+            this.Previous = previousTuple.previous;
         }
     }
 }
