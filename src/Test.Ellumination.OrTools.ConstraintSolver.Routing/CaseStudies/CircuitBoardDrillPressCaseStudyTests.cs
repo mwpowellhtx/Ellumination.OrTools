@@ -97,6 +97,10 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
                 , {236, 145}, {246, 141}, {252, 125}, {260, 129}, {280, 133}
             };
 
+            private static double Squared(double x) => Math.Pow(x, 2d);
+
+            private static int Sqrt(double d) => (int)Math.Sqrt(d);
+
             /// <summary>
             /// Returns the Calculated Euclidian <see cref="Distances.Matrix.Values"/>
             /// of the <see cref="Distances.DistanceMatrix"/>.
@@ -110,22 +114,23 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
                 var length = coords.GetLength(0);
                 var matrixValues = new int?[length, length];
 
-                int Sqrt(double d) => (int)Math.Sqrt(d);
-                double Pow(double x, double y) => Math.Pow(x, y);
-
                 void OnCalculateDistance((int fromNode, int toNode) coord)
                 {
+                    //distanceMatrix[fromNode, toNode] = (long)
+                    //    Math.Sqrt(
+                    //        Math.Pow(locations[toNode, 0] - locations[fromNode, 0], 2) +
+                    //        Math.Pow(locations[toNode, 1] - locations[fromNode, 1], 2));
+
                     matrixValues[coord.fromNode, coord.toNode] = Sqrt(
-                        Pow(coords[coord.toNode, 0] - coords[coord.fromNode, 0], 2)
-                        + Pow(coords[coord.toNode, 1] - coords[coord.fromNode, 1], 2)
+                        Squared(coords[coord.toNode, 0] - coords[coord.fromNode, 0])
+                        + Squared(coords[coord.toNode, 1] - coords[coord.fromNode, 1])
                     );
                 }
 
                 var dim = Enumerable.Range(0, length).ToArray();
 
                 // Zero the diagonal, which is handled by the matrix itself.
-                dim.Zip(dim, (x, y) => (x, y)).Where(coord => coord.x != coord.y)
-                    .ToList().ForEach(OnCalculateDistance);
+                dim.AsCoordinates().Where(coord => coord.x != coord.y).ToList().ForEach(OnCalculateDistance);
 
                 return matrixValues;
             }
@@ -160,6 +165,33 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
             internal override RoutingContext Context => this._context ?? (
                 this._context = new RoutingContext(this.Matrix.Length, OneVehicle, Depot)
             );
+
+            /// <summary>
+            /// Event handler occurs On
+            /// <see cref="AssignableRoutingProblemSolver{TContext, TAssign}.Assign"/> event.
+            /// </summary>
+            /// <param name="sender"></param>
+            /// <param name="e"></param>
+            protected override void OnProblemSolverAssign(object sender, DefaultRoutingAssignmentEventArgs e)
+            {
+                var (vehicle, node, previousNode) = (e.AssertNotNull().VehicleIndex, e.NodeIndex, e.PreviousNodeIndex);
+
+                // Vehicle should always be this.
+                vehicle.AssertEqual(0);
+
+                this.SolutionPaths[vehicle] = this.SolutionPaths.TryGetValue(vehicle, out var path)
+                    ? path
+                    : new List<int>();
+
+                this.SolutionPaths[vehicle].AssertNotNull().Add(node);
+
+                if (previousNode.HasValue)
+                {
+                    this.TotalDistance += (int)this.Context.GetArcCostForVehicle(previousNode ?? default, node, vehicle);
+                }
+
+                base.OnProblemSolverAssign(sender, e);
+            }
 
             /// <inheritdoc/>
             protected override void OnDisposing()
@@ -242,6 +274,55 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
             $"Add {nameof(TestDimension)} to this.{nameof(this.Scope)}.{nameof(this.Scope.Context)}".x(
                 () => this.Scope.Context.AddDefaultDimension<TestDimension>(this.Scope.Matrix)
             );
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scope"></param>
+        /// <see cref="!:https://developers.google.com/optimization/routing/tsp#solution2"/>
+        protected override void OnVerifySolution(CircuitBoardDrillPressCaseStudyScope scope)
+        {
+            base.OnVerifySolution(scope);
+
+            scope.TotalDistance.AssertEqual(2790);
+
+            if (!scope.SolutionPaths.TryGetValue(0, out var actualPath).AssertTrue())
+            {
+                return;
+            }
+
+            ICollection<int> expectedPath = Range(
+                    0, 1, 279, 2, 278, 277, 247, 248, 249, 246, 244, 243, 242, 241, 240
+                    , 239, 238, 237, 236, 235, 234, 233, 232, 231, 230, 245, 250, 229, 228
+                    , 227, 226, 225, 224, 223, 222, 221, 220, 219, 218, 217, 216, 215, 214
+                    , 213, 212, 211, 210, 209, 208, 251, 254, 255, 257, 256, 253, 252, 207
+                    , 206, 205, 204, 203, 202, 142, 141, 146, 147, 140, 139, 265, 136, 137
+                    , 138, 148, 149, 177, 176, 175, 178, 179, 180, 181, 182, 183, 184, 186
+                    , 185, 192, 196, 197, 198, 144, 145, 143, 199, 201, 200, 195, 194, 193
+                    , 191, 190, 189, 188, 187, 163, 164, 165, 166, 167, 168, 169, 171, 170
+                    , 172, 105, 106, 104, 103, 107, 109, 110, 113, 114, 116, 117, 61, 62
+                    , 63, 65, 64, 84, 85, 115, 112, 86, 83, 82, 87, 111, 108, 89, 90, 91
+                    , 102, 101, 100, 99, 98, 97, 96, 95, 94, 93, 92, 79, 88, 81, 80, 78
+                    , 77, 76, 74, 75, 73, 72, 71, 70, 69, 66, 68, 67, 57, 56, 55, 54
+                    , 53, 52, 51, 50, 49, 48, 47, 46, 45, 44, 43, 58, 60, 59, 42, 41
+                    , 40, 39, 38, 37, 36, 35, 34, 33, 32, 31, 30, 29, 124, 123, 122, 121
+                    , 120, 119, 118, 156, 157, 158, 173, 162, 161, 160, 174, 159, 150, 151
+                    , 155, 152, 154, 153, 128, 129, 130, 131, 18, 19, 20, 127, 126, 125, 28
+                    , 27, 26, 25, 21, 24, 22, 23, 13, 12, 14, 11, 10, 9, 7, 8, 6, 5
+                    , 275, 274, 273, 272, 271, 270, 15, 16, 17, 132, 133, 269, 268, 134
+                    , 135, 267, 266, 264, 263, 262, 261, 260, 258, 259, 276, 3, 4, 0
+                ).ToList();
+
+            //var sequenceEqual = actualPath.SequenceEqual(expectedPath);
+
+            actualPath.AssertEqual(expectedPath.Count, x => x.Count);
+
+            var notMatched = actualPath.Zip(expectedPath, (a, e) => (a, e))
+                .Select((z, i) => (z.a, z.e, i, z: z.a == z.e)).SkipWhile(z => z.z).ToArray();
+
+            actualPath.AssertCollectionEqual(expectedPath);
+            //actualPath.AssertEqual(expectedPath);
         }
 
         /// <summary>
