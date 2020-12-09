@@ -287,7 +287,9 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
 
             scope.TotalDistance.AssertEqual(2790);
 
-            if (!scope.SolutionPaths.TryGetValue(0, out var actualPath).AssertTrue())
+            const int vehicle = default;
+
+            if (!scope.SolutionPaths.TryGetValue(vehicle, out var actualPath).AssertTrue())
             {
                 return;
             }
@@ -314,12 +316,28 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
                     , 135, 267, 266, 264, 263, 262, 261, 260, 258, 259, 276, 3, 4, 0
                 ).ToList();
 
-            //var sequenceEqual = actualPath.SequenceEqual(expectedPath);
-
             actualPath.AssertEqual(expectedPath.Count, x => x.Count);
 
-            var notMatched = actualPath.Zip(expectedPath, (a, e) => (a, e))
-                .Select((z, i) => (z.a, z.e, i, z: z.a == z.e)).SkipWhile(z => z.z).ToArray();
+            void OnRenderPair((int a, int e, int i, bool z) pair)
+            {
+                var (a, e, i, z) = pair;
+
+                var rendered = RenderTupleAssociates(
+                    (nameof(a), Render(a))
+                    , (nameof(e), Render(e))
+                    , (nameof(i), Render(i))
+                    , (nameof(z), Render(z))
+                );
+
+                this.OutputHelper.WriteLine($"  {rendered}");
+            }
+
+            this.OutputHelper.WriteLine($"{nameof(actualPath)}.Zip({nameof(expectedPath)}, ...) = new [] {{");
+
+            actualPath.Zip(expectedPath, (a, e) => (a, e)).Select((z, i) => (z.a, z.e, i, z: z.a == z.e))
+                .ToList().ForEach(OnRenderPair);
+
+            this.OutputHelper.WriteLine($"}}");
 
             actualPath.AssertCollectionEqual(expectedPath);
             //actualPath.AssertEqual(expectedPath);
