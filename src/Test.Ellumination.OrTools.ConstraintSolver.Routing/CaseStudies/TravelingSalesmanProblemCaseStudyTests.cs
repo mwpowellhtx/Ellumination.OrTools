@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Ellumination.OrTools.ConstraintSolver.Routing
+namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
 {
     using Xunit;
     using Xunit.Abstractions;
@@ -76,10 +76,8 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     /// </list></para>
     /// </summary>
     /// <see cref="!:https://developers.google.com/optimization/routing/tsp"/>
-    public class TravelingSalesmanProblemCaseStudyTests : OrToolsRoutingCaseStudyTests<
-        Distances.DistanceMatrix
-        , RoutingContext
-        , TravelingSalesmanProblemCaseStudyTests.TravelingSalesmanCaseStudyScope>
+    public class TravelingSalesmanProblemCaseStudyTests : OrToolsRoutingCaseStudyTests<Distances.DistanceMatrix
+        , RoutingContext, TravelingSalesmanProblemCaseStudyTests.TravelingSalesmanCaseStudyScope>
     {
         public TravelingSalesmanProblemCaseStudyTests(ITestOutputHelper outputHelper)
             : base(outputHelper)
@@ -90,9 +88,14 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         public class TravelingSalesmanCaseStudyScope : CaseStudyScope
         {
             /// <summary>
-            /// Gets or Sets the TotalMiles for use throughout the tests.
+            /// Gets the Traveling Salesman Distance Unit, &quot;mi&quot;.
             /// </summary>
-            internal int TotalMiles { get; set; } = default;
+            protected override string DistanceUnit { get; } = "mi";
+
+            public TravelingSalesmanCaseStudyScope(ITestOutputHelper outputHelper)
+                : base(outputHelper)
+            {
+            }
 
             /// <summary>
             /// Gets the MatrixValues for use with the <see cref="Matrix"/> property.
@@ -128,35 +131,55 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
                 this._context = new RoutingContext(this.Matrix.Width, 1)
                 );
 
-            // TODO: TBD: potentially this should be in the base class...
             /// <summary>
-            /// Gets the SolutionPath.
+            /// Event handler occurs On
+            /// <see cref="AssignableRoutingProblemSolver{TContext, TAssign}.Assign"/> event.
             /// </summary>
-            internal IDictionary<int, ICollection<int>> SolutionPaths { get; }
-                = new Dictionary<int, ICollection<int>>();
-
-            // TODO: TBD: may be able to install this in the base class..
-            /// <summary>
-            /// Gets or Sets the ProblemSolver.
-            /// </summary>
-            internal DefaultRoutingProblemSolver ProblemSolver { get; set; } = new DefaultRoutingProblemSolver();
-
-            /// <inheritdoc/>
-            protected override void Dispose(bool disposing)
+            /// <param name="sender"></param>
+            /// <param name="e"></param>
+            protected override void OnProblemSolverAssign(object sender, DefaultRoutingAssignmentEventArgs e)
             {
-                if (disposing && !this.IsDisposed)
+                var (vehicle, node, previousNode) = (e.AssertNotNull().VehicleIndex, e.NodeIndex, e.PreviousNodeIndex);
+
+                // Vehicle should always be this.
+                vehicle.AssertEqual(0);
+
+                this.SolutionPaths[vehicle] = this.SolutionPaths.TryGetValue(vehicle, out var path)
+                    ? path
+                    : new List<int>();
+
+                this.SolutionPaths[vehicle].AssertNotNull().Add(node);
+
+                if (previousNode.HasValue)
                 {
-                    this.ProblemSolver?.Dispose();
+                    this.TotalDistance += this.Matrix[previousNode.Value, node] ?? default;
                 }
 
-                base.Dispose(disposing);
+                base.OnProblemSolverAssign(sender, e);
             }
-        }
 
-        /// <inheritdoc/>
-        protected override void InitializeScope(out TravelingSalesmanCaseStudyScope scope)
-        {
-            scope = new TravelingSalesmanCaseStudyScope();
+            /// <inheritdoc/>
+            protected override void OnDisposing()
+            {
+                /* See: https://developers.google.com/optimization/routing/tsp#printer, which
+                 * we should have the solution in hand approaching test disposal. */
+
+                void OnReportTotalDistance(int totalDistance) =>
+                    this.OutputHelper.WriteLine($"Objective: {totalDistance} {this.DistanceUnit}");
+
+                void OnReportEachVehiclePath((int vehicle, IEnumerable<int> path) item) =>
+                    this.OutputHelper.WriteLine(
+                        $"Route for vehicle {item.vehicle}: {string.Join(" -> ", item.path)}"
+                    );
+
+                OnReportTotalDistance(this.TotalDistance);
+
+                this.SolutionPaths.Keys.OrderBy(key => key)
+                    .Select(key => (key, (IEnumerable<int>)this.SolutionPaths[key]))
+                        .ToList().ForEach(OnReportEachVehiclePath);
+
+                base.OnDisposing();
+            }
         }
 
         /// <inheritdoc/>
@@ -164,7 +187,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         {
             scope = base.VerifyScope(scope);
 
-            scope.TotalMiles.AssertEqual(default);
+            scope.TotalDistance.AssertEqual(default);
 
             scope.Matrix.AssertEqual(scope.Context.NodeCount, x => x.Width);
             scope.Matrix.AssertEqual(scope.Context.NodeCount, x => x.Height);
@@ -231,33 +254,6 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         }
 
         /// <summary>
-        /// Event handler occurs On
-        /// <see cref="AssignableRoutingProblemSolver{TContext, TAssign}.Assign"/> event.
-        /// </summary>
-        /// <param name="_">The Sender instance, which we do not care about, per se.</param>
-        /// <param name="e"></param>
-        private void OnScopeProblemSolverAssign(object _, DefaultRoutingAssignmentEventArgs e)
-        {
-            var (vehicle, node, previousNode) = (e.AssertNotNull().VehicleIndex, e.NodeIndex, e.PreviousNodeIndex);
-
-            var this_Scope = this.Scope;
-
-            // Vehicle should always be this.
-            vehicle.AssertEqual(0);
-
-            this_Scope.SolutionPaths[vehicle] = this_Scope.SolutionPaths.TryGetValue(vehicle, out var path)
-                ? path
-                : new List<int>();
-
-            this_Scope.SolutionPaths[vehicle].AssertNotNull().Add(node);
-
-            if (previousNode.HasValue)
-            {
-                this_Scope.TotalMiles += this_Scope.Matrix[previousNode.Value, node] ?? default;
-            }
-        }
-
-        /// <summary>
         /// Verifies that the <paramref name="scope"/> is correct according to what we expected.
         /// We verify given the Optimization Routing TSP Solution.
         /// </summary>
@@ -305,13 +301,10 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         [Scenario]
         public void Verify_ProblemSolver_Solution()
         {
-            $"Prepare to receive {nameof(RoutingProblemSolverType.Assign)} events".x(
-                () => this.Scope.ProblemSolver.Assign += OnScopeProblemSolverAssign
-            );
-
             /* See: https://developers.google.com/optimization/routing/tsp#main, through which
              * we abstract these are the default solver options, i.e. PATH_CHEAPEST_ARC, etc. */
 
+            // TODO: TBD: this is starting to look like really boilerplate stuff as well...
             $"Solve routing problem given this.{nameof(this.Scope)}.{nameof(this.Scope.Context)}".x(
                 () => this.Scope.ProblemSolver.Solve(this.Scope.Context)
             );
@@ -319,31 +312,6 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
             void OnVerifySolution() => this.OnVerifySolution(this.Scope);
 
             $"Verify solution".x(OnVerifySolution);
-        }
-
-        /// <inheritdoc/>
-        protected override void OnScopeDisposing(object sender, EventArgs e)
-        {
-            var scope = sender.AssertNotNull().AssertIsType<TravelingSalesmanCaseStudyScope>();
-
-            // Unwire the event...
-            scope.ProblemSolver.Assign -= this.OnScopeProblemSolverAssign;
-
-            /* See: https://developers.google.com/optimization/routing/tsp#printer, which
-             * we should have the solution in hand approaching test disposal. */
-            void OnReportTotalMiles(int totalMiles) =>
-                this.OutputHelper.WriteLine($"Objective: {totalMiles} miles");
-
-            void OnReportEachVehiclePath((int vehicle, IEnumerable<int> path) item) =>
-                this.OutputHelper.WriteLine(
-                    $"Route for vehicle {item.vehicle}: {string.Join(" -> ", item.path)}"
-                );
-
-            OnReportTotalMiles(scope.TotalMiles);
-
-            scope.SolutionPaths.Keys.OrderBy(key => key)
-                .Select(key => (key, (IEnumerable<int>)scope.SolutionPaths[key]))
-                    .ToList().ForEach(OnReportEachVehiclePath);
         }
     }
 }

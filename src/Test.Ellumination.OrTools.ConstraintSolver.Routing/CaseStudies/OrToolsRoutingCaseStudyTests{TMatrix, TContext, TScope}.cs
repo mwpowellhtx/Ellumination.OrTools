@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 
-namespace Ellumination.OrTools.ConstraintSolver.Routing
+namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
 {
     using Xunit;
     using Xunit.Abstractions;
@@ -28,6 +29,26 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         public abstract class CaseStudyScope : IDisposable
         {
             /// <summary>
+            /// Gets or Sets the TotalDistance for use throughout the tests.
+            /// </summary>
+            internal int TotalDistance { get; set; } = default;
+
+            /// <summary>
+            /// Gets the <see cref="TotalDistance"/> Unit of Measure.
+            /// </summary>
+            protected abstract string DistanceUnit { get; }
+
+            /// <summary>
+            /// Gets the OutputHelper.
+            /// </summary>
+            protected ITestOutputHelper OutputHelper { get; }
+
+            protected CaseStudyScope(ITestOutputHelper outputHelper)
+            {
+                this.OutputHelper = outputHelper;
+            }
+
+            /// <summary>
             /// Gets the <see cref="Matrix"/> Values associated with the Case Study.
             /// </summary>
             protected abstract int?[,] MatrixValues { get; }
@@ -41,6 +62,40 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
             /// Gets the Context associated with the Case Study.
             /// </summary>
             internal abstract TContext Context { get; }
+
+            protected virtual DefaultRoutingProblemSolver CreateProblemSolver()
+            {
+                var problemSolver = new DefaultRoutingProblemSolver();
+                problemSolver.Assign += this.OnProblemSolverAssign;
+                return problemSolver;
+            }
+
+            private DefaultRoutingProblemSolver _problemSolver;
+
+            // TODO: TBD: may be able to install this in the base class..
+            /// <summary>
+            /// Gets or Sets the ProblemSolver.
+            /// </summary>
+            internal DefaultRoutingProblemSolver ProblemSolver => this._problemSolver ?? (
+                this._problemSolver = CreateProblemSolver()
+            );
+
+            // TODO: TBD: potentially this should be in the base class...
+            /// <summary>
+            /// Gets the SolutionPath.
+            /// </summary>
+            internal IDictionary<int, ICollection<int>> SolutionPaths { get; }
+                = new Dictionary<int, ICollection<int>>();
+
+            /// <summary>
+            /// Event handler occurs On
+            /// <see cref="AssignableRoutingProblemSolver{TContext, TAssign}.Assign"/> event.
+            /// </summary>
+            /// <param name="sender"></param>
+            /// <param name="e"></param>
+            protected virtual void OnProblemSolverAssign(object sender, DefaultRoutingAssignmentEventArgs e)
+            {
+            }
 
             /// <summary>
             /// Event occurs On <see cref="Dispose(bool)"/>.
@@ -67,6 +122,15 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
                 {
                     this.OnDisposing();
 
+                    void OnDisposeProblemSolver(DefaultRoutingProblemSolver problemSolver)
+                    {
+                        if (problemSolver != null)
+                        {
+                            this.ProblemSolver.Assign -= this.OnProblemSolverAssign;
+                            this.ProblemSolver.Dispose();
+                        }
+                    }
+
                     this.Context?.Dispose();
                 }
             }
@@ -79,16 +143,23 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
             }
         }
 
+        private TScope _scope;
+
         /// <summary>
         /// Gets the Scope for use throughout the unit tests.
         /// </summary>
-        protected virtual TScope Scope { get; private set; }
+        protected virtual TScope Scope
+        {
+            get => this._scope;
+            private set => this._scope = value;
+        }
 
         /// <summary>
         /// Override in order to Initialize the <paramref name="scope"/>.
         /// </summary>
         /// <param name="scope"></param>
-        protected abstract void InitializeScope(out TScope scope);
+        protected virtual void InitializeScope(out TScope scope) =>
+            scope = Activator.CreateInstance(typeof(TScope), this.OutputHelper).AssertIsType<TScope>();
 
         /// <summary>
         /// Override in order to <see cref="VerifyScope"/> in a more specialized manner.
@@ -100,6 +171,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
             scope.AssertNotNull();
             scope.Context.AssertNotNull();
             scope.Matrix.AssertNotNull();
+            scope.ProblemSolver.AssertNotNull();
             return scope;
         }
 
@@ -124,43 +196,39 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
             }
 
             $"Initialize this.{nameof(this.Scope)}".x(OnInitializeScope);
-
-            $"Connect this.{nameof(this.Scope)}.{nameof(CaseStudyScope.Disposing)} event".x(
-                () => this.Scope.Disposing += this.OnScopeDisposing
-            );
         }
 
         /// <summary>
-        /// Override in order to better handle the <see cref="CaseStudyScope.Disposing"/> event.
+        /// Event handler occurs On <paramref name="scope"/> Tear Down.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        protected virtual void OnScopeDisposing(object sender, EventArgs e)
+        /// <param name="scope"></param>
+        protected virtual void OnScopeTearDown(ref TScope scope)
         {
-            sender.AssertNotNull().AssertIsType<TScope>();
+            if (scope != null)
+            {
+                scope?.Dispose();
+                scope = null;
+            }
         }
 
-        /// <inheritdoc/>
-        protected override void Dispose(bool disposing)
+        /// <summary>
+        /// Tear down the Case Study unit tests, which in particular, affords us an opportunity
+        /// to <see cref="IDisposable.Dispose"/> of the <see cref="Scope"/> prior to the unit
+        /// test execution context having gone out of scope. This is critical in order for proper
+        /// reporting to occur through the <see cref="TestFixtureBase.OutputHelper"/> instance.
+        /// </summary>
+        [TearDown]
+        public void CaseStudyTearDown()
         {
-            if (disposing && !this.IsDisposed)
+            void OnScopeTearDown()
             {
-                void OnDispose(TScope scope)
-                {
-                    if (scope != null)
-                    {
-                        // Unwire the Disposing event.
-                        scope.Disposing -= this.OnScopeDisposing;
-
-                        // And...
-                        scope.Dispose();
-                    }
-                }
-
-                OnDispose(this.Scope);
+                this.OnScopeTearDown(ref this._scope);
+                this.Scope.AssertNull();
             }
 
-            base.Dispose(disposing);
+            IDisposable o = null;
+
+            $"Tears down this.{nameof(this.Scope)}".x(OnScopeTearDown);
         }
     }
 }
