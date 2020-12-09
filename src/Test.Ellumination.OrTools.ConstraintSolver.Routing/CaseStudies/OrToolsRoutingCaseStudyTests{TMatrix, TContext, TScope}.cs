@@ -226,8 +226,6 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
                 this.Scope.AssertNull();
             }
 
-            IDisposable o = null;
-
             $"Tears down this.{nameof(this.Scope)}".x(OnScopeTearDown);
         }
     }
