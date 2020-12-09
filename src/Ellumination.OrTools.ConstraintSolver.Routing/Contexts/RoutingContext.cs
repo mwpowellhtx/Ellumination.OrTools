@@ -141,6 +141,21 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         }
 
         /// <summary>
+        /// Returns the cost of the transit arc between two nodes for a given
+        /// <paramref name="vehicle"/>. Input are variable indices of <paramref name="node"/>.
+        /// This returns <c>0</c> when <paramref name="vehicle"/> &lt; <c>0</c>.
+        /// </summary>
+        /// <param name="previousNode"></param>
+        /// <param name="node"></param>
+        /// <param name="vehicle"></param>
+        /// <returns></returns>
+        public virtual long GetArcCostForVehicle(int previousNode, int node, int vehicle) => this.Model.GetArcCostForVehicle(
+            this.NodeToIndex(previousNode)
+            , this.NodeToIndex(node)
+            , vehicle
+        );
+
+        /// <summary>
         /// Disposes of the object.
         /// </summary>
         /// <param name="disposing"></param>
