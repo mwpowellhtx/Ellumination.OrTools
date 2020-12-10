@@ -158,9 +158,9 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     /// <summary>
     /// The idea here is that you derive your <typeparamref name="TContext"/>
     /// according to your modeling needs. You similarly derive
-    /// a <see cref="AssignableRoutingProblemSolver{TContext, TAssign}"/> along the same lines,
-    /// and provide the hooks for the <see cref="Dimension"/> implementations that apply to your
-    /// model. This is where you will
+    /// a <see cref="AssignableRoutingProblemSolver{TContext, TAssign}"/> along
+    /// the same lines, and provide the hooks for the <see cref="Dimension"/> implementations
+    /// that apply to your model. This is where you will
     /// <see cref="ContextExtensionMethods.AddDimension{TContext, TDimension}"/> each of those
     /// Dimensions. You may similarly apply any visitors that might otherwise mutate your Context
     /// prior to running the solution to assignment.
@@ -176,18 +176,12 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     {
         /// <summary>
         /// Gets the Visitors which apply for the
-        /// <see cref="AssignableRoutingProblemSolver{TContext, TAssign}"/>. Override in order
-        /// to specify the Visitors that Apply to the <typeparamref name="TContext"/>. Ordering
-        /// or other constraints are completely left to consumer discretion as to how to present
-        /// those Visitors, in what order, etc.
+        /// <see cref="AssignableRoutingProblemSolver{TContext, TAssign}"/>.
+        /// Override in order to specify the Visitors that Apply to the
+        /// <typeparamref name="TContext"/>. Ordering or other constraints are completely left
+        /// to consumer discretion as to how to present those Visitors, in what order, etc.
         /// </summary>
-        protected virtual IEnumerable<IVisitor<TContext>> Visitors
-        {
-            get
-            {
-                yield break;
-            }
-        }
+        protected virtual IEnumerable<IVisitor<TContext>> Visitors => Array.Empty<IVisitor<TContext>>();
 
         /// <summary>
         /// Applies the <paramref name="visitor"/> to the <paramref name="context"/>
@@ -226,9 +220,32 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         }
 
         /// <summary>
+        /// Invokes the <see cref="ConfigureSearchParameters"/>.
+        /// </summary>
+        /// <param name="searchParams"></param>
+        protected virtual void OnConfigureSearchParameters(ref RoutingSearchParameters searchParams)
+        {
+            var args = new RoutingSearchParametersEventArgs(searchParams);
+            this.ConfigureSearchParameters?.Invoke(this, args);
+            searchParams = args.SearchParameters;
+        }
+
+        /// <inheritdoc/>
+        public event EventHandler<RoutingSearchParametersEventArgs> ConfigureSearchParameters;
+
+        private RoutingSearchParameters _searchParams = OrConstraintSolver.DefaultRoutingSearchParameters();
+
+        /// <summary>
         /// Gets the SearchParameters involved during the <see cref="Solve"/> operation.
         /// </summary>
-        protected virtual RoutingSearchParameters SearchParameters { get; }
+        private RoutingSearchParameters SearchParameters
+        {
+            get
+            {
+                this.OnConfigureSearchParameters(ref this._searchParams);
+                return this._searchParams;
+            }
+        }
 
         /// <summary>
         /// Returns a Created <see cref="RoutingAssignmentEventArgs{TContext}"/> given

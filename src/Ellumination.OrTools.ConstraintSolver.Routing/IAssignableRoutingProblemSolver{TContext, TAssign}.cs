@@ -36,5 +36,11 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// </summary>
         /// <param name="context"></param>
         void Solve(TContext context);
+
+        /// <summary>
+        /// Event occurs when Configuring the <see cref="RoutingSearchParameters"/>
+        /// approaching the <see cref="Solve"/> invocation.
+        /// </summary>
+        event EventHandler<RoutingSearchParametersEventArgs> ConfigureSearchParameters;
     }
 }
