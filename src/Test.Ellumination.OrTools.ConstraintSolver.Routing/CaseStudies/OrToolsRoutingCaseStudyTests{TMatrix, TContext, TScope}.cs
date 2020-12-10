@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
 {
@@ -98,6 +99,13 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
             }
 
             /// <summary>
+            /// Override in order to Verify the Solution.
+            /// </summary>
+            internal virtual void VerifySolution()
+            {
+            }
+
+            /// <summary>
             /// Event occurs On <see cref="Dispose(bool)"/>.
             /// </summary>
             internal event EventHandler<EventArgs> Disposing;
@@ -126,10 +134,12 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
                     {
                         if (problemSolver != null)
                         {
-                            this.ProblemSolver.Assign -= this.OnProblemSolverAssign;
-                            this.ProblemSolver.Dispose();
+                            problemSolver.Assign -= this.OnProblemSolverAssign;
+                            problemSolver.Dispose();
                         }
                     }
+
+                    OnDisposeProblemSolver(this.ProblemSolver);
 
                     this.Context?.Dispose();
                 }
@@ -195,20 +205,15 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
                 this.Scope = this.VerifyScope(scope);
             }
 
-            $"Initialize this.{nameof(this.Scope)}".x(OnInitializeScope);
-        }
-
-        /// <summary>
-        /// Event handler occurs On <paramref name="scope"/> Tear Down.
-        /// </summary>
-        /// <param name="scope"></param>
-        protected virtual void OnScopeTearDown(ref TScope scope)
-        {
-            if (scope != null)
+            void OnRollbackScope()
             {
-                scope?.Dispose();
-                scope = null;
+                this.Scope?.Dispose();
+                this.Scope = null;
             }
+
+            // We cannot Rollback here, because that falls outside the scope of the actual test context.
+            $"Initialize this.{nameof(this.Scope)}".x(OnInitializeScope)
+                .Rollback(OnRollbackScope);
         }
 
         /// <summary>
@@ -222,8 +227,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         {
             void OnScopeTearDown()
             {
-                this.OnScopeTearDown(ref this._scope);
-                this.Scope.AssertNull();
+                this.Scope.AssertNotNull().VerifySolution();
             }
 
             $"Tears down this.{nameof(this.Scope)}".x(OnScopeTearDown);

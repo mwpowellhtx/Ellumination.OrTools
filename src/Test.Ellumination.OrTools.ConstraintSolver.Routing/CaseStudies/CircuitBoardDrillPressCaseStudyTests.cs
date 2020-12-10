@@ -7,7 +7,10 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
     using Xunit;
     using Xunit.Abstractions;
     using Xwellbehaved;
+    using Duration = Google.Protobuf.WellKnownTypes.Duration;
     using RoutingProblemSolverType = AssignableRoutingProblemSolver<RoutingContext, DefaultRoutingAssignmentEventArgs>;
+    using FirstSolutionStrategyType = Google.OrTools.ConstraintSolver.FirstSolutionStrategy.Types.Value;
+    using LocalSearchMetaheuristicType = Google.OrTools.ConstraintSolver.LocalSearchMetaheuristic.Types.Value;
 
     /// <summary>
     /// This example involves drilling holes in a circuit board with an automated drill.
@@ -108,29 +111,25 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
             /// <param name="coords"></param>
             /// <returns></returns>
             /// <see cref="!:https://en.wikipedia.org/wiki/Euclidean_distance"/>
+            /// <see cref="!:https://en.wikipedia.org/wiki/Euclidean_distance#Two_dimensions"/>
             private static int?[,] CalculateEuclidianDistanceMatrix((int x, int y)[] coords)
             {
-                // Calculate the distance matrix using Euclidean distance.
-                var length = coords.GetLength(0);
-                var matrixValues = new int?[length, length];
+                var coords_Length = coords.Length;
+                var matrixValues = new int?[coords_Length, coords_Length];
 
-                void OnCalculateDistance((int fromNode, int toNode) coord)
+                // Calculate the distance matrix using two dimensional Euclidean distance.
+                void OnCalculateDistance((int fromCoord, int toCoord) coord)
                 {
-                    //distanceMatrix[fromNode, toNode] = (long)Math.Sqrt(
-                    //    Math.Pow(locations[toNode].x - locations[fromNode, 0].x)
-                    //    + Math.Pow(locations[toNode].y - locations[fromNode, 1].y)
-                    //);
+                    var (toCoordX, toCoordY) = coords[coord.toCoord];
+                    var (fromCoordX, fromCoordY) = coords[coord.fromCoord];
 
-                    var (toX, toY) = coords[coord.toNode];
-                    var (fromX, fromY) = coords[coord.fromNode];
-
-                    matrixValues[coord.fromNode, coord.toNode]
-                        = Sqrt(Squared(toX - fromX) + Squared(toY - fromY));
+                    matrixValues[coord.fromCoord, coord.toCoord]
+                        = Sqrt(Squared(toCoordX - fromCoordX) + Squared(toCoordY - fromCoordY));
                 }
 
-                var dim = Enumerable.Range(0, length).ToArray();
+                var dim = Enumerable.Range(0, coords_Length).ToArray();
 
-                // Zero the diagonal, which is handled by the matrix itself.
+                // Ignoring the matrix diagonal, which zeroing is handled by the matrix itself.
                 dim.AsCoordinates().Where(coord => coord.x != coord.y).ToList().ForEach(OnCalculateDistance);
 
                 return matrixValues;
@@ -195,8 +194,10 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
             }
 
             /// <inheritdoc/>
-            protected override void OnDisposing()
+            internal override void VerifySolution()
             {
+                base.VerifySolution();
+
                 /* https://developers.google.com/optimization/routing/tsp#print_solution2 */
 
                 void OnReportTotalDistance(int totalDistance) =>
@@ -212,8 +213,6 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
                 this.SolutionPaths.Keys.OrderBy(key => key)
                     .Select(key => (key, (IEnumerable<int>)this.SolutionPaths[key]))
                         .ToList().ForEach(OnReportEachVehiclePath);
-
-                base.OnDisposing();
             }
         }
 
@@ -361,6 +360,53 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
             void OnVerifyDefaultSolution() => this.OnVerifySolution(this.Scope);
 
             $"Verify the default solution using nominal search params".x(OnVerifyDefaultSolution);
+        }
+
+        private void OnVerifyGuidedSolution(CircuitBoardDrillPressCaseStudyScope scope)
+        {
+            // actual: 2664 ...
+            scope.AssertNotNull().AssertEqual(2672, x => x.TotalDistance);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [Scenario]
+        public void Verify_ProblemSolver_Guided_Solution()
+        {
+            void OnConfigureSearchParameters(object sender, RoutingSearchParametersEventArgs e)
+            {
+                var e_searchParams = e.SearchParameters;
+                e_searchParams.FirstSolutionStrategy = FirstSolutionStrategyType.PathCheapestArc;
+                e_searchParams.LocalSearchMetaheuristic = LocalSearchMetaheuristicType.GuidedLocalSearch;
+                e_searchParams.TimeLimit = new Duration { Seconds = 30L };
+                e_searchParams.LogSearch = true;
+            }
+
+            void OnConfigureSearchParametersCallback()
+            {
+                this.Scope.ProblemSolver.ConfigureSearchParameters += OnConfigureSearchParameters;
+            }
+
+            void OnRollbackSearchParametersCallback()
+            {
+                this.Scope.ProblemSolver.ConfigureSearchParameters -= OnConfigureSearchParameters;
+            }
+
+            /* See: https://developers.google.com/optimization/routing/tsp#main, through which
+             * we abstract these are the default solver options, i.e. PATH_CHEAPEST_ARC, etc. */
+
+            $"Configure the search parameters callbacks".x(OnConfigureSearchParametersCallback)
+                .Rollback(OnRollbackSearchParametersCallback);
+
+            // TODO: TBD: this is starting to look like really boilerplate stuff as well...
+            $"Solve routing problem given this.{nameof(this.Scope)}.{nameof(this.Scope.Context)}".x(
+                () => this.Scope.ProblemSolver.Solve(this.Scope.Context)
+            );
+
+            void OnVerifyGuidedSolution() => this.OnVerifyGuidedSolution(this.Scope);
+
+            $"Verify the default solution using nominal search params".x(OnVerifyGuidedSolution);
         }
     }
 }
