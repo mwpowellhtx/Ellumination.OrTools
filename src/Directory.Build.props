@@ -25,6 +25,8 @@
     <CodeGenerationRoslynAttributesVersion>1.1</CodeGenerationRoslynAttributesVersion>
     <CodeGenerationRoslynBuildTimeVersions>[1.1,2)</CodeGenerationRoslynBuildTimeVersions>
     <CodeGenerationRoslynBuildTimeVersion>1.1</CodeGenerationRoslynBuildTimeVersion>
+    <ElluminationProtobufVersion>1.0.2</ElluminationProtobufVersion>
+    <ElluminationProtobufVersions>[1.0.2,2)</ElluminationProtobufVersions>
     <ElluminationProtobufAntlrVersions>[1.0.13,2)</ElluminationProtobufAntlrVersions>
     <ElluminationProtobufAntlrVersion>1.0.13.22961</ElluminationProtobufAntlrVersion>
     <!-- True, this is the dependency. We just want the latest stable, always. -->

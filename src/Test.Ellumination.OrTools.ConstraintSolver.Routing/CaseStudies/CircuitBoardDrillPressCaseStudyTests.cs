@@ -4,10 +4,10 @@ using System.Linq;
 
 namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
 {
+    using Google.Protobuf.WellKnownTypes;
     using Xunit;
     using Xunit.Abstractions;
     using Xwellbehaved;
-    using Duration = Google.Protobuf.WellKnownTypes.Duration;
     using RoutingProblemSolverType = AssignableRoutingProblemSolver<RoutingContext, DefaultRoutingAssignmentEventArgs>;
     using FirstSolutionStrategyType = Google.OrTools.ConstraintSolver.FirstSolutionStrategy.Types.Value;
     using LocalSearchMetaheuristicType = Google.OrTools.ConstraintSolver.LocalSearchMetaheuristic.Types.Value;
@@ -365,7 +365,14 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         private void OnVerifyGuidedSolution(CircuitBoardDrillPressCaseStudyScope scope)
         {
             // actual: 2664 ...
-            scope.AssertNotNull().AssertEqual(2672, x => x.TotalDistance);
+            scope.AssertNotNull();
+
+            const int originalArcCost = 2790;
+
+            // "Better" should be cheaper in terms of overall arc cost.
+            scope.AssertTrue(x => x.TotalDistance < originalArcCost);
+
+            scope.AssertEqual(2672, x => x.TotalDistance);
         }
 
         /// <summary>
@@ -379,7 +386,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
                 var e_searchParams = e.SearchParameters;
                 e_searchParams.FirstSolutionStrategy = FirstSolutionStrategyType.PathCheapestArc;
                 e_searchParams.LocalSearchMetaheuristic = LocalSearchMetaheuristicType.GuidedLocalSearch;
-                e_searchParams.TimeLimit = new Duration { Seconds = 30L };
+                e_searchParams.TimeLimit = 30L.AsDuration();
                 e_searchParams.LogSearch = true;
             }
 
