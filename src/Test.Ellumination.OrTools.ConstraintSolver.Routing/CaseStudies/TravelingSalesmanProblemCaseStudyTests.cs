@@ -158,9 +158,26 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
                 base.OnProblemSolverAssign(sender, e);
             }
 
-            /// <inheritdoc/>
-            protected override void OnDisposing()
+            /// <summary>
+            /// Verifies the Solution vis a vis the TSP solution.
+            /// </summary>
+            /// <see cref="!:https://developers.google.com/optimization/routing/tsp#solution1"/>
+            internal override void VerifySolution()
             {
+                base.VerifySolution();
+
+                this.SolutionPaths.AssertEqual(1, x => x.Count);
+
+                if (this.SolutionPaths.TryGetValue(0, out var actualPath).AssertTrue())
+                {
+                    // Pretty much verbatim, https://developers.google.com/optimization/routing/tsp#solution1.
+                    this.AssertEqual(7293, x => x.TotalDistance);
+
+                    ICollection<int> expectedPath = Range(0, 7, 2, 3, 4, 12, 6, 8, 1, 11, 10, 5, 9, 0).ToList();
+
+                    actualPath.AssertCollectionEqual(expectedPath);
+                }
+
                 /* See: https://developers.google.com/optimization/routing/tsp#printer, which
                  * we should have the solution in hand approaching test disposal. */
 
@@ -169,7 +186,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
 
                 void OnReportEachVehiclePath((int vehicle, IEnumerable<int> path) item) =>
                     this.OutputHelper.WriteLine(
-                        $"Route for vehicle {item.vehicle}: {string.Join(" -> ", item.path)}"
+                        $"Route for vehicle {item.vehicle}: {string.Join(" , ", item.path)}"
                     );
 
                 OnReportTotalDistance(this.TotalDistance);
@@ -177,8 +194,6 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
                 this.SolutionPaths.Keys.OrderBy(key => key)
                     .Select(key => (key, (IEnumerable<int>)this.SolutionPaths[key]))
                         .ToList().ForEach(OnReportEachVehiclePath);
-
-                base.OnDisposing();
             }
         }
 
