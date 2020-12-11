@@ -7,7 +7,8 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
     using Xunit;
     using Xunit.Abstractions;
     using Xwellbehaved;
-    using RoutingProblemSolverType = AssignableRoutingProblemSolver<RoutingContext, DefaultRoutingAssignmentEventArgs>;
+    // TODO: TBD: ditto DistanceMatrix refactoring to collections suite...
+    using DistanceMatrix = Distances.DistanceMatrix;
 
     /// <summary>
     /// Tests involving a <see cref="DefaultRoutingProblemSolver"/>. We do not care about <em>Location</em>, per se, apart from documentation purposes. In a real world scenario, we might promote that concern to an actual <see cref="Distances.LocationDistanceMatrix"/>, however.
@@ -76,7 +77,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
     /// </list></para>
     /// </summary>
     /// <see cref="!:https://developers.google.com/optimization/routing/tsp"/>
-    public class TravelingSalesmanProblemCaseStudyTests : OrToolsRoutingCaseStudyTests<Distances.DistanceMatrix
+    public class TravelingSalesmanProblemCaseStudyTests : OrToolsRoutingCaseStudyTests<DistanceMatrix
         , RoutingContext, TravelingSalesmanProblemCaseStudyTests.TravelingSalesmanCaseStudyScope>
     {
         public TravelingSalesmanProblemCaseStudyTests(ITestOutputHelper outputHelper)
@@ -117,14 +118,12 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
                 , {1972, 579, 1260, 987, 371, 999, 701, 2099, 600, 1162, 1200, 504, 0}
             };
 
-            private Distances.DistanceMatrix _matrix;
+            private DistanceMatrix _matrix;
 
             private RoutingContext _context;
 
             /// <inheritdoc/>
-            internal override Distances.DistanceMatrix Matrix => this._matrix ?? (
-                    this._matrix = new Distances.DistanceMatrix(this.MatrixValues)
-                );
+            internal override DistanceMatrix Matrix => this._matrix ?? (this._matrix = new DistanceMatrix(this.MatrixValues));
 
             /// <inheritdoc/>
             internal override RoutingContext Context => this._context ?? (
@@ -222,7 +221,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
             /// <summary>
             /// Gets the Matrix for use throughout the Dimension.
             /// </summary>
-            private Distances.DistanceMatrix Matrix { get; }
+            private DistanceMatrix Matrix { get; }
 
             /// <summary>
             /// Constructs a test dimension.
@@ -230,7 +229,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
             /// <param name="context"></param>
             /// <param name="matrix"></param>
             /// <see cref="!:https://developers.google.com/optimization/routing/tsp#arc-cost"/>
-            public TestDimension(RoutingContext context, Distances.DistanceMatrix matrix)
+            public TestDimension(RoutingContext context, DistanceMatrix matrix)
                 : base(context, 100)
             {
                 this.Matrix = matrix;
