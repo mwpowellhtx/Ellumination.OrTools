@@ -35,6 +35,11 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
             internal int TotalDistance { get; set; } = default;
 
             /// <summary>
+            /// Gets the RouteDistances for the Case Study, indexed by Vehicle.
+            /// </summary>
+            internal IDictionary<int, int?> RouteDistances { get; } = Range<int>().ToDictionary(x => x, _ => (int?)null);
+
+            /// <summary>
             /// Gets the <see cref="TotalDistance"/> Unit of Measure.
             /// </summary>
             protected abstract string DistanceUnit { get; }
