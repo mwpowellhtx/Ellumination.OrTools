@@ -31,7 +31,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <typeparam name="T"></typeparam>
         /// <param name="values"></param>
         /// <returns></returns>
-        protected static IEnumerable<T> Range<T>(params T[] values)
+        internal static IEnumerable<T> Range<T>(params T[] values)
         {
             foreach (var value in values)
             {
