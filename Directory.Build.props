@@ -30,8 +30,9 @@
          directly, we could otherwise leave that out as well, as this depedency tracks
          seamlessly with the OrTools, or its runtime surrogate, dependencies. -->
         <!-- TODO: TBD: v3.13.0 / https://www.nuget.org/packages/Google.Protobuf/3.13.0 -->
-        <GoogleProtobufVersions>[3.10,4)</GoogleProtobufVersions>
-        <GoogleProtobufVersion>3.10.0</GoogleProtobufVersion>
+        <!-- TODO: TBD: v3.14.0 / https://www.nuget.org/packages/Google.Protobuf/3.14.0 -->
+        <GoogleProtobufVersions>[3.11.2,4)</GoogleProtobufVersions>
+        <GoogleProtobufVersion>3.11.2</GoogleProtobufVersion>
         <!-- Well, I thought we could get away with the Major.Minor here, but we do need
          to know the full version in order to know the precise path of the Protocol Buffer
          specification files in which to embed. The danger here is that this is a Greater
@@ -39,8 +40,9 @@
          but we will start here, and cross future bridges should they arise when they arise. -->
         <GoogleOrToolsDependency>Google.OrTools</GoogleOrToolsDependency>
         <!-- TODO: TBD: v8.0.8283 / https://www.nuget.org/packages/Google.OrTools/8.0.8283 -->
-        <GoogleOrToolsVersions>[7.4,8)</GoogleOrToolsVersions>
-        <GoogleOrToolsVersion>7.4.7247</GoogleOrToolsVersion>
+        <!-- TODO: TBD: v8.1.8487 / https://www.nuget.org/packages/Google.OrTools/8.1.8487 -->
+        <GoogleOrToolsVersions>[7.5,8)</GoogleOrToolsVersions>
+        <GoogleOrToolsVersion>7.5.7466</GoogleOrToolsVersion>
     </PropertyGroup>
 
     <PropertyGroup>
