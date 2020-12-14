@@ -145,5 +145,28 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
 
             scope.ExpectedPaths.Select((x, i) => (x, i)).ToList().ForEach(OnVerifyExpectedPath);
         }
+
+        // TODO: TBD: assuming that each of the case studies resolve in a sincle "verification" scenario...
+        // TODO: TBD: then likely all we need to do is provide that single method...
+        /// <summary>
+        /// Demonstrates a scenario in which the Solution Agrees with the Optimization Routing
+        /// Traveling Salesman Problem illustration.
+        /// </summary>
+        /// <see cref="!:https://developers.google.com/optimization/routing/vrp"/>
+        [Scenario]
+        public void Verify_ProblemSolver_Solution()
+        {
+            /* See: https://developers.google.com/optimization/routing/vrp#entire_program1, through which
+             * we abstract these are the default solver options, i.e. PATH_CHEAPEST_ARC, etc. */
+
+            // TODO: TBD: this is starting to look like really boilerplate stuff as well...
+            $"Solve routing problem given this.{nameof(this.Scope)}.{nameof(this.Scope.Context)}".x(
+                () => this.Scope.ProblemSolver.Solve(this.Scope.Context)
+            );
+
+            void OnVerifySolution() => this.OnVerifySolution(this.Scope);
+
+            $"Verify solution".x(OnVerifySolution);
+        }
     }
 }
