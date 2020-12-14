@@ -25,7 +25,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
 
 
         /// <inheritdoc/>
-        internal override ICollection<int[]> ExpectedPaths { get; } = Range<int[]>(
+        internal override ICollection<int[]> ExpectedPaths { get; } = Range(
             Range(0, 1, 4, 3, 15, 0).ToArray()
             , Range(0, 14, 16, 10, 2, 0).ToArray()
             , Range(0, 7, 13, 12, 11, 0).ToArray()
