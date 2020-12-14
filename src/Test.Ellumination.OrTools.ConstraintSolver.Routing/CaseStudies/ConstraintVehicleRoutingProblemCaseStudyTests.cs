@@ -88,16 +88,10 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
 
             scope.ExpectedPaths.AssertEqual(FourVehicles, x => x.Count);
 
-            void OnVerifyExpectedPath((int[] expectedPath, int vehicle) tuple)
-            {
-                var (expectedPath, vehicle) = tuple;
+            void OnVerifyExpectedPath((int vehicle, int[] expectedPath) tuple) =>
+                scope.SolutionPaths[tuple.vehicle].AssertCollectionEqual(tuple.expectedPath);
 
-                var actualPath = scope.SolutionPaths[vehicle];
-
-                actualPath.AssertCollectionEqual(expectedPath);
-            }
-
-            scope.ExpectedPaths.Select((x, i) => (x, i)).ToList().ForEach(OnVerifyExpectedPath);
+            scope.ExpectedPaths.Select((x, i) => (i, x)).ToList().ForEach(OnVerifyExpectedPath);
         }
 
         // TODO: TBD: assuming that each of the case studies resolve in a sincle "verification" scenario...
