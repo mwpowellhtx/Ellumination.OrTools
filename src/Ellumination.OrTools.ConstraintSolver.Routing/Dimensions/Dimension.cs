@@ -482,6 +482,52 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
             this.Context.Model.SetPrimaryConstrainedDimension(this.Name);
 
         /// <summary>
+        /// Adds the <paramref name="constraints"/> via <see cref="RoutingContext"/>.
+        /// </summary>
+        /// <param name="constraints"></param>
+        /// <returns></returns>
+        /// <see cref="RoutingContext.AddConstraints(IEnumerable{Constraint})"/>
+        protected virtual Dimension AddConstraints(IEnumerable<Constraint> constraints)
+        {
+            this.Context.AddConstraints(constraints);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the <paramref name="constraints"/> via <see cref="RoutingContext"/>.
+        /// </summary>
+        /// <param name="constraints"></param>
+        /// <returns></returns>
+        /// <see cref="RoutingContext.AddConstraints(Constraint[])"/>
+        protected virtual Dimension AddConstraints(params Constraint[] constraints)
+        {
+            this.Context.AddConstraints(constraints);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the <paramref name="constraint"/> via <see cref="RoutingContext"/>.
+        /// </summary>
+        /// <param name="constraint"></param>
+        /// <returns></returns>
+        /// <see cref="RoutingContext.AddConstraint(Constraint)"/>
+        protected virtual Dimension AddConstraint(Constraint constraint)
+        {
+            this.Context.AddConstraint(constraint);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a <paramref name="pickupNode"/> and <paramref name="deliveryNode"/> pair
+        /// to the model, which nodes must both be serviced by the same Vehicle.
+        /// </summary>
+        /// <param name="pickupNode">The Node from which Pickup occurs.</param>
+        /// <param name="deliveryNode">The Node to which Delivery occurs.</param>
+        /// <see cref="RoutingContext.AddPickupAndDelivery"/>
+        protected virtual void AddPickupAndDelivery(int pickupNode, int deliveryNode) =>
+            this.Context.AddPickupAndDelivery(pickupNode, deliveryNode, this);
+
+        /// <summary>
         /// Constructs a Dimension given <paramref name="context"/> and
         /// <paramref name="coefficient"/>.
         /// </summary>

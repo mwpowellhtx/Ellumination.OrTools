@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Ellumination.OrTools.ConstraintSolver.Routing
 {
@@ -154,6 +155,79 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
             , this.NodeToIndex(node)
             , vehicle
         );
+
+        /// <summary>
+        /// Adds <paramref name="constraints"/> to the <see cref="Model"/>.
+        /// </summary>
+        /// <param name="constraints"></param>
+        /// <remarks>These methods are intentionally Internal because subscribers
+        /// are expected to add Constraints via <see cref="Dimension"/>.</remarks>
+        internal void AddConstraints(IEnumerable<Constraint> constraints)
+        {
+            void OnAddConstraints(Solver solver) => constraints.OrEmpty().ToList().ForEach(solver.Add);
+
+            OnAddConstraints(this.Solver);
+        }
+
+        /// <summary>
+        /// Adds <paramref name="constraints"/> to the <see cref="Model"/>.
+        /// </summary>
+        /// <param name="constraints"></param>
+        /// <remarks>These methods are intentionally Internal because subscribers
+        /// are expected to add Constraints via <see cref="Dimension"/>.</remarks>
+        internal void AddConstraints(params Constraint[] constraints)
+        {
+            void OnAddConstraints(Solver solver) => constraints.ToList().ForEach(solver.Add);
+
+            OnAddConstraints(this.Solver);
+        }
+
+        /// <summary>
+        /// Adds <paramref name="constraint"/> to the <see cref="Model"/>.
+        /// </summary>
+        /// <param name="constraint"></param>
+        /// <remarks>These methods are intentionally Internal because subscribers
+        /// are expected to add Constraints via <see cref="Dimension"/>.</remarks>
+        internal void AddConstraint(Constraint constraint) => this.AddConstraints(constraint);
+
+        /// <summary>
+        /// Adds a Pickup and Delivery requirement to the <see cref="Model"/>.
+        /// </summary>
+        /// <param name="pickupNode">The domain based Pickup Node.</param>
+        /// <param name="deliveryNode">The domain based Delivery Node.</param>
+        /// <param name="dim">The Dimension informing the Context of the Pickup and Delivery.</param>
+        public virtual void AddPickupAndDelivery(int pickupNode, int deliveryNode, Dimension dim)
+        {
+            var (pickupIndex, deliveryIndex) = (
+                this.NodeToIndex(pickupNode)
+                , this.NodeToIndex(deliveryNode)
+            );
+
+            // TODO: TBD: should validate we have a dimension, mutabledimension, etc...
+            void OnAddPickupAndDelivery(RoutingModel model, Solver solver, RoutingDimension routingDim)
+            {
+                model.AddPickupAndDelivery(pickupIndex, deliveryIndex);
+
+                IEnumerable<Constraint> GetPickupAndDeliveryConstraints()
+                {
+                    // Requires that each item picked up / delivered by same vehicle.
+                    yield return model.VehicleVar(pickupIndex) == model.VehicleVar(deliveryIndex);
+
+                    /* Also requires that each item must be picked up before it is delivered.
+                     * In other words, vehicle cumulative distance at an item pickup location
+                     * is at most its cumulative distance at the delivery location. */
+
+                    yield return routingDim.CumulVar(pickupIndex) <= routingDim.CumulVar(deliveryIndex);
+                }
+
+                // Add each of the resolved Constraints to the Model Solver.
+                GetPickupAndDeliveryConstraints().ToList().ForEach(solver.Add);
+            }
+
+            var dim_MutableDim = dim.MutableDimension;
+
+            OnAddPickupAndDelivery(this.Model, this.Solver, dim_MutableDim);
+        }
 
         /// <summary>
         /// Disposes of the object.
