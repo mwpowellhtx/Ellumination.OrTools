@@ -528,6 +528,30 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
             this.Context.AddPickupAndDelivery(pickupNode, deliveryNode, this);
 
         /// <summary>
+        /// Handler occurs On <see cref="AddPickupAndDelivery(int, int)"/> ForEach
+        /// of the <paramref name="node"/> Elements.
+        /// </summary>
+        /// <param name="node"></param>
+        private void OnAddPickupAndDelivery((int pickup, int delivery) node) =>
+            this.AddPickupAndDelivery(node.pickup, node.delivery);
+
+        /// <summary>
+        /// Adds many <paramref name="nodes"/> Pickup and Delivery Constraints.
+        /// </summary>
+        /// <param name="nodes">The Nodes Adding Pickup and Delivery Constraints.</param>
+        /// <see cref="AddPickupAndDelivery(int, int)"/>
+        protected virtual void AddManyPickupsAndDeliveries(params (int pickup, int delivery)[] nodes) =>
+            nodes.ToList().ForEach(OnAddPickupAndDelivery);
+
+        /// <summary>
+        /// Adds many <paramref name="nodes"/> Pickup and Delivery Constraints.
+        /// </summary>
+        /// <param name="nodes">The Nodes Adding Pickup and Delivery Constraints.</param>
+        /// <see cref="AddPickupAndDelivery(int, int)"/>
+        protected virtual void AddManyPickupsAndDeliveries(IEnumerable<(int pickup, int delivery)> nodes) =>
+            nodes.OrEmpty().ToList().ForEach(OnAddPickupAndDelivery);
+
+        /// <summary>
         /// Constructs a Dimension given <paramref name="context"/> and
         /// <paramref name="coefficient"/>.
         /// </summary>
