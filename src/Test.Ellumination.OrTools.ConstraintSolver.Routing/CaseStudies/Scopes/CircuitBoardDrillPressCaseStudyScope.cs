@@ -156,10 +156,6 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
             // Vehicle should always be this.
             vehicle.AssertEqual(0);
 
-            this.SolutionPaths[vehicle] = this.SolutionPaths.TryGetValue(vehicle, out var path)
-                ? path
-                : new List<int>();
-
             this.SolutionPaths[vehicle].AssertNotNull().Add(node);
 
             if (previousNode.HasValue)
@@ -187,8 +183,8 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
 
             OnReportTotalDistance(this.TotalDistance);
 
-            this.SolutionPaths.Keys.OrderBy(key => key)
-                .Select(key => (key, (IEnumerable<int>)this.SolutionPaths[key]))
+            Range(0, this.VehicleCount)
+                .Select(_ => (_, (IEnumerable<int>)this.SolutionPaths[_]))
                     .ToList().ForEach(OnReportEachVehiclePath);
         }
     }

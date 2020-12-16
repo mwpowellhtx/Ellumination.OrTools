@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
 
 namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
@@ -20,9 +19,18 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         internal int TotalDistance { get; set; } = default;
 
         /// <summary>
+        /// Gets the VehicleCount.
+        /// </summary>
+        internal virtual int VehicleCount { get; } = default;
+
+        private IList<int?> _routeDistances;
+
+        /// <summary>
         /// Gets the RouteDistances for the Case Study, indexed by Vehicle.
         /// </summary>
-        internal virtual IDictionary<int, int?> RouteDistances { get; } = Range<int>().ToDictionary(x => x, _ => (int?)null);
+        internal virtual IList<int?> RouteDistances => (this._routeDistances ?? (
+            this._routeDistances = Range(0, this.VehicleCount).Select(_ => (int?)null).ToList()
+        )).AssertNotNull().AssertEqual(this.VehicleCount, _ => _.Count);
 
         /// <summary>
         /// Gets the <see cref="TotalDistance"/> Unit of Measure.
@@ -44,11 +52,19 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         /// </summary>
         protected abstract int?[,] MatrixValues { get; }
 
-        // TODO: TBD: potentially this should be in the base class...
         /// <summary>
-        /// Gets the SolutionPath.
+        /// 
         /// </summary>
-        internal IDictionary<int, ICollection<int>> SolutionPaths { get; } = new Dictionary<int, ICollection<int>>();
+        private static IList<int> DefaultSolutionPath => Range<int>().ToList();
+
+        private IList<IList<int>> _solutionPaths;
+
+        /// <summary>
+        /// Gets the SolutionPaths.
+        /// </summary>
+        internal IList<IList<int>> SolutionPaths => (this._solutionPaths ?? (
+            this._solutionPaths = Range(0, this.VehicleCount).Select(_ => DefaultSolutionPath).ToList()
+        )).AssertNotNull().AssertEqual(this.VehicleCount, _ => _.Count());
 
         /// <summary>
         /// Event handler occurs On

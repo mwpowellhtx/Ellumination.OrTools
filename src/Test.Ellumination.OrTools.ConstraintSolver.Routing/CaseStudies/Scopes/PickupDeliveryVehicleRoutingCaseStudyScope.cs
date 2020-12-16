@@ -10,45 +10,55 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
     using static TestFixtureBase;
 
     /// <inheritdoc/>
-    public class VehicleRoutingCaseStudyScope : CaseStudyScope<DistanceMatrix
-        , RoutingContext, DefaultRoutingAssignmentEventArgs, DefaultRoutingProblemSolver>
+    public class PickupDeliveryVehicleRoutingCaseStudyScope : VehicleRoutingCaseStudyScope
     {
+        /// <summary>
+        /// Gets the DimensionCoefficient, <c>100</c>.
+        /// </summary>
+        internal int DimensionCoefficient { get; } = 100;
+
+        /// <summary>
+        /// Gets the VehicleCapacity, <c>3000</c>.
+        /// </summary>
+        internal long VehicleCapacity { get; } = 3000;
+
+        /// <summary>
+        /// Gets the Nodes From which Pickups must be made, paired with the Nodes To which
+        /// Deliveries must be made. The pairings are an absolute requirement in the model,
+        /// and that the Deliveries must occur after their respective Pickups, conversely
+        /// that Pickups must occur sooner than their respective Deliveries.
+        /// </summary>
+        internal virtual IEnumerable<(int pickup, int delivery)> PickupDeliveries { get; } = Range(
+            (1, 6), (2, 10), (4, 3), (5, 9), (7, 8), (15, 11), (13, 12), (16, 14)
+        ).ToArray();
+
+        private ICollection<int[]> _expectedPaths;
+
         /// <inheritdoc/>
-        internal override int VehicleCount { get; } = 4;
+        internal override ICollection<int[]> ExpectedPaths => this._expectedPaths ?? (this._expectedPaths
+            = Range(
+                Range(0, 13, 15, 11, 12, 0).ToArray()
+                , Range(0, 5, 2, 10, 16, 14, 9, 0).ToArray()
+                , Range(0, 4, 3, 0).ToArray()
+                , Range(0, 7, 1, 6, 8, 0).ToArray()).ToList()).AssertEqual(this.VehicleCount, x => x.Count);
 
-        /// <summary>
-        /// Gets the ExpectedPaths.
-        /// </summary>
-        internal virtual ICollection<int[]> ExpectedPaths { get; } = Range(
-            Range(0, 8, 6, 2, 5, 0).ToArray()
-            , Range(0, 7, 1, 4, 3, 0).ToArray()
-            , Range(0, 9, 10, 16, 14, 0).ToArray()
-            , Range(0, 12, 11, 15, 13, 0).ToArray()).ToList();
-
-        private IEnumerable<int?> _expectedRouteDistances;
-
-        /// <summary>
-        /// Gets the ExpectedRouteDistances.
-        /// </summary>
-        internal virtual IEnumerable<int?> ExpectedRouteDistances => this._expectedRouteDistances ?? (
-            this._expectedRouteDistances = Range(0, this.VehicleCount).Select(_ => (int?)1552).ToArray()
-        );
+        /// <inheritdoc/>
+        internal override IEnumerable<int?> ExpectedRouteDistances { get; } = Range<int?>(1780, 1780, 2032, 1712);
 
         /// <summary>
         /// Constructs a Case Study Scope instance.
         /// </summary>
         /// <param name="outputHelper"></param>
-        public VehicleRoutingCaseStudyScope(ITestOutputHelper outputHelper)
+        public PickupDeliveryVehicleRoutingCaseStudyScope(ITestOutputHelper outputHelper)
             : base(outputHelper)
         {
         }
 
         // TODO: TBD: what is the proper distance unit?
         /// <summary>
-        /// Gets the Vehicle Routing DistanceUnit, &quot;units&quot;
-        /// for lack of a better definition.
+        /// Gets the Vehicle Routing DistanceUnit, &quot;m&quot; for lack of a better definition.
         /// </summary>
-        protected override string DistanceUnit { get; } = "units";
+        protected override string DistanceUnit { get; } = "m";
 
         private DistanceMatrix _matrix;
 
@@ -108,7 +118,9 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         );
 
         /// <inheritdoc/>
-        internal override DistanceMatrix Matrix => this._matrix ?? (this._matrix = new DistanceMatrix(this.MatrixValues));
+        internal override DistanceMatrix Matrix => this._matrix ?? (this._matrix
+            = new DistanceMatrix(this.MatrixValues)
+        );
 
         /// <inheritdoc/>
         internal override RoutingContext Context => this._context ?? (this._context
@@ -127,27 +139,11 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         /// of this in the subsequent report.</remarks>
         private static int Max(int val1, int val2) => Math.Max(val1, val2);
 
-        protected override void OnProblemSolverAssign(object sender, DefaultRoutingAssignmentEventArgs e)
-        {
-            var (vehicle, node, previousNode) = (e.AssertNotNull().VehicleIndex, e.NodeIndex, e.PreviousNodeIndex);
-
-            // Vehicle should always be this.
-            vehicle.AssertTrue(x => x >= 0 && x < this.VehicleCount);
-
-            this.SolutionPaths[vehicle].AssertNotNull().Add(node);
-
-            if (previousNode.HasValue)
-            {
-                var this_Context_Node_ArcCost = (int)this.Context.GetArcCostForVehicle(previousNode.Value, node, vehicle);
-
-                this.TotalDistance += this_Context_Node_ArcCost;
-
-                // We will keep these two lines separate, which makes for easier debugging when necessary.
-                this.RouteDistances[vehicle] = (this.RouteDistances[vehicle] ?? default) + this_Context_Node_ArcCost;
-            }
-
-            base.OnProblemSolverAssign(sender, e);
-        }
+        //// TODO: TBD: probably unnecessary from a scope perspective...
+        //protected override void OnProblemSolverAssign(object sender, DefaultRoutingAssignmentEventArgs e)
+        //{
+        //    base.OnProblemSolverAssign(sender, e);
+        //}
 
         /// <summary>
         /// Verifies the Solution vis a vis the TSP solution.
@@ -155,26 +151,50 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         /// <see cref="!:https://developers.google.com/optimization/routing/vrp#solution"/>
         internal override void VerifySolution()
         {
-            base.VerifySolution();
+            //base.VerifySolution();
 
-            this.AssertEqual(6208, x => x.TotalDistance);
-
-            this.SolutionPaths.AssertEqual(this.VehicleCount, x => x.Count);
-
-            void OnVerifyVehicle(int vehicle)
-            {
-                // Pretty much verbatim, https://developers.google.com/optimization/routing/vrp#solution.
-                var actualPath = this.SolutionPaths[vehicle];
-                var expectedPath = ExpectedPaths.ElementAt(vehicle);
-                actualPath.AssertCollectionEqual(expectedPath);
-            }
-
-            Range(0, this.VehicleCount).ToList().ForEach(OnVerifyVehicle);
+            this.AssertEqual(7304, x => x.TotalDistance);
 
             this.RouteDistances.AssertCollectionEqual(this.ExpectedRouteDistances);
 
+            this.SolutionPaths.AssertEqual(this.VehicleCount, x => x.Count);
+
+            //// TODO: TBD: I think that we verification may be duplicate between scope and the actual tests...
+            //void OnVerifyVehicle(int vehicle)
+            //{
+            //    // Pretty much verbatim, https://developers.google.com/optimization/routing/vrp#solution.
+            //    var actualPath = this.SolutionPaths[vehicle].AssertNotNull();
+            //    var expectedPath = this.ExpectedPaths.ElementAt(vehicle);
+            //    actualPath.AssertCollectionEqual(expectedPath);
+            //}
+            //Range(0, this.VehicleCount).ToList().ForEach(OnVerifyVehicle);
+
             /* See: https://developers.google.com/optimization/routing/vrp#printer, which
              * we should have the solution in hand approaching test disposal. */
+
+            void OnReportPickupDelivery((int index, int pickup, int delivery) nodeIndex)
+            {
+                const char comma = ',';
+
+                var (i, pickup, delivery) = nodeIndex;
+
+                var rendered = RenderTupleAssociates(
+                    (nameof(i), Render(i))
+                    , (nameof(pickup), Render(pickup))
+                    , (nameof(delivery), Render(delivery))
+                );
+
+                this.OutputHelper.WriteLine($"  {(i == 0 ? string.Empty : $"{comma} ")}{rendered}");
+            }
+
+            void OnReportPickupsDeliveries(params (int pickup, int delivery)[] nodes)
+            {
+                const string squareBrackets = "[]";
+                const string curlyBraces = "{}";
+                this.OutputHelper.WriteLine($"{nameof(this.PickupDeliveries)}{squareBrackets} = {curlyBraces[0]}");
+                nodes.Select((_, i) => (index: i, _.pickup, _.delivery)).ToList().ForEach(OnReportPickupDelivery);
+                this.OutputHelper.WriteLine($"{curlyBraces[1]}");
+            }
 
             void OnReportTotalDistance(int totalDistance) =>
                 this.OutputHelper.WriteLine($"Total distance of all routes: {totalDistance} {this.DistanceUnit}");
@@ -192,8 +212,10 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
                 this.OutputHelper.WriteLine(string.Empty);
             }
 
+            OnReportPickupsDeliveries(this.PickupDeliveries.ToArray());
+
             Range(0, this.VehicleCount)
-                .Select(_ => (_, (IEnumerable<int>)this.SolutionPaths[_]))
+                .Select(_ => (_, this.SolutionPaths[_].AssertIsAssignableFrom<IEnumerable<int>>()))
                     .ToList().ForEach(OnReportEachVehiclePath);
 
             OnReportTotalDistance(this.TotalDistance);

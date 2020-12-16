@@ -17,11 +17,14 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         public IEnumerable<long> Demands { get; } = Range<long>(
             0, 1, 1, 2, 4, 2, 4, 8, 8, 1, 2, 1, 2, 4, 4, 8, 8).ToArray();
 
+        private IEnumerable<long> _vehicleCaps;
+
         /// <summary>
         /// Gets the VehicleCapacities informing the Case Study tests.
         /// </summary>
-        internal virtual IEnumerable<long> VehicleCapacities { get; }
-            = Enumerable.Range(0, FourVehicles).Select(_ => 15L).ToArray();
+        internal virtual IEnumerable<long> VehicleCapacities => this._vehicleCaps ?? (this._vehicleCaps
+            = Range(0, this.VehicleCount).Select(_ => 15L).ToArray()
+        );
 
 
         /// <inheritdoc/>
@@ -32,7 +35,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
             , Range(0, 9, 8, 6, 5, 0).ToArray()).ToList();
 
         /// <inheritdoc/>
-        internal override IEnumerable<int> ExpectedRouteDistances { get; } = Range(2192, 2192, 1324, 1164);
+        internal override IEnumerable<int?> ExpectedRouteDistances { get; } = Range<int?>(2192, 2192, 1324, 1164);
 
         /// <summary>
         /// Constructs a Case Study Scope instance.
@@ -50,16 +53,14 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         /// </summary>
         protected override string DistanceUnit { get; } = "m";
 
+        /// <inheritdoc/>
         protected override void OnProblemSolverAssign(object sender, DefaultRoutingAssignmentEventArgs e)
         {
+            // TODO: TBD: may not need this one? compare/contrast with base class(es) ...
             var (vehicle, node, previousNode) = (e.AssertNotNull().VehicleIndex, e.NodeIndex, e.PreviousNodeIndex);
 
             // Vehicle should always be this.
-            vehicle.AssertTrue(x => x >= 0 && x < FourVehicles);
-
-            this.SolutionPaths[vehicle] = this.SolutionPaths.TryGetValue(vehicle, out var path)
-                ? path
-                : new List<int>();
+            vehicle.AssertTrue(x => x >= 0 && x < this.VehicleCount);
 
             this.SolutionPaths[vehicle].AssertNotNull().Add(node);
 
@@ -70,9 +71,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
                 this.TotalDistance += this_Context_ArcCost_node;
 
                 // We will keep these two lines separate, which makes for easier debugging when necessary.
-                var tried = this.RouteDistances.TryGetValue(vehicle, out var this_RouteDistances_value);
-
-                this.RouteDistances[vehicle] = (tried ? this_RouteDistances_value : default(int)) + this_Context_ArcCost_node;
+                this.RouteDistances[vehicle] = (this.RouteDistances[vehicle] ?? default) + this_Context_ArcCost_node;
             }
 
             //base.OnProblemSolverAssign(sender, e);
@@ -88,23 +87,19 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
 
             this.AssertEqual(6872, x => x.TotalDistance);
 
-            this.SolutionPaths.AssertEqual(FourVehicles, x => x.Count);
+            this.SolutionPaths.AssertEqual(this.VehicleCount, x => x.Count);
 
             void OnVerifyVehicle(int vehicle)
             {
-                if (this.SolutionPaths.TryGetValue(vehicle, out var actualPath).AssertTrue())
-                {
-                    // Pretty much verbatim, https://developers.google.com/optimization/routing/cvrp#solution.
-
-                    var expectedPath = ExpectedPaths.ElementAt(vehicle);
-
-                    actualPath.AssertCollectionEqual(expectedPath);
-                }
+                // Pretty much verbatim, https://developers.google.com/optimization/routing/cvrp#solution.
+                var actualPath = this.SolutionPaths[vehicle].AssertNotNull();
+                var expectedPath = this.ExpectedPaths.ElementAt(vehicle);
+                actualPath.AssertCollectionEqual(expectedPath);
             }
 
-            Enumerable.Range(0, FourVehicles).ToList().ForEach(OnVerifyVehicle);
+            Range(0, this.VehicleCount).ToList().ForEach(OnVerifyVehicle);
 
-            this.RouteDistances.Values.Select(x => (int)x.AssertNotNull()).AssertCollectionEqual(ExpectedRouteDistances);
+            this.RouteDistances.AssertCollectionEqual(this.ExpectedRouteDistances);
 
             /* See: https://developers.google.com/optimization/routing/cvrp#printer, which
              * we should have the solution in hand approaching test disposal. */
@@ -125,9 +120,9 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
                 this.OutputHelper.WriteLine(string.Empty);
             }
 
-            this.SolutionPaths.Keys.OrderBy(vehicle => vehicle)
-                .Select(vehicle => (vehicle, (IEnumerable<int>)this.SolutionPaths[vehicle]))
-                    .ToList().ForEach(OnReportEachVehiclePath);
+            Range(0, this.VehicleCount)
+                .Select(_ => (_, (IEnumerable<int>)this.SolutionPaths[_]))
+                .ToList().ForEach(OnReportEachVehiclePath);
 
             OnReportTotalDistance(this.TotalDistance);
         }

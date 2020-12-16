@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
 
 namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
@@ -14,6 +13,11 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
     public class TravelingSalesmanCaseStudyScope : CaseStudyScope<DistanceMatrix
         , RoutingContext, DefaultRoutingAssignmentEventArgs, DefaultRoutingProblemSolver>
     {
+        /// <summary>
+        /// <c>1</c>
+        /// </summary>
+        internal override int VehicleCount { get; } = 1;
+
         /// <summary>
         /// Gets the Traveling Salesman Distance Unit, &quot;mi&quot;.
         /// </summary>
@@ -69,11 +73,8 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
             // Vehicle should always be this.
             vehicle.AssertEqual(0);
 
-            this.SolutionPaths[vehicle] = this.SolutionPaths.TryGetValue(vehicle, out var path)
-                ? path
-                : new List<int>();
-
-            this.SolutionPaths[vehicle].AssertNotNull().Add(node);
+            // TODO: TBD: need to ensure that vehicle count is initialized...
+            this.SolutionPaths[vehicle].Add(node);
 
             if (previousNode.HasValue)
             {
@@ -91,18 +92,17 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         {
             base.VerifySolution();
 
-            this.SolutionPaths.AssertEqual(1, x => x.Count);
+            // Pretty much verbatim, https://developers.google.com/optimization/routing/tsp#solution1.
+            this.AssertEqual(7293, x => x.TotalDistance);
 
-            // TODO: TBD: which we could probably refactor the "0" vehicle, to "all" vehicles, etc...
-            if (this.SolutionPaths.TryGetValue(0, out var actualPath).AssertTrue())
-            {
-                // Pretty much verbatim, https://developers.google.com/optimization/routing/tsp#solution1.
-                this.AssertEqual(7293, x => x.TotalDistance);
+            // TODO: TBD: should refactor this to scope, vehicle count, etc...
+            this.SolutionPaths.AssertNotNull().AssertEqual(1, x => x.Count);
 
-                ICollection<int> expectedPath = Range(0, 7, 2, 3, 4, 12, 6, 8, 1, 11, 10, 5, 9, 0).ToList();
+            var actualPath = this.SolutionPaths.ElementAt(0).AssertNotNull();
 
-                actualPath.AssertCollectionEqual(expectedPath);
-            }
+            ICollection<int> expectedPath = Range(0, 7, 2, 3, 4, 12, 6, 8, 1, 11, 10, 5, 9, 0).ToList();
+
+            actualPath.AssertCollectionEqual(expectedPath);
 
             /* See: https://developers.google.com/optimization/routing/tsp#printer, which
              * we should have the solution in hand approaching test disposal. */
@@ -117,7 +117,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
 
             OnReportTotalDistance(this.TotalDistance);
 
-            this.SolutionPaths.Keys.OrderBy(key => key)
+            Range(0, this.VehicleCount)
                 .Select(key => (key, (IEnumerable<int>)this.SolutionPaths[key]))
                     .ToList().ForEach(OnReportEachVehiclePath);
         }
