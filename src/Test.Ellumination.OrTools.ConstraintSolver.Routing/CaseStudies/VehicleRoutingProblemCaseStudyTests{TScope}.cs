@@ -120,10 +120,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
             scope.Matrix.AssertEqual(scope.Context.NodeCount, x => x.Width);
             scope.Matrix.AssertEqual(scope.Context.NodeCount, x => x.Height);
 
-            scope.Context.AssertEqual(FourVehicles, x => x.VehicleCount);
-
-            scope.SolutionPaths.AssertNotNull().AssertCollectionEmpty();
-            scope.RouteDistances.AssertNotNull().AssertCollectionEmpty();
+            scope.Context.AssertEqual(scope.VehicleCount, x => x.VehicleCount);
 
             return scope;
         }
@@ -136,10 +133,6 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         /// <see cref="!:https://developers.google.com/optimization/routing/vrp#solution"/>
         protected override void OnVerifySolution(TScope scope)
         {
-            scope.SolutionPaths.AssertEqual(FourVehicles, x => x.Count);
-
-            scope.ExpectedPaths.AssertEqual(FourVehicles, x => x.Count);
-
             void OnVerifyExpectedPath((int[] expectedPath, int vehicle) tuple)
             {
                 var (expectedPath, vehicle) = tuple;

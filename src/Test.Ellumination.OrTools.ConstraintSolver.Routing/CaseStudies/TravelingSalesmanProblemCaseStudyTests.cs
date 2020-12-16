@@ -97,8 +97,6 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
 
             scope.Context.AssertEqual(1, x => x.VehicleCount);
 
-            scope.SolutionPaths.AssertNotNull().AssertCollectionEmpty();
-
             return scope;
         }
 
@@ -164,11 +162,12 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         /// <see cref="!:https://developers.google.com/optimization/routing/tsp#solution1"/>
         protected override void OnVerifySolution(TravelingSalesmanCaseStudyScope scope)
         {
-            const int expectedVehicle = 0;
-            scope.SolutionPaths.AssertEqual(1, x => x.Count);
-            scope.SolutionPaths.AssertTrue(x => x.ContainsKey(expectedVehicle));
+            const int vehicle = 0;
+            // TODO: TBD: refactor taking into account scope.VehicleCount, expected paths, etc...
+            // TODO: TBD: refactor all "scope" based...
+            var actualPath = scope.SolutionPaths.AssertEqual(1, x => x.Count)[vehicle].AssertNotNull();
             var expectedPath = Range(0, 7, 2, 3, 4, 12, 6, 8, 1, 11, 10, 5, 9, 0);
-            scope.SolutionPaths.AssertEqual(expectedPath, x => x[0]);
+            actualPath.AssertCollectionEqual(expectedPath);
         }
 
         // TODO: TBD: okay, so test "works", output can be verified against expected outcomes...

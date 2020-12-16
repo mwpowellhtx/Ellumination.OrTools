@@ -100,13 +100,12 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
 
             scope.TotalDistance.AssertEqual(2790);
 
+            // TODO: TBD: should refactor this into the scope...
             const int vehicle = default;
 
-            if (!scope.SolutionPaths.TryGetValue(vehicle, out var actualPath).AssertTrue())
-            {
-                return;
-            }
+            var actualPath = scope.SolutionPaths[vehicle].AssertNotNull();
 
+            // TODO: TBD: should refactor this into the scope...
             ICollection<int> expectedPath = Range(
                     0, 1, 279, 2, 278, 277, 247, 248, 249, 246, 244, 243, 242, 241, 240
                     , 239, 238, 237, 236, 235, 234, 233, 232, 231, 230, 245, 250, 229, 228
