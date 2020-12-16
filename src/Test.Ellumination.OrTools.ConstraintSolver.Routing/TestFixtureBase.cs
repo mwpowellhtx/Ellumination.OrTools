@@ -26,6 +26,15 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         }
 
         /// <summary>
+        /// Internal adapter for the <see cref="Enumerable.Range"/> method.
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        internal static IEnumerable<int> Range(int start, int count) =>
+            Enumerable.Range(start, count);
+
+        /// <summary>
         /// Returns the Range of <paramref name="values"/>.
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -46,7 +55,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="value"></param>
         /// <param name="callback"></param>
         /// <returns></returns>
-        protected static string Render<T>(T value, Func<T, string> callback = null)
+        internal static string Render<T>(T value, Func<T, string> callback = null)
         {
             callback = callback ?? (x => $"{x}");
             return callback.Invoke(value);
@@ -57,19 +66,19 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        protected static string Render(bool value) => Render(value, x => $"{x}".ToLower());
+        internal static string Render(bool value) => Render(value, x => $"{x}".ToLower());
 
         /// <summary>
         /// Renders the Associate <paramref name="pairs"/>.
         /// </summary>
         /// <param name="pairs"></param>
         /// <returns></returns>
-        protected static IEnumerable<string> RenderAssociates(params (string name, string value)[] pairs)
+        internal static IEnumerable<string> RenderAssociates(params (string name, string value)[] pairs)
         {
-            foreach (var pair in pairs)
+            foreach (var (name, value) in pairs)
             {
                 const char colon = ':';
-                yield return Join($"{colon} ", pair.name, pair.value);
+                yield return Join($"{colon} ", name, value);
             }
         }
 
@@ -78,7 +87,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// </summary>
         /// <param name="pairs"></param>
         /// <returns></returns>
-        protected static string RenderTupleAssociates(params (string name, string value)[] pairs)
+        internal static string RenderTupleAssociates(params (string name, string value)[] pairs)
         {
             var rendered = RenderAssociates(pairs);
             const char comma = ',';
