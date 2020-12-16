@@ -56,6 +56,18 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         protected RoutingSearchParameters SearchParameters { get; private set; }
 
         /// <summary>
+        /// Gets an instance of <see cref="RoutingModelVehicleVariableLookup"/> for Private use.
+        /// </summary>
+        /// <see cref="VehicleVarLookup"/>
+        private RoutingModelVehicleVariableLookup PrivateVehicleVarLookup => this.Model;
+
+        /// <summary>
+        /// Gets an instance of <see cref="IRoutingModelVehicleVariableLookup"/> for Protected use.
+        /// </summary>
+        /// <see cref="PrivateVehicleVarLookup"/>
+        protected virtual IRoutingModelVehicleVariableLookup VehicleVarLookup => this.PrivateVehicleVarLookup;
+
+        /// <summary>
         /// Constructs the Context given Node and Vehicle Counts.
         /// </summary>
         /// <param name="nodeCount">The number of Nodes in the model.</param>
@@ -193,10 +205,15 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <summary>
         /// Adds a Pickup and Delivery requirement to the <see cref="Model"/>.
         /// </summary>
+        /// <param name="dim">The Dimension informing the Pickup and Delivery pair.</param>
+        /// <param name="solver">The Solver for use with the Pickup and Delivery pair.</param>
         /// <param name="pickupNode">The domain based Pickup Node.</param>
         /// <param name="deliveryNode">The domain based Delivery Node.</param>
-        /// <param name="dim">The Dimension informing the Context of the Pickup and Delivery.</param>
-        public virtual void AddPickupAndDelivery(int pickupNode, int deliveryNode, Dimension dim)
+        /// <remarks>This is protectedly accessible because we cannot know at an architectural
+        /// scaffold level which Dimension instances may want to make the invocation. So we
+        /// expose it for protected use.</remarks>
+        protected virtual void OnAddPickupAndDelivery(Dimension dim, Solver solver
+            , int pickupNode, int deliveryNode)
         {
             var (pickupIndex, deliveryIndex) = (
                 this.NodeToIndex(pickupNode)
@@ -204,29 +221,59 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
             );
 
             // TODO: TBD: should validate we have a dimension, mutabledimension, etc...
-            void OnAddPickupAndDelivery(RoutingModel model, Solver solver, RoutingDimension routingDim)
+            this.Model.AddPickupAndDelivery(pickupIndex, deliveryIndex);
+
+            IEnumerable<Constraint> GetPickupAndDeliveryConstraints(
+                IRoutingModelVehicleVariableLookup vehicleVarLookup
+                , IRoutingDimensionAccumulatorLookup accumulatorLookup)
             {
-                model.AddPickupAndDelivery(pickupIndex, deliveryIndex);
+                // Requires that each item picked up / delivered by same vehicle.
+                yield return vehicleVarLookup[pickupIndex] == vehicleVarLookup[deliveryIndex];
 
-                IEnumerable<Constraint> GetPickupAndDeliveryConstraints()
-                {
-                    // Requires that each item picked up / delivered by same vehicle.
-                    yield return model.VehicleVar(pickupIndex) == model.VehicleVar(deliveryIndex);
+                /* Requires that each item must be picked up before it is delivered. In other
+                 * words, vehicle cumulative distance at an item pickup location is at most its
+                 * cumulative distance at the delivery location. */
 
-                    /* Also requires that each item must be picked up before it is delivered.
-                     * In other words, vehicle cumulative distance at an item pickup location
-                     * is at most its cumulative distance at the delivery location. */
+                yield return accumulatorLookup[pickupIndex] <= accumulatorLookup[deliveryIndex];
 
-                    yield return routingDim.CumulVar(pickupIndex) <= routingDim.CumulVar(deliveryIndex);
-                }
-
-                // Add each of the resolved Constraints to the Model Solver.
-                GetPickupAndDeliveryConstraints().ToList().ForEach(solver.Add);
+                /* Additionally, from an architectural scaffold perspective, it is super easy to
+                 * construct these boolean style DSL phrases. SUPER easy. What is more important
+                 * to us is to facilitate access to those variables in as transparent, easy to
+                 * use, manner as possible. */
             }
 
-            var dim_MutableDim = dim.MutableDimension;
+            // Add each of the resolved Constraints to the Model Solver.
+            GetPickupAndDeliveryConstraints(this.VehicleVarLookup, dim.AccumulatorLookup)
+                .ToList().ForEach(solver.Add);
+        }
 
-            OnAddPickupAndDelivery(this.Model, this.Solver, dim_MutableDim);
+        /// <summary>
+        /// Adds a Pickup and Delivery requirement to the <see cref="Model"/>.
+        /// </summary>
+        /// <param name="dim">The Dimension informing the Pickup and Delivery pair.</param>
+        /// <param name="pickupNode">The domain based Pickup Node.</param>
+        /// <param name="deliveryNode">The domain based Delivery Node.</param>
+        /// <remarks>This is publicly accessible because we cannot know at an architectural
+        /// scaffold level which Dimension instances may want to make the invocation. So we
+        /// expose it for public use.</remarks>
+        public virtual void AddPickupAndDelivery(Dimension dim, int pickupNode, int deliveryNode) =>
+            this.OnAddPickupAndDelivery(dim, this.Solver, pickupNode, deliveryNode);
+
+        /// <summary>
+        /// Adds the Pickup and Delivery <paramref name="nodes"/> pairs corresponding
+        /// to the <paramref name="dim"/>.
+        /// </summary>
+        /// <param name="dim">The Dimension corresponding to the <paramref name="nodes"/> pairs.</param>
+        /// <param name="nodes">The Pickup and Delivery pair nodes.</param>
+        public virtual void AddPickupsAndDeliveries(Dimension dim, params (int pickup, int delivery)[] nodes)
+        {
+            // For optimum use throughout the span of Nodes.
+            var this_Solver = this.Solver;
+
+            void OnAddPickupAndDelivery((int pickup, int delivery) node) =>
+                this.OnAddPickupAndDelivery(dim, this_Solver, node.pickup, node.delivery);
+
+            nodes.ToList().ForEach(OnAddPickupAndDelivery);
         }
 
         /// <summary>
