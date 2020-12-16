@@ -5,5 +5,9 @@
     /// </summary>
     public interface IDimension
     {
+        /// <summary>
+        /// Gets an AccumulatorLookup instance corresponding to the Dimension.
+        /// </summary>
+        IRoutingDimensionAccumulatorLookup AccumulatorLookup { get; }
     }
 }

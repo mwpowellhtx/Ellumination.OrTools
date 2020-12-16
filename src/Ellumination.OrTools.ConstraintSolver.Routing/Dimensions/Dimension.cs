@@ -244,6 +244,18 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// </summary>
         public virtual RoutingDimension MutableDimension => this.Context.Model.GetMutableDimension(this.Name);
 
+        /// <summary>
+        /// Gets an instance of <see cref="RoutingDimensionAccumulatorLookup"/> for Private use.
+        /// </summary>
+        /// <see cref="AccumulatorLookup"/>
+        private RoutingDimensionAccumulatorLookup PrivateAccumulatorLookup => this.MutableDimension;
+
+        /// <summary>
+        /// Gets the AccumulatorLookup corresponding to the Dimension.
+        /// </summary>
+        /// <see cref="PrivateAccumulatorLookup"/>
+        public virtual IRoutingDimensionAccumulatorLookup AccumulatorLookup => this.PrivateAccumulatorLookup;
+
         // TODO: TBD: we think that perhaps future versions could support distance matrix as part of the equation...
         // TODO: TBD: then, whether these bits are pre-calculated in some way... is a decision for later...
         // TODO: TBD: for now, the callback is the callback, the moment when such calculation should occur.
@@ -518,38 +530,34 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         }
 
         /// <summary>
-        /// Adds a <paramref name="pickupNode"/> and <paramref name="deliveryNode"/> pair
-        /// to the model, which nodes must both be serviced by the same Vehicle.
+        /// Adds a <paramref name="pickupNode"/> and <paramref name="deliveryNode"/>
+        /// pair to the model, which nodes must both be serviced by the same Vehicle.
         /// </summary>
         /// <param name="pickupNode">The Node from which Pickup occurs.</param>
         /// <param name="deliveryNode">The Node to which Delivery occurs.</param>
         /// <see cref="RoutingContext.AddPickupAndDelivery"/>
         protected virtual void AddPickupAndDelivery(int pickupNode, int deliveryNode) =>
-            this.Context.AddPickupAndDelivery(pickupNode, deliveryNode, this);
-
-        /// <summary>
-        /// Handler occurs On <see cref="AddPickupAndDelivery(int, int)"/> ForEach
-        /// of the <paramref name="node"/> Elements.
-        /// </summary>
-        /// <param name="node"></param>
-        private void OnAddPickupAndDelivery((int pickup, int delivery) node) =>
-            this.AddPickupAndDelivery(node.pickup, node.delivery);
+            this.Context.AddPickupAndDelivery(this, pickupNode, deliveryNode);
 
         /// <summary>
         /// Adds many <paramref name="nodes"/> Pickup and Delivery Constraints.
         /// </summary>
         /// <param name="nodes">The Nodes Adding Pickup and Delivery Constraints.</param>
-        /// <see cref="AddPickupAndDelivery(int, int)"/>
-        protected virtual void AddManyPickupsAndDeliveries(params (int pickup, int delivery)[] nodes) =>
-            nodes.ToList().ForEach(OnAddPickupAndDelivery);
+        /// <remarks>Also requires that the Dimension has already been registered with
+        /// the Model prior adding the pickups and deliveries constraints.</remarks>
+        /// <see cref="RoutingContext.AddPickupsAndDeliveries"/>
+        protected virtual void AddPickupsAndDeliveries(params (int pickup, int delivery)[] nodes) =>
+            this.Context.AddPickupsAndDeliveries(this, nodes);
 
         /// <summary>
         /// Adds many <paramref name="nodes"/> Pickup and Delivery Constraints.
         /// </summary>
         /// <param name="nodes">The Nodes Adding Pickup and Delivery Constraints.</param>
-        /// <see cref="AddPickupAndDelivery(int, int)"/>
-        protected virtual void AddManyPickupsAndDeliveries(IEnumerable<(int pickup, int delivery)> nodes) =>
-            nodes.OrEmpty().ToList().ForEach(OnAddPickupAndDelivery);
+        /// <remarks>Also requires that the Dimension has already been registered with
+        /// the Model prior adding the pickups and deliveries constraints.</remarks>
+        /// <see cref="RoutingContext.AddPickupsAndDeliveries"/>
+        protected virtual void AddPickupsAndDeliveries(IEnumerable<(int pickup, int delivery)> nodes) =>
+            this.Context.AddPickupsAndDeliveries(this, nodes.OrEmpty().ToArray());
 
         /// <summary>
         /// Constructs a Dimension given <paramref name="context"/> and
