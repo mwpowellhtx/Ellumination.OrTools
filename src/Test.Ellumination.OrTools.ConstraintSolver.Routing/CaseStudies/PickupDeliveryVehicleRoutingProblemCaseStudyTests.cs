@@ -57,14 +57,16 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         {
             scope.ExpectedPaths.AssertEqual(scope.VehicleCount, x => x.Count);
 
-            //// TODO: TBD: it is less important that the path itself was a match.
-            //void OnVerifyExpectedPath((int vehicle, int[] expectedPath) tuple)
-            //{
-            //    var (vehicle, expectedPath) = tuple;
-            //    var actualPath = scope.SolutionPaths[vehicle];
-            //    actualPath.AssertCollectionEqual(expectedPath);
-            //}
-            //scope.ExpectedPaths.Select((x, i) => (i, x)).ToList().ForEach(OnVerifyExpectedPath);
+            // TODO: TBD: this could also be a general base base class verification...
+            // We can also verify that we are indeed expecting each solution.
+            void OnVerifyEachSolutionPath(ICollection<int> path, int depot)
+            {
+                path.AssertNotNull().AssertTrue(_ => _.Count > 2);
+                path.AssertEqual(depot, _ => _.First());
+                path.AssertEqual(depot, _ => _.Last());
+            }
+
+            scope.SolutionPaths.ToList().ForEach(_ => OnVerifyEachSolutionPath(_, scope.Depot));
 
             // It is more important that the pickup/delivery pair is accounted.
             void OnVerifyPickupDelivery((int pickup, int delivery) node)

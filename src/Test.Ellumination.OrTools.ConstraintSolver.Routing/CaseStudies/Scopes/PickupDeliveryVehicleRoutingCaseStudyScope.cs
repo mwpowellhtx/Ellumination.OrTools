@@ -67,7 +67,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         /// <summary>
         /// Zed, <c>0</c>, is the home Depot.
         /// </summary>
-        private const int Depot = 0;
+        internal int Depot { get; } = default;
 
         /// <inheritdoc/>
         protected override int?[,] MatrixValues { get; } = {
