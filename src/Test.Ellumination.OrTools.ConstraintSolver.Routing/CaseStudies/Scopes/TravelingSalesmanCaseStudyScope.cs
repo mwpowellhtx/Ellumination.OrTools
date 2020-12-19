@@ -14,13 +14,15 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         , RoutingContext, DefaultRoutingAssignmentEventArgs, DefaultRoutingProblemSolver>
     {
         /// <summary>
-        /// <c>1</c>
+        /// Gets the VehicleCount, <c>1</c>.
         /// </summary>
+        /// <value>1</value>
         internal override int VehicleCount { get; } = 1;
 
         /// <summary>
-        /// Gets the Traveling Salesman Distance Unit, &quot;mi&quot;.
+        /// Gets the Traveling Salesman Distance Unit, <c>&quot;mi&quot;</c>.
         /// </summary>
+        /// <value>mi</value>
         protected override string DistanceUnit { get; } = "mi";
 
         public TravelingSalesmanCaseStudyScope(ITestOutputHelper outputHelper)
@@ -33,93 +35,30 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         /// </summary>
         /// <see cref="!:https://developers.google.com/optimization/routing/tsp#dist_matrix_data"/>
         protected override int?[,] MatrixValues { get; } = {
-                {0, 2451, 713, 1018, 1631, 1374, 2408, 213, 2571, 875, 1420, 2145, 1972}
-                , {2451, 0, 1745, 1524, 831, 1240, 959, 2596, 403, 1589, 1374, 357, 579}
-                , {713, 1745, 0, 355, 920, 803, 1737, 851, 1858, 262, 940, 1453, 1260}
-                , {1018, 1524, 355, 0, 700, 862, 1395, 1123, 1584, 466, 1056, 1280, 987}
-                , {1631, 831, 920, 700, 0, 663, 1021, 1769, 949, 796, 879, 586, 371}
-                , {1374, 1240, 803, 862, 663, 0, 1681, 1551, 1765, 547, 225, 887, 999}
-                , {2408, 959, 1737, 1395, 1021, 1681, 0, 2493, 678, 1724, 1891, 1114, 701}
-                , {213, 2596, 851, 1123, 1769, 1551, 2493, 0, 2699, 1038, 1605, 2300, 2099}
-                , {2571, 403, 1858, 1584, 949, 1765, 678, 2699, 0, 1744, 1645, 653, 600}
-                , {875, 1589, 262, 466, 796, 547, 1724, 1038, 1744, 0, 679, 1272, 1162}
-                , {1420, 1374, 940, 1056, 879, 225, 1891, 1605, 1645, 679, 0, 1017, 1200}
-                , {2145, 357, 1453, 1280, 586, 887, 1114, 2300, 653, 1272, 1017, 0, 504}
-                , {1972, 579, 1260, 987, 371, 999, 701, 2099, 600, 1162, 1200, 504, 0}
-            };
-
-        private DistanceMatrix _matrix;
-
-        private RoutingContext _context;
+            {0, 2451, 713, 1018, 1631, 1374, 2408, 213, 2571, 875, 1420, 2145, 1972}
+            , {2451, 0, 1745, 1524, 831, 1240, 959, 2596, 403, 1589, 1374, 357, 579}
+            , {713, 1745, 0, 355, 920, 803, 1737, 851, 1858, 262, 940, 1453, 1260}
+            , {1018, 1524, 355, 0, 700, 862, 1395, 1123, 1584, 466, 1056, 1280, 987}
+            , {1631, 831, 920, 700, 0, 663, 1021, 1769, 949, 796, 879, 586, 371}
+            , {1374, 1240, 803, 862, 663, 0, 1681, 1551, 1765, 547, 225, 887, 999}
+            , {2408, 959, 1737, 1395, 1021, 1681, 0, 2493, 678, 1724, 1891, 1114, 701}
+            , {213, 2596, 851, 1123, 1769, 1551, 2493, 0, 2699, 1038, 1605, 2300, 2099}
+            , {2571, 403, 1858, 1584, 949, 1765, 678, 2699, 0, 1744, 1645, 653, 600}
+            , {875, 1589, 262, 466, 796, 547, 1724, 1038, 1744, 0, 679, 1272, 1162}
+            , {1420, 1374, 940, 1056, 879, 225, 1891, 1605, 1645, 679, 0, 1017, 1200}
+            , {2145, 357, 1453, 1280, 586, 887, 1114, 2300, 653, 1272, 1017, 0, 504}
+            , {1972, 579, 1260, 987, 371, 999, 701, 2099, 600, 1162, 1200, 504, 0}
+        };
 
         /// <inheritdoc/>
-        internal override DistanceMatrix Matrix => this._matrix ?? (this._matrix = new DistanceMatrix(this.MatrixValues));
+        protected override DistanceMatrix CreateMatrix() => new DistanceMatrix(this.MatrixValues);
 
         /// <inheritdoc/>
-        internal override RoutingContext Context => this._context ?? (
-            this._context = new RoutingContext(this.Matrix.Width, 1)
-            );
+        protected override RoutingContext CreateContext() => new RoutingContext(this.Matrix.Width, this.VehicleCount);
 
-        /// <summary>
-        /// Event handler occurs On
-        /// <see cref="AssignableRoutingProblemSolver{TContext, TAssign}.Assign"/> event.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        protected override void OnProblemSolverAssign(object sender, DefaultRoutingAssignmentEventArgs e)
-        {
-            var (vehicle, node, previousNode) = (e.AssertNotNull().VehicleIndex, e.NodeIndex, e.PreviousNodeIndex);
-
-            // Vehicle should always be this.
-            vehicle.AssertEqual(0);
-
-            // TODO: TBD: need to ensure that vehicle count is initialized...
-            this.SolutionPaths[vehicle].Add(node);
-
-            if (previousNode.HasValue)
-            {
-                this.TotalDistance += this.Matrix[previousNode.Value, node] ?? default;
-            }
-
-            base.OnProblemSolverAssign(sender, e);
-        }
-
-        /// <summary>
-        /// Verifies the Solution vis a vis the TSP solution.
-        /// </summary>
-        /// <see cref="!:https://developers.google.com/optimization/routing/tsp#solution1"/>
-        internal override void VerifySolution()
-        {
-            base.VerifySolution();
-
-            // Pretty much verbatim, https://developers.google.com/optimization/routing/tsp#solution1.
-            this.AssertEqual(7293, x => x.TotalDistance);
-
-            // TODO: TBD: should refactor this to scope, vehicle count, etc...
-            this.SolutionPaths.AssertNotNull().AssertEqual(1, x => x.Count);
-
-            var actualPath = this.SolutionPaths.ElementAt(0).AssertNotNull();
-
-            ICollection<int> expectedPath = Range(0, 7, 2, 3, 4, 12, 6, 8, 1, 11, 10, 5, 9, 0).ToList();
-
-            actualPath.AssertCollectionEqual(expectedPath);
-
-            /* See: https://developers.google.com/optimization/routing/tsp#printer, which
-             * we should have the solution in hand approaching test disposal. */
-
-            void OnReportTotalDistance(int totalDistance) =>
-                this.OutputHelper.WriteLine($"Objective: {totalDistance} {this.DistanceUnit}");
-
-            void OnReportEachVehiclePath((int vehicle, IEnumerable<int> path) item) =>
-                this.OutputHelper.WriteLine(
-                    $"Route for vehicle {item.vehicle}: {string.Join(" , ", item.path)}"
-                );
-
-            OnReportTotalDistance(this.TotalDistance);
-
-            Range(0, this.VehicleCount)
-                .Select(key => (key, (IEnumerable<int>)this.SolutionPaths[key]))
-                    .ToList().ForEach(OnReportEachVehiclePath);
-        }
+        /// <inheritdoc/>
+        internal override IList<int[]> ExpectedPaths { get; set; } = Range<int[]>(
+            Range(0, 7, 2, 3, 4, 12, 6, 8, 1, 11, 10, 5, 9, 0).ToArray()
+        ).ToList();
     }
 }
