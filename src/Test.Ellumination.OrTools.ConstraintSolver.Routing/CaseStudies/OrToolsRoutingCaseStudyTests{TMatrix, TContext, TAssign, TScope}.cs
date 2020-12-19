@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
 {
@@ -11,9 +9,11 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
     /// <summary>
     /// Override in order to specify further bits concerning the Case Study.
     /// </summary>
-    /// <typeparam name="TMatrix"></typeparam>
-    /// <typeparam name="TContext"></typeparam>
-    /// <typeparam name="TScope"></typeparam>
+    /// <typeparam name="TMatrix">A <see cref="Distances.Matrix"/> type.</typeparam>
+    /// <typeparam name="TContext">A <see cref="RoutingContext"/> type.</typeparam>
+    /// <typeparam name="TAssign">A <see cref="RoutingAssignmentEventArgs{TContext}"/> type.</typeparam>
+    /// <typeparam name="TProblemSolver">A <see cref="AssignableRoutingProblemSolver{TContext, TAssign}"/> type.</typeparam>
+    /// <typeparam name="TScope">A <see cref="CaseStudyScope{TMatrix, TContext, TAssign, TProblemSolver}"/> type.</typeparam>
     public abstract class OrToolsRoutingCaseStudyTests<TMatrix, TContext, TAssign, TProblemSolver, TScope> : TestFixtureBase
         where TMatrix : Distances.Matrix
         where TContext : RoutingContext
@@ -49,21 +49,13 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         /// </summary>
         /// <param name="scope"></param>
         /// <returns></returns>
-        protected virtual TScope VerifyScope(TScope scope)
+        protected virtual TScope OnVerifyInitialScope(TScope scope)
         {
             scope.AssertNotNull();
             scope.Context.AssertNotNull();
             scope.Matrix.AssertNotNull();
             scope.ProblemSolver.AssertNotNull();
             return scope;
-        }
-
-        /// <summary>
-        /// Override in order to Verify the <paramref name="scope"/> Solution.
-        /// </summary>
-        /// <param name="scope"></param>
-        protected virtual void OnVerifySolution(TScope scope)
-        {
         }
 
         /// <summary>
@@ -75,7 +67,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
             void OnInitializeScope()
             {
                 this.InitializeScope(out var scope);
-                this.Scope = this.VerifyScope(scope);
+                this.Scope = this.OnVerifyInitialScope(scope);
             }
 
             void OnRollbackScope()
@@ -90,6 +82,14 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         }
 
         /// <summary>
+        /// Override in order to perform test and scope specific verification just prior
+        /// to tear down.
+        /// </summary>
+        /// <param name="scope"></param>
+        protected virtual void OnVerifySolutionScope(TScope scope) =>
+            scope.AssertNotNull();
+
+        /// <summary>
         /// Tear down the Case Study unit tests, which in particular, affords us an opportunity
         /// to <see cref="IDisposable.Dispose"/> of the <see cref="Scope"/> prior to the unit
         /// test execution context having gone out of scope. This is critical in order for proper
@@ -100,7 +100,8 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         {
             void OnScopeTearDown()
             {
-                this.Scope.AssertNotNull().VerifySolution();
+                this.OnVerifySolutionScope(this.Scope);
+                this.Scope?.Dispose();
             }
 
             $"Tears down this.{nameof(this.Scope)}".x(OnScopeTearDown);
