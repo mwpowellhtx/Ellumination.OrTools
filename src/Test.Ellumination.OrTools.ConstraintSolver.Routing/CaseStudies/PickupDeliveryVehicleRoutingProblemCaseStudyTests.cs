@@ -12,7 +12,6 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
     using Xunit.Abstractions;
     using Xwellbehaved;
     using DistanceMatrix = Distances.DistanceMatrix;
-    using static VehicleRoutingCaseStudyScope;
 
     /// <summary>
     /// Verifies the initial Vehicle Routing Problem. We verify only the first of the
@@ -33,11 +32,11 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         }
 
         /// <inheritdoc/>
-        protected override PickupDeliveryVehicleRoutingCaseStudyScope VerifyScope(PickupDeliveryVehicleRoutingCaseStudyScope scope)
+        protected override PickupDeliveryVehicleRoutingCaseStudyScope OnVerifyInitialScope(PickupDeliveryVehicleRoutingCaseStudyScope scope)
         {
-            scope = base.VerifyScope(scope);
+            scope = base.OnVerifyInitialScope(scope);
 
-            scope.TotalDistance.AssertEqual(default);
+            scope.ActualTotalDistance.AssertEqual(default);
 
             scope.Matrix.AssertEqual(scope.Context.NodeCount, x => x.Width);
             scope.Matrix.AssertEqual(scope.Context.NodeCount, x => x.Height);
@@ -53,9 +52,12 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         /// </summary>
         /// <param name="scope"></param>
         /// <see cref="!:https://developers.google.com/optimization/routing/vrp#solution"/>
-        protected override void OnVerifySolution(PickupDeliveryVehicleRoutingCaseStudyScope scope)
+        protected override void OnVerifySolutionScope(PickupDeliveryVehicleRoutingCaseStudyScope scope)
         {
-            scope.ExpectedPaths.AssertEqual(scope.VehicleCount, x => x.Count);
+            base.OnVerifySolutionScope(scope);
+
+            // Somewhat roundabout way of yielding a single action, but it works in a one liner.
+            Single<Action>(() => scope.ExpectedPaths.AssertNotNull()).AssertThrows<NotImplementedException>();
 
             // TODO: TBD: this could also be a general base base class verification...
             // We can also verify that we are indeed expecting each solution.
@@ -105,7 +107,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
 
                     this.SetArcCostEvaluators(evaluatorIndex);
 
-                    this.AddDimension(evaluatorIndex, scope.VehicleCapacity);
+                    this.AddDimension(evaluatorIndex, scope.VehicleCap);
 
                     this.MutableDimension.SetGlobalSpanCostCoefficient(this.Coefficient);
 
@@ -138,9 +140,9 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         [Background]
         public void PickupDeliveryBackground()
         {
-            void OnAddPrioritizePathDimension() => this.Scope.Context.AddDefaultDimension<PrioritizePathDimension>(this.Scope);
-
-            $"Add Default {nameof(PrioritizePathDimension)} dimension".x(OnAddPrioritizePathDimension);
+            $"Add {nameof(PrioritizePathDimension)} dimension to this.{nameof(this.Scope)}.{nameof(this.Scope.Context)}".x(
+                () => this.Scope.Context.AddDefaultDimension<PrioritizePathDimension>(this.Scope)
+            );
         }
 
         // TODO: TBD: assuming that each of the case studies resolve in a sincle "verification" scenario...
@@ -149,21 +151,15 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         /// Demonstrates a scenario in which the Solution Agrees with the Optimization Routing
         /// Traveling Salesman Problem illustration.
         /// </summary>
-        /// <see cref="!:https://developers.google.com/optimization/routing/vrp"/>
+        /// <see cref="!:https://developers.google.com/optimization/routing/pickup_delivery"/>
+        /// <see cref="!:https://developers.google.com/optimization/routing/pickup_delivery#complete_programs"/>
         [Scenario]
         public void Verify_ProblemSolver_Solution()
         {
-            /* See: https://developers.google.com/optimization/routing/vrp#entire_program1, through which
-             * we abstract these are the default solver options, i.e. PATH_CHEAPEST_ARC, etc. */
-
             // TODO: TBD: this is starting to look like really boilerplate stuff as well...
             $"Solve routing problem given this.{nameof(this.Scope)}.{nameof(this.Scope.Context)}".x(
                 () => this.Scope.ProblemSolver.Solve(this.Scope.Context)
             );
-
-            void OnVerifySolution() => this.OnVerifySolution(this.Scope);
-
-            $"Verify solution".x(OnVerifySolution);
         }
     }
 }

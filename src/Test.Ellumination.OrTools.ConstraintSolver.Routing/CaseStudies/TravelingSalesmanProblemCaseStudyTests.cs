@@ -86,11 +86,11 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         }
 
         /// <inheritdoc/>
-        protected override TravelingSalesmanCaseStudyScope VerifyScope(TravelingSalesmanCaseStudyScope scope)
+        protected override TravelingSalesmanCaseStudyScope OnVerifyInitialScope(TravelingSalesmanCaseStudyScope scope)
         {
-            scope = base.VerifyScope(scope);
+            scope = base.OnVerifyInitialScope(scope);
 
-            scope.TotalDistance.AssertEqual(default);
+            scope.ActualTotalDistance.AssertEqual(default);
 
             scope.Matrix.AssertEqual(scope.Context.NodeCount, x => x.Width);
             scope.Matrix.AssertEqual(scope.Context.NodeCount, x => x.Height);
@@ -114,21 +114,19 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
             /// Constructs a test dimension.
             /// </summary>
             /// <param name="context"></param>
-            /// <param name="matrix"></param>
+            /// <see cref="!:https://developers.google.com/optimization/routing/tsp#dist_callback1"/>
             /// <see cref="!:https://developers.google.com/optimization/routing/tsp#arc-cost"/>
-            public TestDimension(RoutingContext context, DistanceMatrix matrix)
-                : base(context, 100)
+            public TestDimension(RoutingContext context, TravelingSalesmanCaseStudyScope scope)
+                : base(context, scope.DimensionCoefficient)
             {
-                this.Matrix = matrix;
+                if (this.Coefficient > 0)
+                {
+                    this.Matrix = scope.Matrix;
 
-                /* See: https://developers.google.com/optimization/routing/tsp#dist_callback1, the
-                 * details of which are also abstracted behind Dimension, etc. */
-                var evaluatorIndex = this.RegisterTransitEvaluationCallback(this.OnEvaluateTransit);
+                    var evaluatorIndex = this.RegisterTransitEvaluationCallback(this.OnEvaluateTransit);
 
-                /* See: https://developers.google.com/optimization/routing/tsp#arc-cost, the
-                 * details of which are purposefully masked by the Dimension implementation. */
-
-                this.SetArcCostEvaluators(evaluatorIndex);
+                    this.SetArcCostEvaluators(evaluatorIndex);
+                }
             }
 
             /// <summary>
@@ -154,22 +152,6 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
             );
         }
 
-        /// <summary>
-        /// Verifies that the <paramref name="scope"/> is correct according to what we expected.
-        /// We verify given the Optimization Routing TSP Solution.
-        /// </summary>
-        /// <param name="scope"></param>
-        /// <see cref="!:https://developers.google.com/optimization/routing/tsp#solution1"/>
-        protected override void OnVerifySolution(TravelingSalesmanCaseStudyScope scope)
-        {
-            const int vehicle = 0;
-            // TODO: TBD: refactor taking into account scope.VehicleCount, expected paths, etc...
-            // TODO: TBD: refactor all "scope" based...
-            var actualPath = scope.SolutionPaths.AssertEqual(1, x => x.Count)[vehicle].AssertNotNull();
-            var expectedPath = Range(0, 7, 2, 3, 4, 12, 6, 8, 1, 11, 10, 5, 9, 0);
-            actualPath.AssertCollectionEqual(expectedPath);
-        }
-
         // TODO: TBD: okay, so test "works", output can be verified against expected outcomes...
         // TODO: TBD: the only question is in terms of appropriate factoring...
         // TODO: TBD: would like to be able to rinse and repeat with minimal additional effort...
@@ -188,8 +170,16 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         [Background]
         public void TravelingSalesmanBackground()
         {
+            $"Verify background has this.{nameof(this.Scope)}".x(
+                () => this.Scope.AssertNotNull()
+            );
+
+            $"Verify background has this.{nameof(this.Scope)}.{nameof(this.Scope.Context)}".x(
+                () => this.Scope.Context.AssertNotNull()
+            );
+
             $"Add {nameof(TestDimension)} to this.{nameof(this.Scope)}.{nameof(this.Scope.Context)}".x(
-                () => this.Scope.Context.AddDefaultDimension<TestDimension>(this.Scope.Matrix)
+                () => this.Scope.Context.AddDefaultDimension<TestDimension>(this.Scope)
             );
         }
 
@@ -210,10 +200,25 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
             $"Solve routing problem given this.{nameof(this.Scope)}.{nameof(this.Scope.Context)}".x(
                 () => this.Scope.ProblemSolver.Solve(this.Scope.Context)
             );
+        }
 
-            void OnVerifySolution() => this.OnVerifySolution(this.Scope);
+        /// <summary>
+        /// Verifies that the <paramref name="scope"/> is correct according to what we expected.
+        /// We verify given the Optimization Routing TSP Solution.
+        /// </summary>
+        /// <param name="scope"></param>
+        /// <see cref="!:https://developers.google.com/optimization/routing/tsp#solution1"/>
+        protected override void OnVerifySolutionScope(TravelingSalesmanCaseStudyScope scope)
+        {
+            base.OnVerifySolutionScope(scope);
 
-            $"Verify solution".x(OnVerifySolution);
+            //// TODO: TBD: should align with the scope bits, expected bits, etc...
+            //const int vehicle = 0;
+            //// TODO: TBD: refactor taking into account scope.VehicleCount, expected paths, etc...
+            //// TODO: TBD: refactor all "scope" based...
+            //var actualPath = scope.SolutionPaths.AssertEqual(1, x => x.Count)[vehicle].AssertNotNull();
+            //var expectedPath = Range(0, 7, 2, 3, 4, 12, 6, 8, 1, 11, 10, 5, 9, 0);
+            //actualPath.AssertCollectionEqual(expectedPath);
         }
     }
 }
