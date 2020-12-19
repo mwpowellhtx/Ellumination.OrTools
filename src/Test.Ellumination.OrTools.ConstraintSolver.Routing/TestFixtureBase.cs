@@ -35,6 +35,14 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
             Enumerable.Range(start, count);
 
         /// <summary>
+        /// Returns the Single <typeparamref name="T"/> <paramref name="value"/>.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        internal static T Single<T>(T value) => Range(value).Single();
+
+        /// <summary>
         /// Returns the Range of <paramref name="values"/>.
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -69,6 +77,28 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         internal static string Render(bool value) => Render(value, x => $"{x}".ToLower());
 
         /// <summary>
+        /// Renders the Range of <paramref name="values"/>.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        internal static string Render<T>(IEnumerable<T> values)
+        {
+            const char comma = ',';
+            const string squareBrackets = "[]";
+            string RenderRangeValue(T value) => value is bool b ? Render(b) : Render(value);
+            return Join(Join($"{comma} ", values.Select(RenderRangeValue)), squareBrackets.ToArray());
+        }
+
+        /// <summary>
+        /// Renders the Range of <paramref name="values"/>.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        internal static string Render<T>(T[] values) => Render((IEnumerable<T>)values);
+
+        /// <summary>
         /// Renders the Associate <paramref name="pairs"/>.
         /// </summary>
         /// <param name="pairs"></param>
@@ -89,10 +119,21 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <returns></returns>
         internal static string RenderTupleAssociates(params (string name, string value)[] pairs)
         {
-            var rendered = RenderAssociates(pairs);
             const char comma = ',';
+            return RenderTupleAssociates($"{comma} ", pairs);
+        }
+
+        /// <summary>
+        /// Renders the Associate <paramref name="pairs"/> as a Tuple.
+        /// </summary>
+        /// <param name="delim"></param>
+        /// <param name="pairs"></param>
+        /// <returns></returns>
+        internal static string RenderTupleAssociates(string delim, params (string name, string value)[] pairs)
+        {
+            var rendered = RenderAssociates(pairs);
             const string curlyBraces = "{}";
-            return Join(Join($"{comma} ", rendered), curlyBraces.ToArray());
+            return Join(Join(delim, rendered), curlyBraces.ToArray());
         }
 
         /// <summary>
