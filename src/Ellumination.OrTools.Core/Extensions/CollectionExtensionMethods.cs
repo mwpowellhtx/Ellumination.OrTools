@@ -58,5 +58,25 @@ namespace Ellumination.OrTools
                 return notFound;
             }
         }
+
+        /// <summary>
+        /// Applies a specified function to the corresponding elements of two sequences,
+        /// producing a sequence of the results.
+        /// </summary>
+        /// <typeparam name="TFirst">The type of the elements of the <paramref name="first"/> input sequence.</typeparam>
+        /// <typeparam name="TSecond">The type of the elements of the <paramref name="second"/> input sequence.</typeparam>
+        /// <typeparam name="TResult">The type of the elements of the result sequence.</typeparam>
+        /// <param name="first">The first sequence to merge.</param>
+        /// <param name="second">The second sequence to merge.</param>
+        /// <param name="resultSelector">A function that specifies how to merge the elements from the two sequences.</param>
+        /// <returns>An <see cref="IEnumerable{T}"/> that contains merged elements of two input sequences.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="first"/> or <paramref name="second"/> is <c>null</c></exception>
+        /// <remarks>This extension method version differs slightly from the base dotnet one in that we relay an index to the
+        /// <paramref name="resultSelector"/>, not unlike the Select version which does a similar thing.</remarks>
+        /// <see cref="Enumerable.Select{TSource, TResult}(IEnumerable{TSource}, Func{TSource, int, TResult})"/>
+        /// <see cref="Enumerable.Zip{TFirst, TSecond, TResult}(IEnumerable{TFirst}, IEnumerable{TSecond}, Func{TFirst, TSecond, TResult})"/>
+        public static IEnumerable<TResult> Zip<TFirst, TSecond, TResult>(this IEnumerable<TFirst> first
+            , IEnumerable<TSecond> second, Func<TFirst, TSecond, int, TResult> resultSelector) =>
+            first.Zip(second, (x, y) => (x, y)).Select((z, i) => resultSelector(z.x, z.y, i));
     }
 }
