@@ -55,6 +55,76 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         );
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="current"></param>
+        /// <param name="assignments"></param>
+        protected virtual void VerifyAssignment((int vehicle, int node, int? previousNode) current
+            , IEnumerable<(int vehicle, int node, int? previousNode)> assignments)
+        {
+            // TODO: TBD: verify other bits?
+            assignments.Contains(current).AssertTrue();
+        }
+
+        /// <summary>
+        /// <typeparamref name="TProblemSolver"/> <see cref="TAssign"/> event handler.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        protected virtual void OnProblemSolverBeforeAssignment(object sender, TAssign e)
+        {
+            this.PrivateAllAssignments.Clear();
+        }
+
+        /// <summary>
+        /// <typeparamref name="TProblemSolver"/> <see cref="TAssign"/> event handler.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        protected virtual void OnProblemSolverAfterAssignment(object sender, TAssign e)
+        {
+            // TODO: TBD: this is it...
+            e.Assignments.AssertNotNull().ToList().ForEach(_ => this.VerifyAssignment(_, this.AllAssignments));
+        }
+
+        /// <summary>
+        /// <typeparamref name="TProblemSolver"/> <see cref="TAssign"/> event handler.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        protected virtual void OnProblemSolverBeforeAssignmentVehicle(object sender, TAssign e)
+        {
+            this.PrivateVehicleAssignments.Clear();
+        }
+
+        /// <summary>
+        /// <typeparamref name="TProblemSolver"/> <see cref="TAssign"/> event handler.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        protected virtual void OnProblemSolverAfterAssignmentVehicle(object sender, TAssign e)
+        {
+            // TODO: TBD: ditto, more to verify here?
+            e.Assignments.AssertNotNull().ToList().ForEach(_ => this.VerifyAssignment(_, this.VehicleAssignments));
+        }
+
+        /// <summary>
+        /// <typeparamref name="TProblemSolver"/> <see cref="TAssign"/> event handler.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        protected virtual void OnProblemSolverForEachAssignmentNode(object sender, TAssign e)
+        {
+            var e_Assignments = e.Assignments.AssertNotNull().ToArray();
+
+            this.PrivateForEachAssignments.Clear();
+            this.PrivateForEachAssignments.AddRange(e_Assignments);
+
+            this.PrivateVehicleAssignments.AddRange(e_Assignments);
+            this.PrivateAllAssignments.AddRange(e_Assignments);
+        }
+
+        /// <summary>
         /// Callback occurs On <see cref="ProblemSolver"/> having been Created.
         /// </summary>
         /// <param name="problemSolver"></param>
@@ -63,9 +133,13 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         {
             problemSolver.AssertNotNull();
 
-            problemSolver.Assigning += this.OnAssigning;
-            problemSolver.Assign += this.OnAssignOrAssigned;
-            problemSolver.Assigned += this.OnAssignOrAssigned;
+            problemSolver.BeforeAssignment += this.OnProblemSolverBeforeAssignment;
+            problemSolver.AfterAssignment += this.OnProblemSolverAfterAssignment;
+
+            problemSolver.BeforeAssignmentVehicle += this.OnProblemSolverBeforeAssignmentVehicle;
+            problemSolver.AfterAssignmentVehicle += this.OnProblemSolverAfterAssignmentVehicle;
+
+            problemSolver.ForEachAssignmentNode += this.OnProblemSolverForEachAssignmentNode;
 
             return problemSolver;
         }
@@ -86,47 +160,40 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         );
 
         /// <summary>
-        /// Gets the Solution for Private usage.
+        /// Gets the Assignments for Private use.
         /// </summary>
-        private ICollection<(int vehicle, int node)> PrivateSolution { get; } = new List<(int vehicle, int node)>();
+        /// <see cref="AllAssignments"/>
+        private List<(int vehicle, int node, int? previousNode)> PrivateAllAssignments { get; } = Range<(int, int, int?)>().ToList();
 
         /// <summary>
-        /// Gets the Solution for use throughout the scenarios.
+        /// Gets the Assignments for Private use.
         /// </summary>
-        /// <remarks>It might actually be better for subscribers to host domain facing
-        /// collections such as these in their routing model problem solver derived
-        /// implementations for convenience, especially adapting to domain model.</remarks>
-        protected virtual IEnumerable<(int vehicle, int node)> Solution => this.PrivateSolution.AssertNotNull();
+        /// <see cref="VehicleAssignments"/>
+        private List<(int vehicle, int node, int? previousNode)> PrivateVehicleAssignments { get; } = Range<(int, int, int?)>().ToList();
 
         /// <summary>
-        /// Event handler callback On
-        /// <see cref="IAssignableRoutingProblemSolver{TContext, TAssign}.Assigning"/>.
+        /// Gets the Assignments for Private use.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        protected virtual void OnAssigning(object sender, TAssign e)
-        {
-            // TODO: TBD: just making sure we are connect the dots properly...
-            // TODO: TBD: these are obviously going to fail...
-            this.PrivateSolution.Add((e.VehicleIndex, e.NodeIndex));
-        }
+        /// <see cref="ForEachAssignments"/>
+        private List<(int vehicle, int node, int? previousNode)> PrivateForEachAssignments { get; } = Range<(int, int, int?)>().ToList();
 
         /// <summary>
-        /// Event handler callback On
-        /// <see cref="IAssignableRoutingProblemSolver{TContext, TAssign}.Assign"/>.
+        /// Gets the Assignments for Protected use.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        protected virtual void OnAssignOrAssigned(object sender, TAssign e)
-        {
-            void VerifyLastSolution((int vehicle, int node) pair)
-            {
-                pair.vehicle.AssertEqual(e.VehicleIndex);
-                pair.node.AssertEqual(e.NodeIndex);
-            }
+        /// <see cref="PrivateAllAssignments"/>
+        protected virtual IEnumerable<(int vehicle, int node, int? previousNode)> AllAssignments => this.PrivateAllAssignments;
 
-            VerifyLastSolution(this.PrivateSolution.AssertTrue(x => x.Count > 0).Last());
-        }
+        /// <summary>
+        /// Gets the Assignments for Protected use.
+        /// </summary>
+        /// <see cref="PrivateVehicleAssignments"/>
+        protected virtual IEnumerable<(int vehicle, int node, int? previousNode)> VehicleAssignments => this.PrivateVehicleAssignments;
+
+        /// <summary>
+        /// Gets the Assignments for Protected use.
+        /// </summary>
+        /// <see cref="PrivateForEachAssignments"/>
+        protected virtual IEnumerable<(int vehicle, int node, int? previousNode)> ForEachAssignments => this.PrivateForEachAssignments;
 
         /// <summary>
         /// Override in order to Verify the <paramref name="context"/>.
@@ -177,10 +244,10 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         }
 
         /// <summary>
-        /// Override in order to Verify the <paramref name="solution"/>.
+        /// Override in order to Verify the <paramref name="assignments"/>.
         /// </summary>
-        /// <param name="solution"></param>
-        protected virtual void OnVerifySolution(params (int vehicle, int node)[] solution)
+        /// <param name="assignments"></param>
+        protected virtual void OnVerifyAssignments(params (int vehicle, int node, int? previousNode)[] assignments)
         {
         }
 
@@ -191,7 +258,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
 
             "Solve the problem".x(OnSolveProblem);
 
-            $"Verify this.{nameof(Solution)}".x(() => this.OnVerifySolution(this.Solution.ToArray()));
+            $"Verify this.{nameof(AllAssignments)}".x(() => this.OnVerifyAssignments(this.AllAssignments.ToArray()));
         }
 
         /// <inheritdoc/>
@@ -203,9 +270,13 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
                 {
                     if (problemSolver != null)
                     {
-                        problemSolver.Assigning -= this.OnAssigning;
-                        problemSolver.Assign -= this.OnAssignOrAssigned;
-                        problemSolver.Assigned -= this.OnAssignOrAssigned;
+                        problemSolver.BeforeAssignment -= this.OnProblemSolverBeforeAssignment;
+                        problemSolver.AfterAssignment -= this.OnProblemSolverAfterAssignment;
+
+                        problemSolver.BeforeAssignmentVehicle -= this.OnProblemSolverBeforeAssignmentVehicle;
+                        problemSolver.AfterAssignmentVehicle -= this.OnProblemSolverAfterAssignmentVehicle;
+
+                        problemSolver.ForEachAssignmentNode -= this.OnProblemSolverForEachAssignmentNode;
                     }
 
                     problemSolver?.Dispose();
