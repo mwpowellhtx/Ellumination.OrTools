@@ -47,7 +47,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         protected virtual TProblemSolver CreateProblemSolver()
         {
             var problemSolver = Activator.CreateInstance<TProblemSolver>();
-            problemSolver.Assign += this.OnProblemSolverAssign;
+            problemSolver.ForEachAssignmentNode += this.OnProblemSolverForEachAssignmentNode;
             return problemSolver;
         }
 
@@ -81,15 +81,15 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        protected virtual void OnProblemSolverAssign(object sender, TAssign e)
+        protected virtual void OnProblemSolverForEachAssignmentNode(object sender, TAssign e)
         {
-            var (vehicle, node, previousNode) = (e.AssertNotNull().VehicleIndex, e.NodeIndex, e.PreviousNodeIndex);
-
-            // Should always have a SolutionPath corresponding to the Vehicle.
-            this.SolutionPaths.ElementAt(vehicle).AssertNotNull().Add(node);
-
-            if (previousNode.HasValue)
+            foreach (var _ in e.Assignments.AssertNotNull())
             {
+                var (vehicle, node, previousNode) = _;
+
+                // Should always have a SolutionPath corresponding to the Vehicle.
+                this.SolutionPaths.ElementAt(vehicle).AssertNotNull().Add(node);
+
                 var transitCost = this.Context.GetArcCostForVehicle(previousNode ?? default, node, vehicle);
 
                 this.ActualTotalDistance += transitCost;
@@ -105,7 +105,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
             {
                 if (problemSolver != null)
                 {
-                    problemSolver.Assign -= this.OnProblemSolverAssign;
+                    problemSolver.ForEachAssignmentNode -= this.OnProblemSolverForEachAssignmentNode;
                     problemSolver.Dispose();
                 }
             }
