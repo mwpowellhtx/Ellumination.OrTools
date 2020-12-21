@@ -12,8 +12,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
             , IAssignableRoutingProblemSolver<RoutingContext, DefaultRoutingAssignmentEventArgs>
     {
         /// <inheritdoc/>
-        protected override DefaultRoutingAssignmentEventArgs CreateAssignEventArgs(
-            RoutingContext context, params (int vehicle, int node, int? previousNode)[] assignments) =>
+        protected override DefaultRoutingAssignmentEventArgs CreateAssignEventArgs(RoutingContext context, params RouteAssignmentItem[] assignments) =>
             new DefaultRoutingAssignmentEventArgs(context, assignments);
     }
 }

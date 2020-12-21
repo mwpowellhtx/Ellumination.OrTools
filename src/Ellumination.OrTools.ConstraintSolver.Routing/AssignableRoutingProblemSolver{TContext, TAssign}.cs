@@ -254,7 +254,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="context"></param>
         /// <param name="assignments"></param>
         /// <returns></returns>
-        protected virtual TAssign CreateAssignEventArgs(TContext context, params (int vehicle, int node, int? previousNode)[] assignments) =>
+        protected virtual TAssign CreateAssignEventArgs(TContext context, params RouteAssignmentItem[] assignments) =>
             (TAssign)Activator.CreateInstance(typeof(TAssign), context, assignments);
 
         /// <inheritdoc/>
@@ -316,13 +316,13 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         protected virtual bool TryProcessSolution(TContext context, Assignment solution)
         {
             // A simple shorthand local helper method.
-            TAssign OnCreateAssignEventArgs(IEnumerable<(int vehicle, int node, int? previousNode)> assignments) =>
+            TAssign OnCreateAssignEventArgs(IEnumerable<RouteAssignmentItem> assignments) =>
                 this.CreateAssignEventArgs(context, assignments.ToArray());
 
             var context_Model = context.Model;
             var context_VehicleCount = context.VehicleCount;
 
-            var solution_Assignments = new List<(int vehicle, int node, int? previousNode)>();
+            var solution_Assignments = new List<RouteAssignmentItem>();
 
             // TODO: TBD: sketching in the callbacks...
             // TODO: TBD: we think that perhaps an "assignment" can be an IEnumerable of the corresponding tuple...
@@ -335,19 +335,20 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
                 long j;
                 long? previous = null;
 
-                var vehicle_Assignments = new List<(int vehicle, int node, int? previousNode)>();
+                var vehicle_Assignments = new List<RouteAssignmentItem>();
 
                 this.OnBeforeAssignmentVehicle(OnCreateAssignEventArgs(vehicle_Assignments));
 
                 // Yes, we are able to assembly an Assignment tuple given the available bits.
-                (int vehicle, int node, int? previousNode) CreateAssignmentTuple() => (
-                    vehicleIndex
+                RouteAssignmentItem CreateAssignmentTuple() => new RouteAssignmentItem(
+                    context
+                    , vehicleIndex
                     , context.IndexToNode(j)
                     , previous.HasValue ? context.IndexToNode(previous.Value) : (int?)null
                 );
 
                 // The same whether within the Node loop, or the "last" leg.
-                void OnForEachAssignments(params (int vehicle, int node, int? previousNode)[] assignments)
+                void OnForEachAssignments(params RouteAssignmentItem[] assignments)
                 {
                     this.OnForEachAssignmentNode(OnCreateAssignEventArgs(assignments));
                     vehicle_Assignments.AddRange(assignments);

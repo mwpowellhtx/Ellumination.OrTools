@@ -19,14 +19,14 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <summary>
         /// Gets the Assignments in the currently dispatched event.
         /// </summary>
-        public IEnumerable<(int vehicle, int node, int? previousNode)> Assignments { get; }
+        public IEnumerable<RouteAssignmentItem> Assignments { get; }
 
         /// <summary>
         /// Internal constructor.
         /// </summary>
         /// <param name="context">A <typeparamref name="TContext"/> instance.</param>
         /// <param name="assignments">The Assignments in the currently dispatched event.</param>
-        internal RoutingAssignmentEventArgs(TContext context, params (int vehicle, int node, int? previousNode)[] assignments)
+        internal RoutingAssignmentEventArgs(TContext context, params RouteAssignmentItem[] assignments)
         {
             this.Context = context;
             this.Assignments = assignments;

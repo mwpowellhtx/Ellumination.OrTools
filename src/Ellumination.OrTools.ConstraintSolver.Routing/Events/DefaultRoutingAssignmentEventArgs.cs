@@ -13,8 +13,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// </summary>
         /// <param name="context">A <see cref="RoutingContext"/> instance.</param>
         /// <param name="assignments">The Assignments in the currently dispatched event.</param>
-        internal DefaultRoutingAssignmentEventArgs(RoutingContext context
-            , params (int vehicle, int node, int? previousNode)[] assignments)
+        internal DefaultRoutingAssignmentEventArgs(RoutingContext context, params RouteAssignmentItem[] assignments)
             : base(context, assignments)
         {
         }
