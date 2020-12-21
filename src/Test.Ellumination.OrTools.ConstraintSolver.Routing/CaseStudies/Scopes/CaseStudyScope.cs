@@ -27,6 +27,18 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         internal virtual long VehicleCap { get; }
 
         /// <summary>
+        /// Gets the Maximum Slack.
+        /// Defaults to <c>null</c>.
+        /// </summary>
+        internal virtual long? SlackMaximum { get; } = null;
+
+        /// <summary>
+        /// Gets whether to Zero Accumulator when Dimension is registered.
+        /// Defaults to <c>null</c>.
+        /// </summary>
+        internal virtual bool? ZeroAccumulator { get; } = null;
+
+        /// <summary>
         /// Gets the Depot, <c>default</c>.
         /// Assumes Depot is the default, or zero.
         /// </summary>
