@@ -14,22 +14,25 @@ using System.Linq;
     /// <summary>
     ///   Print the solution.
     /// </summary>
-    static void PrintSolution(in DataModel data, in RoutingModel routing, in RoutingIndexManager manager,
+    static void PrintSolution(in DataModel data, in RoutingModel model, in RoutingIndexManager manager,
                               in Assignment solution)
     {
-        RoutingDimension timeDimension = routing.GetMutableDimension("Time");
+        RoutingDimension timeDimension = model.GetMutableDimension("Time");
         // Inspect solution.
         long totalTime = 0;
         for (int i = 0; i < data.VehicleNumber; ++i)
         {
             Console.WriteLine("Route for Vehicle {0}:", i);
-            var index = routing.Start(i);
-            while (routing.IsEnd(index) == false)
+            var index = model.Start(i);
+            while (model.IsEnd(index) == false)
             {
+                // TODO: TBD: would it be worthwhile including the cumulvars for each dimension at the given index?
+                // TODO: TBD: in any event, starting to sound like we need to define a first class descriptor...
+                // TODO: TBD: rather than the ad-hoc value tuple... since we need "both" indexes, etc...
                 var timeVar = timeDimension.CumulVar(index);
                 Console.Write("{0} Time({1},{2}) -> ", manager.IndexToNode(index), solution.Min(timeVar),
                               solution.Max(timeVar));
-                index = solution.Value(routing.NextVar(index));
+                index = solution.Value(model.NextVar(index));
             }
             var endTimeVar = timeDimension.CumulVar(index);
             Console.WriteLine("{0} Time({1},{2})", manager.IndexToNode(index), solution.Min(endTimeVar),
