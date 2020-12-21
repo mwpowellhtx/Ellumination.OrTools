@@ -1,13 +1,10 @@
-﻿using System;
-using System.Linq;
-
-namespace Ellumination.OrTools.ConstraintSolver.Routing
+﻿namespace Ellumination.OrTools.ConstraintSolver.Routing
 {
     /// <summary>
     /// Represents a Domain specific
-    /// <see cref="AssignableRoutingProblemSolver{TContext, TAssign}"/>. In which
-    /// case, we happen to have knowledge are <typeparamref name="TNode"/>,
-    /// <typeparamref name="TDepot"/>, and <typeparamref name="TVehicle"/>.
+    /// <see cref="AssignableRoutingProblemSolver{TContext, TAssign}"/>. In which case, we happen
+    /// to have knowledge are <typeparamref name="TNode"/>, <typeparamref name="TDepot"/>, and
+    /// <typeparamref name="TVehicle"/>.
     /// </summary>
     /// <typeparam name="TNode">The Node type.</typeparam>
     /// <typeparam name="TDepot">The Depot type.</typeparam>
@@ -23,27 +20,5 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         where TDepot : TNode
         where TContext : DomainContext<TNode, TDepot, TVehicle>
     {
-        /// <summary>
-        /// Returns a Created
-        /// <see cref="DomainRoutingAssignmentEventArgs{TNode, TDepot, TVehicle, TContext}"/> instance
-        /// given the arguments.
-        /// </summary>
-        /// <param name="nodeTuple">The <typeparamref name="TNode"/> and Index Tuple.</param>
-        /// <param name="vehicleTuple">The <typeparamref name="TVehicle"/> and Index Tuple.</param>
-        /// <returns></returns>
-        protected virtual DomainRoutingAssignmentEventArgs<TNode, TDepot, TVehicle, TContext> CreateAssignEventArgs(TContext context
-            , (int i, TVehicle vehicle) vehicleTuple, (int j, TNode node) nodeTuple, (int? k, TNode previous) previousTuple) =>
-            (DomainRoutingAssignmentEventArgs<TNode, TDepot, TVehicle, TContext>)Activator.CreateInstance(
-                typeof(DomainRoutingAssignmentEventArgs<TNode, TDepot, TVehicle, TContext>)
-                , context, vehicleTuple, nodeTuple, previousTuple
-            );
-
-        /// <inheritdoc/>
-        protected override DomainRoutingAssignmentEventArgs<TNode, TDepot, TVehicle, TContext> CreateAssignEventArgs(TContext context
-            , int vehicleIndex, int nodeIndex, int? previousNodeIndex) => CreateAssignEventArgs(context
-                , (vehicleIndex, context.Vehicles.ElementAt(vehicleIndex))
-                , (nodeIndex, context.Nodes.ElementAt(nodeIndex))
-                , (previousNodeIndex, context.Nodes.ElementAtOrDefault(previousNodeIndex ?? -1))
-            );
     }
 }

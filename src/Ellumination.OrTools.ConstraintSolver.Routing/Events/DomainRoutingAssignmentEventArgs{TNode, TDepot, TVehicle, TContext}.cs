@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace Ellumination.OrTools.ConstraintSolver.Routing
 {
@@ -18,35 +18,45 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         where TContext : DomainContext<TNode, TDepot, TVehicle>
     {
         /// <summary>
-        /// Gets the Vehicle.
+        /// Transforms the base <paramref name="assignments"/> in a Domain friendly manner.
         /// </summary>
-        public TVehicle Vehicle { get; }
+        /// <param name="context"></param>
+        /// <param name="assignments"></param>
+        /// <returns></returns>
+        private static IEnumerable<((int vehicle, int node, int? previousNode) index
+            , (TVehicle vehicle, TNode node, TNode previousNode) domain)> OnTransformAssignments(
+            TContext context, params (int vehicle, int node, int? previousNode)[] assignments)
+        {
+            TNode OnTransformNode(int? node) => context.Nodes.ElementAtOrDefault(node ?? -1);
+
+            ((int vehicle, int node, int? previousNode) index
+                , (TVehicle vehicle, TNode node, TNode previousNode) domain) OnTransformAssignment(
+                    (int vehicle, int node, int? previousNode) index) =>
+                    (index, (context.Vehicles.ElementAt(index.vehicle)
+                    , OnTransformNode(index.node), OnTransformNode(index.previousNode)
+                ));
+
+            foreach (var _ in assignments)
+            {
+                yield return OnTransformAssignment(_);
+            }
+        }
 
         /// <summary>
-        /// Gets the Node.
+        /// Gets the Domain oriented Assignments.
         /// </summary>
-        public TNode Node { get; }
-
-        /// <summary>
-        /// Gets the Previous, if any.
-        /// </summary>
-        public TNode Previous { get; }
+        public IEnumerable<((int vehicle, int node, int? previousNode) index
+            , (TVehicle vehicle, TNode node, TNode previousNode) domain)> DomainAssignments { get; }
 
         /// <summary>
         /// Internal constructor.
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="vehicleTuple"></param>
-        /// <param name="nodeTuple"></param>
-        internal DomainRoutingAssignmentEventArgs(TContext context
-            , (int i, TVehicle vehicle) vehicleTuple
-            , (int j, TNode node) nodeTuple
-            , (int? k, TNode previous) previousTuple
-        ) : base(context, vehicleTuple.i, nodeTuple.j, previousTuple.k)
+        /// <param name="context">The Context in use during the currently assigned solution.</param>
+        /// <param name="assignments">The Domain oriented assigments during the currently dispatched event.</param>
+        internal DomainRoutingAssignmentEventArgs(TContext context, params (int vehicle, int node, int? previousNode)[] assignments)
+            : base(context, assignments)
         {
-            this.Vehicle = vehicleTuple.vehicle;
-            this.Node = nodeTuple.node;
-            this.Previous = previousTuple.previous;
+            this.DomainAssignments = OnTransformAssignments(context, assignments);
         }
     }
 }
