@@ -31,14 +31,17 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         protected override RoutingContext CreateContext() => new RoutingContext(13, 3);
 
         /// <inheritdoc/>
-        protected override void OnVerifySolution(params (int vehicle, int node)[] solution)
+        protected override void OnVerifyAssignments(params (int vehicle, int node, int? previousNode)[] assignments)
         {
-            base.OnVerifySolution(solution);
+            base.OnVerifyAssignments(assignments);
 
+            // TODO: TBD: should we be verifying with scope?
+            // TODO: TBD: do these tests really exercise what we need?
+            // TODO: TBD: or should we be verifying via the case studies?
             // We are expecting a solution involving all three vehicles.
             var expectedVehicles = Range(0, 1, 2).ToArray();
 
-            var actualVehicles = solution.Select(x => x.vehicle).Distinct().OrderBy(x => x).ToArray();
+            var actualVehicles = assignments.Select(x => x.vehicle).Distinct().OrderBy(x => x).ToArray();
 
             actualVehicles.AssertCollectionEqual(expectedVehicles);
         }
