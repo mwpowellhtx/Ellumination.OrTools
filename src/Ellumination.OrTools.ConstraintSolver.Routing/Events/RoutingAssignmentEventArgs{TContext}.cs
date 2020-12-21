@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Ellumination.OrTools.ConstraintSolver.Routing
 {
@@ -15,36 +16,20 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// </summary>
         public TContext Context { get; }
 
-        // TODO: TBD: similarly with VehicleIndex? or Vehicle?
         /// <summary>
-        /// Gets the VehicleIndex.
+        /// Gets the Assignments in the currently dispatched event.
         /// </summary>
-        public int VehicleIndex { get; }
-
-        // TODO: TBD: gets the NodeIndex? or the Node? in RoutingModel terms...
-        /// <summary>
-        /// Gets the NodeIndex.
-        /// </summary>
-        public int NodeIndex { get; }
-
-        /// <summary>
-        /// Gets the PreviousNodeIndex from which Routing occurred.
-        /// </summary>
-        public int? PreviousNodeIndex { get; }
+        public IEnumerable<(int vehicle, int node, int? previousNode)> Assignments { get; }
 
         /// <summary>
         /// Internal constructor.
         /// </summary>
         /// <param name="context">A <typeparamref name="TContext"/> instance.</param>
-        /// <param name="vehicleIndex">A Vehicle index.</param>
-        /// <param name="nodeIndex">A Node index.</param>
-        /// <param name="previousNodeIndex">A Previous Node index from which Routing occurred.</param>
-        internal RoutingAssignmentEventArgs(TContext context, int vehicleIndex, int nodeIndex, int? previousNodeIndex)
+        /// <param name="assignments">The Assignments in the currently dispatched event.</param>
+        internal RoutingAssignmentEventArgs(TContext context, params (int vehicle, int node, int? previousNode)[] assignments)
         {
             this.Context = context;
-            this.VehicleIndex = vehicleIndex;
-            this.NodeIndex = nodeIndex;
-            this.PreviousNodeIndex = previousNodeIndex;
+            this.Assignments = assignments;
         }
     }
 }

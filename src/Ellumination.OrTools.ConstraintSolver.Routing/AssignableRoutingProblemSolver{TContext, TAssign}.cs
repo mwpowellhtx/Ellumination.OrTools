@@ -249,63 +249,58 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
 
         /// <summary>
         /// Returns a Created <see cref="RoutingAssignmentEventArgs{TContext}"/> given
-        /// <paramref name="context"/>, <paramref name="nodeIndex"/>, and
-        /// <paramref name="vehicleIndex"/>.
+        /// <paramref name="context"/> and <paramref name="assignments"/>.
         /// </summary>
         /// <param name="context"></param>
-        /// <param name="vehicleIndex"></param>
-        /// <param name="nodeIndex"></param>
-        /// <param name="previousNodeIndex"></param>
+        /// <param name="assignments"></param>
         /// <returns></returns>
-        protected virtual TAssign CreateAssignEventArgs(TContext context, int vehicleIndex, int nodeIndex, int? previousNodeIndex) =>
-            (TAssign)Activator.CreateInstance(typeof(TAssign), context, vehicleIndex, nodeIndex, previousNodeIndex);
+        protected virtual TAssign CreateAssignEventArgs(TContext context, params (int vehicle, int node, int? previousNode)[] assignments) =>
+            (TAssign)Activator.CreateInstance(typeof(TAssign), context, assignments);
 
         /// <inheritdoc/>
-        public virtual event EventHandler<TAssign> Assigning;
+        public virtual event EventHandler<TAssign> BeforeAssignment;
 
         /// <inheritdoc/>
-        public virtual event EventHandler<TAssign> Assign;
+        public virtual event EventHandler<TAssign> AfterAssignment;
 
         /// <inheritdoc/>
-        public virtual event EventHandler<TAssign> Assigned;
+        public virtual event EventHandler<TAssign> BeforeAssignmentVehicle;
+
+        /// <inheritdoc/>
+        public virtual event EventHandler<TAssign> AfterAssignmentVehicle;
+
+        /// <inheritdoc/>
+        public virtual event EventHandler<TAssign> ForEachAssignmentNode;
 
         /// <summary>
-        /// Event dispatcher On <see cref="Assigning"/> of <paramref name="e"/> arguments.
+        /// <see cref="BeforeAssignment"/> <typeparamref name="TAssign"/> dispatcher.
         /// </summary>
         /// <param name="e"></param>
-        protected virtual void OnAssigningSolution(TAssign e) => this.Assigning?.Invoke(this, e);
+        protected virtual void OnBeforeAssignment(TAssign e) => this.BeforeAssignment?.Invoke(this, e);
 
         /// <summary>
-        /// Event dispatcher On <see cref="Assign"/> of <paramref name="e"/> arguments.
+        /// <see cref="AfterAssignment"/> <typeparamref name="TAssign"/> dispatcher.
         /// </summary>
         /// <param name="e"></param>
-        protected virtual void OnAssignSolution(TAssign e) => this.Assign?.Invoke(this, e);
+        protected virtual void OnAfterAssignment(TAssign e) => this.AfterAssignment?.Invoke(this, e);
 
         /// <summary>
-        /// Event dispatcher On <see cref="Assigned"/> of <paramref name="e"/> arguments.
+        /// <see cref="BeforeAssignmentVehicle"/> <typeparamref name="TAssign"/> dispatcher.
         /// </summary>
         /// <param name="e"></param>
-        protected virtual void OnAssignedSolution(TAssign e) => this.Assigned?.Invoke(this, e);
+        protected virtual void OnBeforeAssignmentVehicle(TAssign e) => this.BeforeAssignmentVehicle?.Invoke(this, e);
 
         /// <summary>
-        /// Callback occurs OnProcessSolution given <paramref name="context"/>,
-        /// <paramref name="nodeIndex"/>, and <paramref name="vehicleIndex"/>.
+        /// <see cref="AfterAssignmentVehicle"/> <typeparamref name="TAssign"/>  dispatcher.
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="vehicleIndex"></param>
-        /// <param name="nodeIndex"></param>
-        /// <param name="previousNodeIndex"></param>
-        /// <see cref="TryProcessSolution"/>
-        protected virtual void OnProcessSolution(TContext context, int vehicleIndex, int nodeIndex, int? previousNodeIndex)
-        {
-            var e = this.CreateAssignEventArgs(context, vehicleIndex, nodeIndex, previousNodeIndex);
+        /// <param name="e"></param>
+        protected virtual void OnAfterAssignmentVehicle(TAssign e) => this.AfterAssignmentVehicle?.Invoke(this, e);
 
-            this.OnAssigningSolution(e);
-
-            this.OnAssignSolution(e);
-
-            this.OnAssignedSolution(e);
-        }
+        /// <summary>
+        /// <see cref="ForEachAssignmentNode"/> <typeparamref name="TAssign"/> dispatcher.
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void OnForEachAssignmentNode(TAssign e) => this.ForEachAssignmentNode?.Invoke(this, e);
 
         /// <summary>
         /// Tries to Process the <see cref="Assignment"/> <paramref name="solution"/>.
@@ -313,33 +308,74 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="context"></param>
         /// <param name="solution"></param>
         /// <returns></returns>
-        /// <see cref="OnProcessSolution"/>
+        /// <see cref="OnBeforeAssignment"/>
+        /// <see cref="OnAfterAssignment"/>
+        /// <see cref="OnBeforeAssignmentVehicle"/>
+        /// <see cref="OnAfterAssignmentVehicle"/>
+        /// <see cref="OnForEachAssignmentNode"/>
         protected virtual bool TryProcessSolution(TContext context, Assignment solution)
         {
+            // A simple shorthand local helper method.
+            TAssign OnCreateAssignEventArgs(IEnumerable<(int vehicle, int node, int? previousNode)> assignments) =>
+                this.CreateAssignEventArgs(context, assignments.ToArray());
+
             var context_Model = context.Model;
             var context_VehicleCount = context.VehicleCount;
+
+            var solution_Assignments = new List<(int vehicle, int node, int? previousNode)>();
+
+            // TODO: TBD: sketching in the callbacks...
+            // TODO: TBD: we think that perhaps an "assignment" can be an IEnumerable of the corresponding tuple...
+            // TODO: TBD: that should give us adequate flexibility how to report, when, with what context, etc...
+            this.OnBeforeAssignment(OnCreateAssignEventArgs(solution_Assignments));
 
             // i: vehicle index, specifically declared int for clarity.
             for (int vehicleIndex = 0; vehicleIndex < context_VehicleCount; vehicleIndex++)
             {
                 long j;
                 long? previous = null;
+                (int vehicle, int node, int? previousNode) each;
+
+                var vehicle_Assignments = new List<(int vehicle, int node, int? previousNode)>();
+
+                this.OnBeforeAssignmentVehicle(OnCreateAssignEventArgs(vehicle_Assignments));
+
+                // Yes, we are able to assembly an Assignment tuple given the available bits.
+                (int vehicle, int node, int? previousNode) CreateAssignmentTuple() => (
+                    vehicleIndex
+                    , context.IndexToNode(j)
+                    , previous.HasValue ? context.IndexToNode(previous.Value) : (int?)null
+                );
 
                 // j: node index, specifically declared long for clarity.
                 for (j = context_Model.Start(vehicleIndex); !context_Model.IsEnd(j); j = solution.Value(context_Model.NextVar(j)))
                 {
-                    this.OnProcessSolution(context, vehicleIndex, context.IndexToNode(j)
-                        , previous.HasValue ? context.IndexToNode(previous.Value) : (int?)null);
+                    each = CreateAssignmentTuple();
+
+                    this.OnForEachAssignmentNode(OnCreateAssignEventArgs(new[] { each }));
+
+                    vehicle_Assignments.Add(each);
 
                     previous = j;
                 }
 
-                // TODO: TBD: is this really necessary?
-                // TODO: TBD: according to at least one example, it may be necessary...
-                // TODO: TBD: https://developers.google.com/optimization/routing/vrp
-                this.OnProcessSolution(context, vehicleIndex, context.IndexToNode(j)
-                    , context.IndexToNode(previous.Value));
+                {
+                    /* Remember to "close the loop" so to speak back to the "end",
+                     * in other words, we think, Depot. */
+
+                    each = CreateAssignmentTuple();
+
+                    this.OnForEachAssignmentNode(OnCreateAssignEventArgs(new[] { each }));
+
+                    vehicle_Assignments.Add(each);
+                }
+
+                solution_Assignments.AddRange(vehicle_Assignments);
+
+                this.OnAfterAssignmentVehicle(OnCreateAssignEventArgs(vehicle_Assignments));
             }
+
+            this.OnAfterAssignment(OnCreateAssignEventArgs(solution_Assignments));
 
             return true;
         }
