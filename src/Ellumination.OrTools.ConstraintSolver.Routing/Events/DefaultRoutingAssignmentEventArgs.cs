@@ -12,11 +12,10 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// Internal constructor.
         /// </summary>
         /// <param name="context">A <see cref="RoutingContext"/> instance.</param>
-        /// <param name="vehicleIndex">A Vehicle index.</param>
-        /// <param name="nodeIndex">A Node index.</param>
-        /// <param name="previousNodeIndex">The Previous Node index from which Routing occurred.</param>
-        internal DefaultRoutingAssignmentEventArgs(RoutingContext context, int vehicleIndex, int nodeIndex, int? previousNodeIndex)
-            : base(context, vehicleIndex, nodeIndex, previousNodeIndex)
+        /// <param name="assignments">The Assignments in the currently dispatched event.</param>
+        internal DefaultRoutingAssignmentEventArgs(RoutingContext context
+            , params (int vehicle, int node, int? previousNode)[] assignments)
+            : base(context, assignments)
         {
         }
     }
