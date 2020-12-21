@@ -54,20 +54,20 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         }
 
         /// <inheritdoc/>
-        protected override void OnVerifySolution(params (int vehicle, int node)[] solution)
+        protected override void OnVerifyAssignments(params (int vehicle, int node, int? previousNode)[] assignments)
         {
-            base.OnVerifySolution(solution);
+            base.OnVerifyAssignments(assignments);
 
-            var validate = solution.Select(pair => (
+            var validate = assignments.Select(pair => (
                 pair.vehicle
                 , pair.node
                 , depot: pair.node == 0
                 , even: pair.node % 2 == 0
                 , odd: pair.node % 2 == 1)).ToArray();
 
-            void ReportValidateSolution()
+            void ReportValidateAssignment()
             {
-                const string squareBrackets ="[]";
+                const string squareBrackets = "[]";
 
                 this.OutputHelper.WriteLine($"{nameof(validate)}: {squareBrackets[0]}");
 
@@ -93,7 +93,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
                 this.OutputHelper.WriteLine($"{squareBrackets[1]}");
             }
 
-            ReportValidateSolution();
+            ReportValidateAssignment();
 
             var depotOrEven = validate.Select(x => x.depot || x.even).ToArray();
 
