@@ -53,9 +53,9 @@
         /// <summary>
         /// Allows an item instance to be deconstructed along similar lines as a Value Tuple.
         /// </summary>
-        /// <param name="vehicle"></param>
-        /// <param name="node"></param>
-        /// <param name="previousNode"></param>
+        /// <param name="vehicle">Receives the <see cref="Vehicle"/> value.</param>
+        /// <param name="node">Receives the <see cref="Node"/> value.</param>
+        /// <param name="previousNode">Receives the <see cref="PreviousNode"/> value.</param>
         public virtual void Deconstruct(out int vehicle, out int node, out int? previousNode) =>
             (vehicle, node, previousNode) = (this.Vehicle, this.Node, this.PreviousNode);
 
