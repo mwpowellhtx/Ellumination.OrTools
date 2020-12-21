@@ -54,16 +54,16 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         }
 
         /// <inheritdoc/>
-        protected override void OnVerifyAssignments(params (int vehicle, int node, int? previousNode)[] assignments)
+        protected override void OnVerifyAssignments(params RouteAssignmentItem[] assignments)
         {
             base.OnVerifyAssignments(assignments);
 
-            var validate = assignments.Select(pair => (
-                pair.vehicle
-                , pair.node
-                , depot: pair.node == 0
-                , even: pair.node % 2 == 0
-                , odd: pair.node % 2 == 1)).ToArray();
+            var validate = assignments.Select(item => (
+                item.Vehicle
+                , item.Node
+                , depot: item.Node == 0
+                , even: item.Node % 2 == 0
+                , odd: item.Node % 2 == 1)).ToArray();
 
             void ReportValidateAssignment()
             {

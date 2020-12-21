@@ -31,7 +31,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         protected override RoutingContext CreateContext() => new RoutingContext(13, 3);
 
         /// <inheritdoc/>
-        protected override void OnVerifyAssignments(params (int vehicle, int node, int? previousNode)[] assignments)
+        protected override void OnVerifyAssignments(params RouteAssignmentItem[] assignments)
         {
             base.OnVerifyAssignments(assignments);
 
@@ -41,7 +41,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
             // We are expecting a solution involving all three vehicles.
             var expectedVehicles = Range(0, 1, 2).ToArray();
 
-            var actualVehicles = assignments.Select(x => x.vehicle).Distinct().OrderBy(x => x).ToArray();
+            var actualVehicles = assignments.Select(x => x.Vehicle).Distinct().OrderBy(x => x).ToArray();
 
             actualVehicles.AssertCollectionEqual(expectedVehicles);
         }

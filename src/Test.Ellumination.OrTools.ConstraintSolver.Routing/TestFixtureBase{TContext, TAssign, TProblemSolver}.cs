@@ -59,8 +59,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// </summary>
         /// <param name="current"></param>
         /// <param name="assignments"></param>
-        protected virtual void VerifyAssignment((int vehicle, int node, int? previousNode) current
-            , IEnumerable<(int vehicle, int node, int? previousNode)> assignments)
+        protected virtual void VerifyAssignment(RouteAssignmentItem current, IEnumerable<RouteAssignmentItem> assignments)
         {
             // TODO: TBD: verify other bits?
             assignments.Contains(current).AssertTrue();
@@ -163,37 +162,37 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// Gets the Assignments for Private use.
         /// </summary>
         /// <see cref="AllAssignments"/>
-        private List<(int vehicle, int node, int? previousNode)> PrivateAllAssignments { get; } = Range<(int, int, int?)>().ToList();
+        private List<RouteAssignmentItem> PrivateAllAssignments { get; } = Range<RouteAssignmentItem>().ToList();
 
         /// <summary>
         /// Gets the Assignments for Private use.
         /// </summary>
         /// <see cref="VehicleAssignments"/>
-        private List<(int vehicle, int node, int? previousNode)> PrivateVehicleAssignments { get; } = Range<(int, int, int?)>().ToList();
+        private List<RouteAssignmentItem> PrivateVehicleAssignments { get; } = Range<RouteAssignmentItem>().ToList();
 
         /// <summary>
         /// Gets the Assignments for Private use.
         /// </summary>
         /// <see cref="ForEachAssignments"/>
-        private List<(int vehicle, int node, int? previousNode)> PrivateForEachAssignments { get; } = Range<(int, int, int?)>().ToList();
+        private List<RouteAssignmentItem> PrivateForEachAssignments { get; } = Range<RouteAssignmentItem>().ToList();
 
         /// <summary>
         /// Gets the Assignments for Protected use.
         /// </summary>
         /// <see cref="PrivateAllAssignments"/>
-        protected virtual IEnumerable<(int vehicle, int node, int? previousNode)> AllAssignments => this.PrivateAllAssignments;
+        protected virtual IEnumerable<RouteAssignmentItem> AllAssignments => this.PrivateAllAssignments;
 
         /// <summary>
         /// Gets the Assignments for Protected use.
         /// </summary>
         /// <see cref="PrivateVehicleAssignments"/>
-        protected virtual IEnumerable<(int vehicle, int node, int? previousNode)> VehicleAssignments => this.PrivateVehicleAssignments;
+        protected virtual IEnumerable<RouteAssignmentItem> VehicleAssignments => this.PrivateVehicleAssignments;
 
         /// <summary>
         /// Gets the Assignments for Protected use.
         /// </summary>
         /// <see cref="PrivateForEachAssignments"/>
-        protected virtual IEnumerable<(int vehicle, int node, int? previousNode)> ForEachAssignments => this.PrivateForEachAssignments;
+        protected virtual IEnumerable<RouteAssignmentItem> ForEachAssignments => this.PrivateForEachAssignments;
 
         /// <summary>
         /// Override in order to Verify the <paramref name="context"/>.
@@ -247,7 +246,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// Override in order to Verify the <paramref name="assignments"/>.
         /// </summary>
         /// <param name="assignments"></param>
-        protected virtual void OnVerifyAssignments(params (int vehicle, int node, int? previousNode)[] assignments)
+        protected virtual void OnVerifyAssignments(params RouteAssignmentItem[] assignments)
         {
         }
 
