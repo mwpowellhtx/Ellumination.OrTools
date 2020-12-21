@@ -47,7 +47,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
             /// Constructs the dimension.
             /// </summary>
             /// <param name="context"></param>
-            /// <param name="matrix"></param>
+            /// <param name="scope"></param>
             /// <see cref="!:https://developers.google.com/optimization/routing/tsp#distance_callback"/>
             public TestDimension(RoutingContext context, CircuitBoardCaseStudyScope scope)
                 : base(context, scope.DimensionCoefficient)
