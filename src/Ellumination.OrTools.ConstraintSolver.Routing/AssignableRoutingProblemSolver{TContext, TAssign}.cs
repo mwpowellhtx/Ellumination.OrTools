@@ -334,7 +334,6 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
             {
                 long j;
                 long? previous = null;
-                (int vehicle, int node, int? previousNode) each;
 
                 var vehicle_Assignments = new List<(int vehicle, int node, int? previousNode)>();
 
@@ -347,31 +346,23 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
                     , previous.HasValue ? context.IndexToNode(previous.Value) : (int?)null
                 );
 
+                // The same whether within the Node loop, or the "last" leg.
+                void OnForEachAssignments(params (int vehicle, int node, int? previousNode)[] assignments)
+                {
+                    this.OnForEachAssignmentNode(OnCreateAssignEventArgs(assignments));
+                    vehicle_Assignments.AddRange(assignments);
+                }
+
                 // j: node index, specifically declared long for clarity.
                 for (j = context_Model.Start(vehicleIndex); !context_Model.IsEnd(j); j = solution.Value(context_Model.NextVar(j)))
                 {
-                    each = CreateAssignmentTuple();
-
-                    this.OnForEachAssignmentNode(OnCreateAssignEventArgs(new[] { each }));
-
-                    vehicle_Assignments.Add(each);
-
+                    OnForEachAssignments(CreateAssignmentTuple());
                     previous = j;
                 }
 
-                {
-                    /* Remember to "close the loop" so to speak back to the "end",
-                     * in other words, we think, Depot. */
-
-                    each = CreateAssignmentTuple();
-
-                    this.OnForEachAssignmentNode(OnCreateAssignEventArgs(new[] { each }));
-
-                    vehicle_Assignments.Add(each);
-                }
+                OnForEachAssignments(CreateAssignmentTuple());
 
                 solution_Assignments.AddRange(vehicle_Assignments);
-
                 this.OnAfterAssignmentVehicle(OnCreateAssignEventArgs(vehicle_Assignments));
             }
 
