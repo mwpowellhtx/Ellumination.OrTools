@@ -10,6 +10,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     using RoutingTransitEvaluationCallback = LongLongToLong;
     using RoutingUnaryTransitEvaluationCallback = LongToLong;
     using OnRegisterRoutingTransitEvalution = Func<LongLongToLong, int>;
+    using TranslateRoutingContextIndexCallback = Func<RoutingContext, int, long>;
 
     /// <summary>
     /// Dimension is the adapter layer handling all things
@@ -558,6 +559,84 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <see cref="RoutingContext.AddPickupsAndDeliveries"/>
         protected virtual void AddPickupsAndDeliveries(IEnumerable<(int pickup, int delivery)> nodes) =>
             this.Context.AddPickupsAndDeliveries(this, nodes.OrEmpty().ToArray());
+
+        /// <summary>
+        /// Sets the Accumulator Variable <em>Lower-</em> and <em>Upper-Bounds</em>
+        /// corresponding to the Index <paramref name="i"/> translated according to
+        /// <paramref name="onTranslateIndex"/> terms. Assumes that the Dimension has
+        /// been added to the Model.
+        /// </summary>
+        /// <param name="i">A Domain oriented Index.</param>
+        /// <param name="lowerBound">The Lower Bound.</param>
+        /// <param name="upperBound">The Upper Bound.</param>
+        /// <param name="onTranslateIndex">Translates the Index <paramref name="i"/> in Model terms.</param>
+        /// <remarks>We deliberately control access as Protected Internal because both derived
+        /// assets as well as internal extension methods must be able to successfully access
+        /// the method.</remarks>
+        protected internal virtual void SetCumulVarRange(int i, long lowerBound, long upperBound
+            , TranslateRoutingContextIndexCallback onTranslateIndex)
+        {
+            var index = onTranslateIndex.Invoke(this.Context, i);
+            this.MutableDimension.CumulVar(index).SetRange(lowerBound, upperBound);
+        }
+
+        /// <summary>
+        /// Sets the Accumulator Variable <em>Lower-</em> and <em>Upper-Bounds</em>
+        /// corresponding to the Index <paramref name="i"/> translated according to
+        /// <paramref name="onTranslateIndex"/> terms. Assumes that the Dimension has
+        /// been added to the Model.
+        /// </summary>
+        /// <param name="i">A Domain oriented Index.</param>
+        /// <param name="bounds">The Lower and Upper Bounds.</param>
+        /// <param name="onTranslateIndex">Translates the Index <paramref name="i"/> in Model terms.</param>
+        /// <remarks>We deliberately control access as Protected Internal because both derived
+        /// assets as well as internal extension methods must be able to successfully access
+        /// the method.</remarks>
+        protected internal virtual void SetCumulVarRange(int i, in (long lower, long upper) bounds
+            , TranslateRoutingContextIndexCallback onTranslateIndex) =>
+            this.SetCumulVarRange(i, bounds.lower, bounds.upper, onTranslateIndex);
+
+        // TODO: TBD: could perhaps add other variations of the finalizer concerns...
+        /// <summary>
+        /// Adds a Variable Minimized by Finalizer instruction to the Model. Assumes that
+        /// the Dimension has been added to the Model.
+        /// </summary>
+        /// <param name="i">A Domain oriented Index.</param>
+        /// <param name="onTranslateIndex">Translates the Index <paramref name="i"/> in Model terms.</param>
+        /// <remarks>As with the other helper methods, the purpose of the finalizer methods is to
+        /// abstract away the mechanics of arranging such, in order to allow the Dimension author
+        /// to focus on the important aspects pertaining to the dimension in particular.
+        /// Additionally, we deliberately control access as Protected Internal because both
+        /// derived assets as well as internal extension methods must be able to successfully
+        /// access the method.</remarks>
+        /// <see cref="AddVariableMaximizedByFinalizer(int, TranslateRoutingContextIndexCallback)"/>
+        protected internal virtual void AddVariableMinimizedByFinalizer(int i
+            , TranslateRoutingContextIndexCallback onTranslateIndex)
+        {
+            var this_Context = this.Context;
+            var index = onTranslateIndex.Invoke(this_Context, i);
+            this_Context.Model.AddVariableMinimizedByFinalizer(this.MutableDimension.CumulVar(index));
+        }
+
+        /// <summary>
+        /// Adds a Variable Minimized by Finalizer instruction to the Model. Assumes that
+        /// the Dimension has been added to the Model.
+        /// </summary>
+        /// <param name="i">A Domain oriented Index.</param>
+        /// <param name="onTranslateIndex">Translates the Index <paramref name="i"/> in Model terms.</param>
+        /// <remarks>As with the other helper methods, the purpose of the finalizer methods is to
+        /// abstract away the mechanics of arranging such, in order to allow the Dimension author
+        /// to focus on the important aspects pertaining to the dimension in particular.
+        /// Additionally, we deliberately control access as Protected Internal because both
+        /// derived assets as well as internal extension methods must be able to successfully
+        /// access the method.</remarks>
+        /// <see cref="AddVariableMinimizedByFinalizer(int, TranslateRoutingContextIndexCallback)"/>
+        protected internal virtual void AddVariableMaximizedByFinalizer(int i, TranslateRoutingContextIndexCallback onTranslateIndex)
+        {
+            var this_Context = this.Context;
+            var index = onTranslateIndex.Invoke(this_Context, i);
+            this_Context.Model.AddVariableMaximizedByFinalizer(this.MutableDimension.CumulVar(index));
+        }
 
         /// <summary>
         /// Constructs a Dimension given <paramref name="context"/> and
