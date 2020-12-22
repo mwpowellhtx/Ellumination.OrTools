@@ -16,6 +16,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         /// <summary>
         /// Gets the VehicleCount, <c>4</c>.
         /// </summary>
+        /// 
         /// <value>4</value>
         internal override int VehicleCount { get; } = 4;
 
@@ -37,16 +38,22 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         /// <value>false</value>
         internal override bool? ZeroAccumulator { get; } = default(bool);
 
+        /// <summary>
+        /// Gets or Sets the ExpectedTotalDistance, <c>71</c>.
+        /// </summary>
+        /// <value>71</value>
+        internal override long ExpectedTotalDistance { get; set; } = 71;
+
         // TODO: TBD: we could potentially refactor this sort of initialization to the test fixtures themselves...
         // TODO: TBD: rather than do them here...
         /// <summary>
         /// Gets the ExpectedPaths.
         /// </summary>
         internal override IList<int[]> ExpectedPaths { get; set; } = Range(
-            Range(0, 8, 6, 2, 5, 0).ToArray()
+            Range(0, 9, 14, 16, 0).ToArray()
             , Range(0, 7, 1, 4, 3, 0).ToArray()
-            , Range(0, 9, 10, 16, 14, 0).ToArray()
-            , Range(0, 12, 11, 15, 13, 0).ToArray()).ToList();
+            , Range(0, 12, 13, 15, 11, 0).ToArray()
+            , Range(0, 5, 8, 6, 2, 10, 0).ToArray()).ToList();
 
         private IEnumerable<int?> _expectedRouteDistances;
 
@@ -54,16 +61,15 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         /// Gets the ExpectedRouteDistances.
         /// </summary>
         internal virtual IEnumerable<int?> ExpectedRouteDistances => this._expectedRouteDistances ?? (
-            this._expectedRouteDistances = Range(0, this.VehicleCount).Select(_ => (int?)1552).ToArray()
+            this._expectedRouteDistances = Range(0, this.VehicleCount).Select(_ => (int?)30).ToArray()
         );
 
-        // TODO: TBD: what is the proper distance unit?
         /// <summary>
-        /// Gets the Vehicle Routing DistanceUnit, <c>&quot;m&quot;</c>
+        /// Gets the Vehicle Routing DistanceUnit, <c>&quot;min&quot;</c>
         /// for lack of a better definition.
         /// </summary>
-        /// <value>m</value>
-        protected override string DistanceUnit { get; } = "m";
+        /// <value>min</value>
+        internal override string DistanceUnit { get; } = "min";
 
         /// <inheritdoc/>
         protected override int?[,] MatrixValues { get; } = {
