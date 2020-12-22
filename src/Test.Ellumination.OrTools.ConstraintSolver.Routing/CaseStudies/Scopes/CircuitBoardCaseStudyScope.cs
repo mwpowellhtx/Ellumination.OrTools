@@ -161,7 +161,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         /// Gets the Circuit Board Drill Press unit of measure, <c>&quot;m&quot;</c>.
         /// </summary>
         /// <value>m</value>
-        protected override string DistanceUnit { get; } = "m";
+        internal override string DistanceUnit { get; } = "m";
 
         /// <inheritdoc/>
         public CircuitBoardCaseStudyScope(ITestOutputHelper outputHelper)

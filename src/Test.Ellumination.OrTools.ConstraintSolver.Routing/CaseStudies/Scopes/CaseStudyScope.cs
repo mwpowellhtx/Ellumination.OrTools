@@ -86,7 +86,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         /// <summary>
         /// Gets the <see cref="ActualTotalDistance"/> Unit of Measure.
         /// </summary>
-        protected abstract string DistanceUnit { get; }
+        internal abstract string DistanceUnit { get; }
 
         /// <summary>
         /// Gets or Sets the ActualTotalDistance for use throughout the tests.

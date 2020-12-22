@@ -23,7 +23,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         /// Gets the Traveling Salesman Distance Unit, <c>&quot;mi&quot;</c>.
         /// </summary>
         /// <value>mi</value>
-        protected override string DistanceUnit { get; } = "mi";
+        internal override string DistanceUnit { get; } = "mi";
 
         public TravelingSalesmanCaseStudyScope(ITestOutputHelper outputHelper)
             : base(outputHelper)

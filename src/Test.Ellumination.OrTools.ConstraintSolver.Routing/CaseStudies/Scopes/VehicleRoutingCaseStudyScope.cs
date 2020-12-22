@@ -51,7 +51,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         /// for lack of a better definition.
         /// </summary>
         /// <value>m</value>
-        protected override string DistanceUnit { get; } = "m";
+        internal override string DistanceUnit { get; } = "m";
 
         /// <inheritdoc/>
         protected override int?[,] MatrixValues { get; } = {
