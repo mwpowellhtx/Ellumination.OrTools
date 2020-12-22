@@ -63,28 +63,33 @@
         /// Allows an item instance to be deconstructed along similar lines as a Value Tuple.
         /// </summary>
         /// <param name="vehicle"></param>
-        /// <param name="node"></param>
-        /// <param name="previousNode"></param>
         /// <param name="index"></param>
+        /// <param name="node"></param>
         /// <param name="previousIndex"></param>
-        public virtual void Deconstruct(out int vehicle, out int node, out int? previousNode, out long? index, out long? previousIndex) =>
-            (vehicle, node, previousNode, index, previousIndex) = (this.Vehicle, this.Node, this.PreviousNode, this.Index, this.PreviousIndex);
+        /// <param name="previousNode"></param>
+        public virtual void Deconstruct(out int vehicle, out long index, out int node
+            , out long? previousIndex, out int? previousNode) =>
+            (vehicle, index, node, previousIndex, previousNode)
+                = (this.Vehicle, this.Index, this.Node, this.PreviousIndex, this.PreviousNode);
 
         /// <summary>
         /// Constructs a <see cref="RouteAssignmentItem"/> for Internal use.
         /// </summary>
         /// <param name="context"></param>
         /// <param name="vehicle"></param>
+        /// <param name="index"></param>
         /// <param name="node"></param>
+        /// <param name="previousIndex"></param>
         /// <param name="previousNode"></param>
-        internal RouteAssignmentItem(RoutingContext context, int vehicle, int node, int? previousNode)
+        internal RouteAssignmentItem(RoutingContext context, int vehicle, long index, int node
+            , long? previousIndex, int? previousNode)
         {
             this.Context = context;
             this.Vehicle = vehicle;
+            this.Index = index;
             this.Node = node;
-            this.Index = context.NodeToIndex(node);
+            this.PreviousIndex = previousIndex;
             this.PreviousNode = previousNode;
-            this.PreviousIndex = previousNode.HasValue ? context.NodeToIndex(previousNode ?? default) : (long?)null;
             // TODO: TBD: short of also capturing cumulvars ... would that be helpful?
             // TODO: TBD: we think possibly, but this also requires semi-intimate knowledge of the dimensions, names, ids, etc...
         }
