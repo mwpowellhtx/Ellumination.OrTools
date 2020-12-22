@@ -2,6 +2,8 @@
 
 namespace Ellumination.OrTools.ConstraintSolver.Routing
 {
+    using Assignment = Google.OrTools.ConstraintSolver.Assignment;
+
     /// <summary>
     /// Represents a Default <see cref="AssignableRoutingProblemSolver{TContext, TAssign}"/>.
     /// </summary>
@@ -12,7 +14,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
             , IAssignableRoutingProblemSolver<RoutingContext, DefaultRoutingAssignmentEventArgs>
     {
         /// <inheritdoc/>
-        protected override DefaultRoutingAssignmentEventArgs CreateAssignEventArgs(RoutingContext context, params RouteAssignmentItem[] assignments) =>
-            new DefaultRoutingAssignmentEventArgs(context, assignments);
+        protected override DefaultRoutingAssignmentEventArgs CreateAssignEventArgs(RoutingContext context, Assignment solution, params RouteAssignmentItem[] assignments) =>
+            new DefaultRoutingAssignmentEventArgs(context, solution, assignments);
     }
 }

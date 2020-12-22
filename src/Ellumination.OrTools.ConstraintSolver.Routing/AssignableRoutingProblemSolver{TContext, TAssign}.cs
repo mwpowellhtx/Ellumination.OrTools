@@ -251,11 +251,12 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// Returns a Created <see cref="RoutingAssignmentEventArgs{TContext}"/> given
         /// <paramref name="context"/> and <paramref name="assignments"/>.
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="assignments"></param>
+        /// <param name="context">The Context involved during assignment reporting.</param>
+        /// <param name="solution">The Solution involved during assignment reporting.</param>
+        /// <param name="assignments">The Assignments involved during reporting.</param>
         /// <returns></returns>
-        protected virtual TAssign CreateAssignEventArgs(TContext context, params RouteAssignmentItem[] assignments) =>
-            (TAssign)Activator.CreateInstance(typeof(TAssign), context, assignments);
+        protected virtual TAssign CreateAssignEventArgs(TContext context, Assignment solution, params RouteAssignmentItem[] assignments) =>
+            (TAssign)Activator.CreateInstance(typeof(TAssign), context, solution, assignments);
 
         /// <inheritdoc/>
         public virtual event EventHandler<TAssign> BeforeAssignment;
@@ -317,7 +318,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         {
             // A simple shorthand local helper method.
             TAssign OnCreateAssignEventArgs(IEnumerable<RouteAssignmentItem> assignments) =>
-                this.CreateAssignEventArgs(context, assignments.ToArray());
+                this.CreateAssignEventArgs(context, solution, assignments.ToArray());
 
             var context_Model = context.Model;
             var context_VehicleCount = context.VehicleCount;
@@ -343,7 +344,9 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
                 RouteAssignmentItem CreateAssignmentTuple() => new RouteAssignmentItem(
                     context
                     , vehicleIndex
+                    , j
                     , context.IndexToNode(j)
+                    , previous
                     , previous.HasValue ? context.IndexToNode(previous.Value) : (int?)null
                 );
 
