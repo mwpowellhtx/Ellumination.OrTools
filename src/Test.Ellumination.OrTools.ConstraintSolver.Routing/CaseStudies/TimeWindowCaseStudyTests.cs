@@ -14,29 +14,27 @@ using System.Linq;
     /// <summary>
     ///   Print the solution.
     /// </summary>
-    static void PrintSolution(in DataModel data, in RoutingModel model, in RoutingIndexManager manager,
-                              in Assignment solution)
+    static void PrintSolution(in DataModel data, in RoutingModel model, in RoutingIndexManager manager, in Assignment solution)
     {
+        // TODO: TBD: we may need to expose dimensional lookups after all...
+        // TODO: TBD: which in this context, and that of the event pub/sub, makes a certain amount of sense...
         RoutingDimension timeDimension = model.GetMutableDimension("Time");
         // Inspect solution.
-        long totalTime = 0;
-        for (int i = 0; i < data.VehicleNumber; ++i)
+        var totalTime = default(long);
+        for (var vehicle = 0; vehicle < data.VehicleNumber; vehicle++)
         {
-            Console.WriteLine("Route for Vehicle {0}:", i);
-            var index = model.Start(i);
-            while (model.IsEnd(index) == false)
+            long index;
+            Console.WriteLine("Route for Vehicle {0}:", vehicle);
+            for (index = model.Start(vehicle); !model.IsEnd(index); index = solution.Value(model.NextVar(index)))
             {
                 // TODO: TBD: would it be worthwhile including the cumulvars for each dimension at the given index?
                 // TODO: TBD: in any event, starting to sound like we need to define a first class descriptor...
                 // TODO: TBD: rather than the ad-hoc value tuple... since we need "both" indexes, etc...
                 var timeVar = timeDimension.CumulVar(index);
-                Console.Write("{0} Time({1},{2}) -> ", manager.IndexToNode(index), solution.Min(timeVar),
-                              solution.Max(timeVar));
-                index = solution.Value(model.NextVar(index));
+                Console.Write("{0} Time({1},{2}) -> ", manager.IndexToNode(index), solution.Min(timeVar), solution.Max(timeVar));
             }
             var endTimeVar = timeDimension.CumulVar(index);
-            Console.WriteLine("{0} Time({1},{2})", manager.IndexToNode(index), solution.Min(endTimeVar),
-                              solution.Max(endTimeVar));
+            Console.WriteLine("{0} Time({1},{2})", manager.IndexToNode(index), solution.Min(endTimeVar), solution.Max(endTimeVar));
             Console.WriteLine("Time of the route: {0}min", solution.Min(endTimeVar));
             totalTime += solution.Min(endTimeVar);
         }
@@ -52,10 +50,13 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
     using Xunit.Abstractions;
     using Xwellbehaved;
     // TODO: TBD: making an alias here because we think we may refactor to collections suite...
+    using Assignment = Google.OrTools.ConstraintSolver.Assignment;
     using DistanceMatrix = Distances.DistanceMatrix;
+    using RoutingDimension = Google.OrTools.ConstraintSolver.RoutingDimension;
     using RoutingModel = Google.OrTools.ConstraintSolver.RoutingModel;
     using FirstSolutionStrategyType = Google.OrTools.ConstraintSolver.FirstSolutionStrategy.Types.Value;
     using LocalSearchMetaheuristicType = Google.OrTools.ConstraintSolver.LocalSearchMetaheuristic.Types.Value;
+    using static String;
 
     /// <summary>
     /// 
@@ -99,11 +100,12 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
 
                     var evaluatorIndex = this.RegisterTransitEvaluationCallback(this.OnEvaluateTransit);
 
+                    // TODO: TBD: I'm not sure we actually ever add the dimension here ...
+                    // TODO: TBD: should review the example again to make sure that we actually should/are/do... (take your pick)
+                    this.SetArcCostEvaluators(evaluatorIndex);
+
                     // TODO: TBD: with parameters that could be captured in a context, etc...
-                    this.AddDimension(evaluatorIndex, scope.VehicleCap
-                        , scope.SlackMaximum ?? default
-                        , scope.ZeroAccumulator ?? default
-                    );
+                    this.AddDimension(evaluatorIndex, scope.VehicleCap, scope.SlackMaximumOrDefault, scope.ZeroAccumulatorOrDefault);
 
                     {
                         // TODO: TBD: could/should probably refactor this to a separate method...
@@ -156,10 +158,6 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
 
                         vehicles.ForEach(OnArrangeVehicleFinalizers);
                     }
-
-                    // TODO: TBD: I'm not sure we actually ever add the dimension here ...
-                    // TODO: TBD: should review the example again to make sure that we actually should/are/do... (take your pick)
-                    this.SetArcCostEvaluators(evaluatorIndex);
                 }
             }
 
@@ -219,10 +217,11 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         /// Do some TimeWindowBackground.
         /// </summary>
         /// <param name="scope"></param>
+        /// <param name="context"></param>
         /// <param name="matrix"></param>
         /// <param name="expectedPaths"></param>
         [Background]
-        public void TimeWindowBackground(TimeWindowCaseStudyScope scope, DistanceMatrix matrix, IEnumerable<int[]> expectedPaths)
+        public void TimeWindowBackground(TimeWindowCaseStudyScope scope, RoutingContext context, DistanceMatrix matrix, IEnumerable<int[]> expectedPaths)
         {
             $"Verify {nameof(scope)} not null".x(() =>
                 scope = this.Scope.AssertNotNull()
@@ -232,6 +231,12 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
                 matrix = scope.Matrix.AssertNotNull()
             );
 
+            $"Verify {nameof(scope)}.{nameof(scope.Context)} not null".x(() =>
+                context = scope.Context.AssertNotNull()
+            ); ;
+
+            $"Arrange the total distance".x(() => scope.ExpectedTotalDistance = 71);
+
             $"Arrange {nameof(scope)}.{nameof(scope.ExpectedTotalDistance)}".x(() =>
                 expectedPaths = scope.ExpectedPaths.AssertEqual(scope.VehicleCount, x => x.Count)
             );
@@ -240,6 +245,51 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
             $"Add {nameof(TimeWindowDimension)} to {nameof(scope)}.{nameof(scope.Context)}".x(
                 () => scope.Context.AddDefaultDimension<TimeWindowDimension>(scope)
             );
+
+            IEnumerable<(int vehicle, int node, long index, long min, long max)> OnSummarizeAssignments(
+                RoutingDimension dim, Assignment solution, IEnumerable<RouteAssignmentItem> assignments) =>
+                assignments.Select(_ => (var: dim.CumulVar(_.Index), node: _.Node, index: _.Index, vehicle: _.Vehicle))
+                    .Select(_ => (_.vehicle, _.node, _.index, min: solution.Min(_.var), max: solution.Max(_.var)));
+
+            void OnScopeProblemSolverAfterAssignmentVehicle(object sender, DefaultRoutingAssignmentEventArgs e)
+            {
+                var context_Dim = context.Dimensions.OfType<TimeWindowDimension>().AssertCollectionNotEmpty()
+                    .SingleOrDefault().AssertNotNull();
+
+                var e_Summary = OnSummarizeAssignments(context_Dim.MutableDimension, e.Solution, e.Assignments).ToArray();
+
+                var vehicle = e_Summary.Select(_ => _.vehicle).Distinct()
+                    .ToArray().AssertEqual(1, _ => _.Length).Single();
+
+                this.OutputHelper.WriteLine($"Route for vehicle {vehicle}");
+
+                this.OutputHelper.WriteLine(Join(" -> ", e_Summary.Select(_ => $"{_.node} Time({_.min}, {_.max})")));
+
+                this.OutputHelper.WriteLine($"Time of the route: {e_Summary.Last().min} {scope.DistanceUnit}");
+            }
+
+            void OnScopeProblemSolverAfterAssignment(object sender, DefaultRoutingAssignmentEventArgs e)
+            {
+                var context_Dim = context.Dimensions.OfType<TimeWindowDimension>().AssertCollectionNotEmpty()
+                    .SingleOrDefault().AssertNotNull();
+
+                var e_Summary = OnSummarizeAssignments(context_Dim.MutableDimension, e.Solution, e.Assignments).ToArray();
+
+                this.OutputHelper.WriteLine($"Total time of all routes: {e_Summary.GroupBy(_ => _.vehicle).Sum(_ => _.Last().min)}"
+                    + $" {scope.DistanceUnit}");
+            }
+
+            $"And connect appropriate event handlers".x(() =>
+            {
+                scope.ProblemSolver.AfterAssignmentVehicle += OnScopeProblemSolverAfterAssignmentVehicle;
+                scope.ProblemSolver.AfterAssignment += OnScopeProblemSolverAfterAssignment;
+            }).Rollback(() =>
+            {
+                // TODO: TBD: which is occurring "after" scope has been disposed?
+                // And disconnect on Rollback.
+                scope.ProblemSolver.AfterAssignmentVehicle -= OnScopeProblemSolverAfterAssignmentVehicle;
+                scope.ProblemSolver.AfterAssignment -= OnScopeProblemSolverAfterAssignment;
+            });
         }
 
         /// <summary>
@@ -247,7 +297,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         /// </summary>
         /// <see cref="!:https://developers.google.com/optimization/routing/tsp#main"/>
         /// <param name="scope"></param>
-        [Scenario(Skip = "Remains an issue the expected solution is similar to a point then falls apart.")]
+        [Scenario/*(Skip = "Remains an issue the expected solution is similar to a point then falls apart.")*/]
         public void Verify_ProblemSolver_Solution(TimeWindowCaseStudyScope scope)
         {
             $"Verify {nameof(scope)}".x(() => scope = this.Scope.AssertNotNull());
