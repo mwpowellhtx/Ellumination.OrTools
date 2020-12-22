@@ -4,6 +4,8 @@ using System.Linq;
 
 namespace Ellumination.OrTools.ConstraintSolver.Routing
 {
+    using Assignment = Google.OrTools.ConstraintSolver.Assignment;
+
     /// <summary>
     /// Provides a set of <see cref="EventArgs"/> for use during the Routing Assignment process.
     /// </summary>
@@ -50,9 +52,10 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// Internal constructor.
         /// </summary>
         /// <param name="context">The Context in use during the currently assigned solution.</param>
+        /// <param name="solution">The Assignment associated with the current event.</param>
         /// <param name="assignments">The Domain oriented assigments during the currently dispatched event.</param>
-        internal DomainRoutingAssignmentEventArgs(TContext context, params RouteAssignmentItem[] assignments)
-            : base(context, assignments)
+        internal DomainRoutingAssignmentEventArgs(TContext context, Assignment solution, params RouteAssignmentItem[] assignments)
+            : base(context, solution, assignments)
         {
             this.DomainAssignments = OnTransformAssignments(context, assignments);
         }
