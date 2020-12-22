@@ -33,10 +33,20 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         internal virtual long? SlackMaximum { get; } = null;
 
         /// <summary>
+        /// Gets the <see cref="SlackMaximum"/> or a <c>default</c> value.
+        /// </summary>
+        internal virtual long SlackMaximumOrDefault => this.SlackMaximum ?? default;
+
+        /// <summary>
         /// Gets whether to Zero Accumulator when Dimension is registered.
         /// Defaults to <c>null</c>.
         /// </summary>
         internal virtual bool? ZeroAccumulator { get; } = null;
+
+        /// <summary>
+        /// Gets the <see cref="ZeroAccumulator"/> or a <c>default</c> value.
+        /// </summary>
+        internal virtual bool ZeroAccumulatorOrDefault => this.ZeroAccumulator ?? default;
 
         /// <summary>
         /// Gets the Depot, <c>default</c>.
