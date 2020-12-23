@@ -91,6 +91,8 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
             /// <param name="context"></param>
             /// <param name="scope"></param>
             /// <see cref="!:https://developers.google.com/optimization/routing/tsp#distance_callback"/>
+            /// <see cref="!:https://developers.google.com/optimization/routing/dimensions#slack_variables"/>
+            /// <see cref="!:https://github.com/google/or-tools/discussions/2298">Concerning slack</see>
             public TimeWindowDimension(RoutingContext context, TimeWindowCaseStudyScope scope)
                 : base(context, scope.DimensionCoefficient)
             {
