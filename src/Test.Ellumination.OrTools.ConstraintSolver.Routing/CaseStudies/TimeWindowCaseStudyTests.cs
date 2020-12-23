@@ -107,58 +107,80 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
                     // TODO: TBD: with parameters that could be captured in a context, etc...
                     this.AddDimension(evaluatorIndex, scope.VehicleCap, scope.SlackMaximumOrDefault, scope.ZeroAccumulatorOrDefault);
 
-                    {
-                        // TODO: TBD: could/should probably refactor this to a separate method...
-                        // https://developers.google.com/optimization/routing/vrptw#time_window_constraints
-
-                        var this_Context_DepotCoords = this.Context.DepotCoordinates.ToArray();
-
-                        bool DepotCoordinatesDoNotContain(int _) => !this_Context_DepotCoords.Contains(_);
-
-                        // TODO: TBD: we may want to follow a similar tract here re: RC versus RoutingIndexManager...
-                        // TODO: TBD: however we just prefer to abstract those sorts of bits through the RC...
-                        // TODO: TBD: if there is a case for it, we will, but for now, the interface is sufficient...
-                        void OnSetCumulVarTimeWindow(int node, in (long start, long end) tw) => this.SetCumulVarRange(
-                            node, tw, (RoutingContext _, int i) => _.NodeToIndex(i)
-                        );
-
-                        void OnSetCumulVarRange(int node) => OnSetCumulVarTimeWindow(
-                            node
-                            , scope.TimeWindows.ElementAt(node)
-                        );
-
-                        // Add Time Window constraints for each Node except the Depot(s).
-                        var nodes = Enumerable.Range(default, this.Context.NodeCount)
-                            .Where(DepotCoordinatesDoNotContain).ToList();
-
-                        nodes.ForEach(OnSetCumulVarRange);
-                    }
-
-                    {
-                        // Add time window constraints for each vehicle start node.
-                        void OnSetVehicleTimeWindow(int vehicle) => this.SetCumulVarRange(
-                            vehicle, scope.TimeWindows.First(), (RoutingModel model, int i) => model.Start(i)
-                        );
-
-                        var vehicles = Enumerable.Range(default, scope.VehicleCount).ToList();
-
-                        vehicles.ForEach(OnSetVehicleTimeWindow);
-                    }
-
-                    {
-                        // Arrange for each Vehicle Start and End Finalizer concerns.
-                        void OnArrangeVehicleFinalizers(int vehicle)
-                        {
-                            // Illustrating how we can leverage either the root methods or extension methods.
-                            this.AddVariableMinimizedByFinalizer(vehicle, (RoutingContext _, int i) => _.Model.Start(i));
-                            this.AddVariableMinimizedByFinalizer(vehicle, (RoutingModel model, int i) => model.End(i));
-                        }
-
-                        var vehicles = Enumerable.Range(default, scope.VehicleCount).ToList();
-
-                        vehicles.ForEach(OnArrangeVehicleFinalizers);
-                    }
+                    // Arrange the several constraints dealing with the vehicles, start, end, etc.
+                    this.OnArrangeVehicleTimeWindows(scope);
+                    this.OnArrangeVehicleStartTimeWindows(scope);
+                    this.OnArrangeVehicleStartEndFinalizers(scope);
                 }
+            }
+
+            /// <summary>
+            /// Add time window constraints for each location except depot.
+            /// </summary>
+            /// <param name="scope"></param>
+            /// <see cref="!:https://developers.google.com/optimization/routing/vrptw#time_window_constraints"/>
+            private void OnArrangeVehicleTimeWindows(TimeWindowCaseStudyScope scope)
+            {
+                var this_Context_DepotCoords = this.Context.DepotCoordinates.ToArray();
+
+                // Instead of assuming "0" is the Depot, here we scan "around" the known Depot coordinates.
+                bool DepotCoordinatesDoNotContain(int _) => !this_Context_DepotCoords.Contains(_);
+
+                // TODO: TBD: we may want to follow a similar tract here re: RC versus RoutingIndexManager...
+                // TODO: TBD: however we just prefer to abstract those sorts of bits through the RC...
+                // TODO: TBD: if there is a case for it, we will, but for now, the interface is sufficient...
+                void OnSetCumulVarTimeWindow(int node, in (long start, long end) timeWin) => this.SetCumulVarRange(
+                    node, timeWin, (RoutingContext _, int i) => _.NodeToIndex(i)
+                );
+
+                void OnSetCumulVarRange(int node) => OnSetCumulVarTimeWindow(
+                    node
+                    , scope.TimeWindows.ElementAt(node)
+                );
+
+                // Add Time Window constraints for each Node except the Depot(s).
+                Enumerable.Range(default, this.Context.NodeCount)
+                    .Where(DepotCoordinatesDoNotContain)
+                    .ToList().ForEach(OnSetCumulVarRange);
+            }
+
+            /// <summary>
+            /// Add time window constraints for each vehicle start node.
+            /// </summary>
+            /// <param name="scope"></param>
+            /// <see cref="!:https://developers.google.com/optimization/routing/vrptw#time_window_constraints"/>
+            private void OnArrangeVehicleStartTimeWindows(TimeWindowCaseStudyScope scope)
+            {
+                var firstTimeWindow = scope.TimeWindows.First();
+
+                // Add time window constraints for each vehicle start node.
+                void OnSetVehicleTimeWindow(int vehicle) => this.SetCumulVarRange(
+                    vehicle, firstTimeWindow, (RoutingModel model, int i) => model.Start(i)
+                );
+
+                var vehicles = Enumerable.Range(default, scope.VehicleCount).ToList();
+
+                vehicles.ForEach(OnSetVehicleTimeWindow);
+            }
+
+            /// <summary>
+            /// Arranges the Vehicle Start and End Finalizers.
+            /// </summary>
+            /// <param name="scope"></param>
+            /// <see cref="!:https://developers.google.com/optimization/routing/vrptw#time_window_constraints"/>
+            private void OnArrangeVehicleStartEndFinalizers(TimeWindowCaseStudyScope scope)
+            {
+                // Arrange for each Vehicle Start and End Finalizer concerns.
+                void OnArrangeVehicleFinalizers(int vehicle)
+                {
+                    // Illustrating how we can leverage either the root methods or extension methods.
+                    this.AddVariableMinimizedByFinalizer(vehicle, (RoutingContext _, int i) => _.Model.Start(i));
+                    this.AddVariableMinimizedByFinalizer(vehicle, (RoutingModel model, int i) => model.End(i));
+                }
+
+                var vehicles = Enumerable.Range(default, scope.VehicleCount).ToList();
+
+                vehicles.ForEach(OnArrangeVehicleFinalizers);
             }
 
             /// <summary>
@@ -248,7 +270,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
 
             IEnumerable<(int vehicle, int node, long index, long min, long max)> OnSummarizeAssignments(
                 RoutingDimension dim, Assignment solution, IEnumerable<RouteAssignmentItem> assignments) =>
-                assignments.Select(_ => (var: dim.CumulVar(_.Index), node: _.Node, index: _.Index, vehicle: _.Vehicle))
+                assignments.Select(x => (vehicle: x.Vehicle, node: x.Node, index: x.Index, var: dim.CumulVar(x.Index)))
                     .Select(_ => (_.vehicle, _.node, _.index, min: solution.Min(_.var), max: solution.Max(_.var)));
 
             void OnScopeProblemSolverAfterAssignmentVehicle(object sender, DefaultRoutingAssignmentEventArgs e)
@@ -265,6 +287,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
 
                 this.OutputHelper.WriteLine(Join(" -> ", e_Summary.Select(_ => $"{_.node} Time({_.min}, {_.max})")));
 
+                // Verified by Distinct Vehicle above that we have at least One.
                 this.OutputHelper.WriteLine($"Time of the route: {e_Summary.Last().min} {scope.DistanceUnit}");
             }
 
