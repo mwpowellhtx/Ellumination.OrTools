@@ -35,6 +35,16 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
             Enumerable.Range(start, count);
 
         /// <summary>
+        /// Internal adapter for the <see cref="Enumerable.Repeat{TResult}"/> method.
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="element"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        internal static IEnumerable<TResult> Repeat<TResult>(TResult element, int count) =>
+            Enumerable.Repeat(element, count);
+
+        /// <summary>
         /// Returns the Single <typeparamref name="T"/> <paramref name="value"/>.
         /// </summary>
         /// <typeparam name="T"></typeparam>
