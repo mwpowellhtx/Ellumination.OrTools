@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
 {
-    using Xunit;
     using Xunit.Abstractions;
     using DistanceMatrix = Distances.DistanceMatrix;
     using static TestFixtureBase;
 
     /// <inheritdoc/>
-    public class TimeWindowCaseStudyScope : CaseStudyScope<DistanceMatrix
-        , RoutingContext, DefaultRoutingAssignmentEventArgs, DefaultRoutingProblemSolver>
+    public class TimeWindowCaseStudyScope : CaseStudyScope<DistanceMatrix, RoutingContext, DefaultRoutingAssignmentEventArgs, DefaultRoutingProblemSolver>
     {
         /// <summary>
         /// Gets the VehicleCount, <c>4</c>.
@@ -44,11 +41,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         /// <value>71</value>
         internal override long ExpectedTotalDistance { get; set; } = 71;
 
-        // TODO: TBD: we could potentially refactor this sort of initialization to the test fixtures themselves...
-        // TODO: TBD: rather than do them here...
-        /// <summary>
-        /// Gets the ExpectedPaths.
-        /// </summary>
+        /// <inheritdoc/>
         internal override IList<int[]> ExpectedPaths { get; set; } = Range(
             Range(0, 9, 14, 16, 0).ToArray()
             , Range(0, 7, 1, 4, 3, 0).ToArray()
@@ -95,24 +88,24 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         /// <summary>
         /// Gets the TimeWindows for use with the Model. The First window is that of the Depot.
         /// </summary>
-        internal (long start, long end)[] TimeWindows { get; } = {
-            (0, 5)
-            , (7, 12)
-            , (10, 15)
-            , (16, 18)
-            , (10, 13)
-            , (0, 5)
-            , (5, 10)
-            , (0, 4)
-            , (5, 10)
-            , (0, 3)
-            , (10, 16)
-            , (10, 15)
-            , (0, 5)
-            , (5, 10)
-            , (7, 8)
-            , (10, 15)
-            , (11, 15)
+        internal virtual (long start, long end)[] TimeWindows { get; } = {
+            /*    0 */ (0, 5)
+            , /*  1 */ (7, 12)
+            , /*  2 */ (10, 15)
+            , /*  3 */ (16, 18)
+            , /*  4 */ (10, 13)
+            , /*  5 */ (0, 5)
+            , /*  6 */ (5, 10)
+            , /*  7 */ (0, 4)
+            , /*  8 */ (5, 10)
+            , /*  9 */ (0, 3)
+            , /* 10 */ (10, 16)
+            , /* 11 */ (10, 15)
+            , /* 12 */ (0, 5)
+            , /* 13 */ (5, 10)
+            , /* 14 */ (7, 8)
+            , /* 15 */ (10, 15)
+            , /* 16 */ (11, 15)
         };
 
         /// <inheritdoc/>
@@ -126,18 +119,5 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
             : base(outputHelper)
         {
         }
-
-        /// <summary>
-        /// Returns the Maximum of the <paramref name="val1"/> and <paramref name="val2"/>
-        /// values.
-        /// </summary>
-        /// <param name="val1"></param>
-        /// <param name="val2"></param>
-        /// <returns></returns>
-        /// <remarks>Note that we included this here because a <see cref="Math.Max(int, int)"/>
-        /// reference was included in the web site example, but we do not find any evidence
-        /// of this in the subsequent report.</remarks>
-        /// <see cref="Math.Max(int, int)"/>
-        private static int Max(int val1, int val2) => Math.Max(val1, val2);
     }
 }
