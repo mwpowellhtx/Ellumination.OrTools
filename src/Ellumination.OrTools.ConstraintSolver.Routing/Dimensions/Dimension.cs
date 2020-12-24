@@ -23,6 +23,13 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     /// </summary>
     public abstract class Dimension : IDimension<RoutingContext>
     {
+        // TODO: TBD: should IDimension be disposable?
+        // TODO: TBD: and/or dispose of its disposable children?
+        /// <summary>
+        /// Gets the Children associated with the Dimension.
+        /// </summary>
+        protected virtual ICollection<object> Children { get; } = new List<object>();
+
         /// <summary>
         /// Gets the Id associated with the Dimension.
         /// </summary>
@@ -636,6 +643,82 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
             var this_Context = this.Context;
             var index = onTranslateIndex.Invoke(this_Context, i);
             this_Context.Model.AddVariableMaximizedByFinalizer(this.MutableDimension.CumulVar(index));
+        }
+
+        /// <summary>
+        /// Introduces a Fixed Duration <paramref name="interval"/> triple, including the Vehicle
+        /// and its Start and End pairing.
+        /// </summary>
+        /// <param name="interval">A Vehicle and its Start and End Interval pairing.</param>
+        /// <param name="intervalName">An <see cref="IntervalVar"/> name.</param>
+        /// <see cref="!:https://developers.google.com/optimization/routing/cvrptw_resources#loading_constraints"/>
+        /// <see cref="!:http://google.github.io/or-tools/dotnet/classGoogle_1_1OrTools_1_1ConstraintSolver_1_1Solver.html"/>
+        /// <see cref="!:http://google.github.io/or-tools/dotnet/classGoogle_1_1OrTools_1_1ConstraintSolver_1_1RoutingModel.html"/>
+        protected internal virtual void AddFixedDurationIntervals((int vehicle, long start, long end) interval, string intervalName)
+        {
+            var this_MutableDim = this.MutableDimension;
+
+            IEnumerable<object> MakeFixedDurationIntervals(RoutingModel model, Solver solver)
+            {
+                IEnumerable<(long index, long interval)> GetVehicleIndexes()
+                {
+                    yield return (model.Start(interval.vehicle), interval.start);
+                    yield return (model.End(interval.vehicle), interval.end);
+                }
+
+                return GetVehicleIndexes().Select(_ => solver.MakeFixedDurationIntervalVar(
+                    this_MutableDim.CumulVar(_.index), _.interval, intervalName)
+                );
+            }
+        }
+
+        /// <summary>
+        /// Adds Fixed Duration Intervals corresponding to the <paramref name="intervals"/>
+        /// and the <paramref name="intervalName"/>.
+        /// </summary>
+        /// <param name="intervalName">An <see cref="IntervalVar"/> name.</param>
+        /// <param name="intervals">The Vehicle, Start and End interval triples.</param>
+        /// <see cref="AddFixedDurationIntervals(ValueTuple{int, long, long}, string)"/>
+        protected internal virtual void AddFixedDurationIntervals(string intervalName
+            , params (int vehicle, long start, long end)[] intervals) =>
+            intervals.ToList().ForEach(_ => this.AddFixedDurationIntervals(_, intervalName));
+
+        /// <summary>
+        /// Adds the Fixed Duration <paramref name="interval"/> for <paramref name="vehicles"/>
+        /// corresponding to the <paramref name="intervalName"/>.
+        /// </summary>
+        /// <param name="interval">The Start and End Interval pair.</param>
+        /// <param name="intervalName">An <see cref="IntervalVar"/> name.</param>
+        /// <param name="vehicles">The Vehicles for which to add Fixed Duration Intervals.</param>
+        protected internal virtual void AddFixedDurationIntervals((long start, long end) interval, string intervalName, params int[] vehicles) =>
+            vehicles.Select(_ => (_, interval.start, interval.end)).ToList().ForEach(x => this.AddFixedDurationIntervals(intervalName, x));
+
+        /// <summary>
+        /// Adds a Resource Usage corresponding to the <paramref name="intervalName"/>
+        /// Intervals within constraints of Depot <paramref name="capacity"/>. This can be
+        /// to do with Depots themselves, or whatsever the Interval in question was at the time
+        /// of its inception.
+        /// </summary>
+        /// <param name="intervalName">The <see cref="IntervalVar"/> Name contributing
+        /// to the usage constraint.</param>
+        /// <param name="capacity">The usage constraint Capacity.</param>
+        /// <param name="constraintName">A <see cref="Constraint"/> Name.</param>
+        /// <see cref="!:https://developers.google.com/optimization/routing/cvrptw_resources#add-resource-constraints-at-the-depot"/>
+        protected internal virtual void AddResourceIntervalUsageConstraint(string intervalName, long capacity, string constraintName)
+        {
+            // TODO: TBD: is this really the right constraint to be adding?
+            // TODO: TBD: what prohibits the same vehicle from contributing "twice" to capacity?
+            var intervals = this.Children.OfType<IntervalVar>().Where(_ => _.Name() == intervalName).ToArray();
+
+            var depotIntervalUsage = intervals.Select(_ => 1).ToArray();
+
+            void OnAddDepotUsageConstraint(RoutingModel model, Solver solver)
+            {
+                var constraint = solver.MakeCumulative(intervals, depotIntervalUsage, capacity, constraintName);
+                solver.Add(constraint);
+            }
+
+            OnAddDepotUsageConstraint(this.Context.Model, this.Context.Solver);
         }
 
         /// <summary>

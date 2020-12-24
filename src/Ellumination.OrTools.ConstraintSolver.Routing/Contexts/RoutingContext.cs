@@ -38,7 +38,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <summary>
         /// Gets the Solver associated with the <see cref="Model"/>.
         /// </summary>
-        protected virtual Solver Solver => this.Model?.solver();
+        internal virtual Solver Solver => this.Model?.solver();
 
         /// <summary>
         /// Gets or Sets the Parameters associated with the Context. May be <c>null</c>,
