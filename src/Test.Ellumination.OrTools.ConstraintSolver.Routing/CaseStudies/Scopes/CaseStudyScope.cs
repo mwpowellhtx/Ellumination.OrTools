@@ -15,6 +15,13 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
     public abstract class CaseStudyScope : Disposable
     {
         /// <summary>
+        /// Gets the Penalty associated with the scope, typically useful with Disjunction specs.
+        /// Defaults to <c>null</c>.
+        /// </summary>
+        /// <value>null</value>
+        internal virtual long? Penalty { get; }
+
+        /// <summary>
         /// Gets the DimensionCoefficient, <c>100</c>.
         /// </summary>
         /// <value>100</value>
