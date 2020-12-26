@@ -8,6 +8,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     using IEndpoints = IEnumerable<(int start, int end)>;
     // This is because we want to keep these close to the generic IEnumerable.
     using IEndpointCoordinates = IEnumerable<int>;
+    using IRouteNodeCoordinates = IEnumerable<IEnumerable<int>>;
 
     // TODO: TBD: then from here, context invokes model ability to search...
     // TODO: TBD: with or without search params...
@@ -117,6 +118,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="vehicleCount">The number of Vehicles in the model.</param>
         /// <param name="starts"></param>
         /// <param name="ends"></param>
+        /// <see cref="!:https://developers.google.com/optimization/routing/routing_tasks#setting-start-and-end-locations-for-routes"/>
         public RoutingContext(int nodeCount, int vehicleCount, IEndpointCoordinates starts, IEndpointCoordinates ends)
             : base(nodeCount, vehicleCount, starts, ends)
         {
@@ -131,6 +133,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="starts"></param>
         /// <param name="ends"></param>
         /// <param name="modelParameters">The Model parameters.</param>
+        /// <see cref="!:https://developers.google.com/optimization/routing/routing_tasks#setting-start-and-end-locations-for-routes"/>
         public RoutingContext(int nodeCount, int vehicleCount, IEndpointCoordinates starts, IEndpointCoordinates ends
             , RoutingModelParameters modelParameters = default)
             : base(nodeCount, vehicleCount, starts, ends)
@@ -146,6 +149,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="vehicleCount">The number of Vehicles in the model.</param>
         /// <param name="eps">The Endpoints involved during the Context.</param>
         /// <param name="modelParameters">The Model parameters.</param>
+        /// <see cref="!:https://developers.google.com/optimization/routing/routing_tasks#setting-start-and-end-locations-for-routes"/>
         public RoutingContext(int nodeCount, int vehicleCount, IEndpoints eps
             , RoutingModelParameters modelParameters = default)
             : base(nodeCount, vehicleCount, eps)
@@ -275,6 +279,49 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
 
             nodes.ToList().ForEach(OnAddPickupAndDelivery);
         }
+
+        // In this case, IEnumerable<int> is quite intentional, definitely not in terms of IEndpointCoords...
+#pragma warning disable IDE0001 // Name can be simplified
+        /// <summary>
+        /// Restores the Routes as the Current Solution. Returns <see cref="Assignment"/>
+        /// <c>null</c> if the Solution cannot be restored, i.e. Routes do not contain a valid
+        /// solution. Note that calling this method will run the solver to assign values to the
+        /// dimension variables. This may take considerable amount of time, especially when using
+        /// dimensions with <em>slack</em>.
+        /// </summary>
+        /// <param name="initialNodes"></param>
+        /// <param name="ignoreInactiveNodes"></param>
+        /// <returns>The <see cref="Assignment"/> corresponding to the Route, if possible,
+        /// otherwise, <c>null</c>.</returns>
+        /// <see cref="!:https://developers.google.com/optimization/routing/routing_tasks#setting-initial-routes-for-a-search"/>
+        /// <see cref="!:https://developers.google.com/optimization/reference/constraint_solver/routing/RoutingModel#ReadAssignmentFromRoutes"/>
+        /// <see cref="!:https://github.com/google/or-tools/blob/v8.0/ortools/constraint_solver/routing.h#L1060"/>
+        /// <remarks>While we will wrap this one, we have some concerns over potentially
+        /// <em>multi-depot</em> scenarios. How do we relay these scenarios to the model.</remarks>
+        public virtual Assignment ReadAssignmentFromRoutes(in IRouteNodeCoordinates initialNodes, bool ignoreInactiveNodes)
+        {
+            // Although this bit may seem superfluous, we do this in order to keep the verbiage aligned.
+            var ignoreInactiveIndices = ignoreInactiveNodes;
+            long[] ConvertNodesToIndices(IEnumerable<int> nodes) => this.NodesToIndices(nodes).ToArray();
+            // TODO: TBD: we might also do a quick validation on the routes and node coordinates...
+            // TODO: TBD: which should respectively align with the VehicleCount and NodeCount indicated by the Context.
+            var initialIndices = initialNodes.Select(ConvertNodesToIndices).ToArray();
+            var assignment = this.Model.ReadAssignmentFromRoutes(initialIndices, ignoreInactiveIndices);
+            // TODO: TBD: which should perhaps be routed through the problem solver trysolve event handling...
+            return assignment;
+        }
+
+        /// <summary>
+        /// Basically a thin vernier to the
+        /// <see cref="ReadAssignmentFromRoutes(in IRouteNodeCoordinates, bool)"/> method.
+        /// </summary>
+        /// <param name="ignoreInactiveNodes"></param>
+        /// <param name="initialNodes"></param>
+        /// <returns></returns>
+        /// <see cref="ReadAssignmentFromRoutes(in IRouteNodeCoordinates, bool)"/>
+        public virtual Assignment ReadAssignmentFromRoutes(bool ignoreInactiveNodes, params IEnumerable<int>[] initialNodes) =>
+            this.ReadAssignmentFromRoutes(initialNodes, ignoreInactiveNodes);
+#pragma warning restore IDE0001 // Name can be simplified
 
         /// <summary>
         /// Disposes of the object.

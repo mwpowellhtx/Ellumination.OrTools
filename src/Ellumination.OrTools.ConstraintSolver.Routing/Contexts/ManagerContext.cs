@@ -96,6 +96,15 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <returns></returns>
         public virtual long[] NodesToIndices(params int[] nodes) => this.Manager.NodesToIndices(nodes);
 
+#pragma warning disable IDE0001 // Name can be simplified
+        /// <summary>
+        /// Returns the translation of the <see cref="RoutingIndexManager.NodesToIndices"/>.
+        /// </summary>
+        /// <param name="nodes"></param>
+        /// <returns></returns>
+        public virtual long[] NodesToIndices(in IEnumerable<int> nodes) => this.NodesToIndices(nodes.ToArray());
+#pragma warning restore IDE0001 // Name can be simplified
+
         /// <summary>
         /// Initializes the Context using either <see cref="Depot"/> or
         /// <see cref="Endpoints"/>. Assumes that the contributing factors
