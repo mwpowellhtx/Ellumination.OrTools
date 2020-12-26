@@ -455,35 +455,33 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         protected virtual void SetArcCostEvaluators(int evaluatorIndex) =>
             this.Context.Model.SetArcCostEvaluatorOfAllVehicles(evaluatorIndex);
 
-        // TODO: TBD: for now we assume params indices...
-        // TODO: TBD: eventually we may also want an IEnumerable<long> overload...
         /// <summary>
-        /// Adds a Disjunction to the Model assuming the <paramref name="indices"/>.
+        /// Adds a Disjunction given the <paramref name="nodes"/>.
         /// </summary>
-        /// <param name="indices"></param>
-        /// <returns></returns>
-        protected virtual int AddDisjunction(params long[] indices) =>
-            this.Context.Model.AddDisjunction(indices);
+        /// <param name="nodes"></param>
+        /// <returns>The result after Adding the Disjunction.</returns>
+        protected virtual int AddDisjunction(params int[] nodes) =>
+            this.Context.Model.AddDisjunction(nodes.Select(this.Context.NodeToIndex).ToArray());
 
         /// <summary>
-        /// Adds a Disjunction given <paramref name="penalty"/>.
+        /// Adds a <paramref name="penalty"/> Disjunction given the <paramref name="nodes"/>.
         /// </summary>
-        /// <param name="penalty"></param>
-        /// <param name="indices"></param>
-        /// <returns></returns>
-        protected virtual int AddDisjunction(long penalty, params long[] indices) =>
-            this.Context.Model.AddDisjunction(indices, penalty);
+        /// <param name="penalty">The Disjunction Penalty.</param>
+        /// <param name="nodes">The Nodes for which to add <paramref name="penalty"/> Disjunction.</param>
+        /// <returns>The result after Adding the Disjunction.</returns>
+        protected virtual int AddDisjunction(long penalty, params int[] nodes) =>
+            this.Context.Model.AddDisjunction(nodes.Select(this.Context.NodeToIndex).ToArray(), penalty);
 
         /// <summary>
         /// Adds a Disjunction given <paramref name="penalty"/> and
         /// <paramref name="maxCardinality"/>.
         /// </summary>
-        /// <param name="penalty"></param>
+        /// <param name="penalty">The Disjunction Penalty.</param>
         /// <param name="maxCardinality"></param>
-        /// <param name="indices"></param>
-        /// <returns></returns>
-        protected virtual int AddDisjunction(long penalty, long maxCardinality, params long[] indices) =>
-            this.Context.Model.AddDisjunction(indices, maxCardinality, penalty);
+        /// <param name="nodes">The Nodes for which to add <paramref name="penalty"/> Disjunction.</param>
+        /// <returns>The result after Adding the Disjunction.</returns>
+        protected virtual int AddDisjunction(long penalty, long maxCardinality, params int[] nodes) =>
+            this.Context.Model.AddDisjunction(nodes.Select(this.Context.NodeToIndex).ToArray(), maxCardinality, penalty);
 
         /// <summary>
         /// Sets the Allowed <paramref name="vehicleIndices"/> corresponding
