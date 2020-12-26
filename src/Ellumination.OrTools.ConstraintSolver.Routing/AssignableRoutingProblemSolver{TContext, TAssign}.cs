@@ -425,11 +425,8 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
             {
                 context = this.ApplyVisitors(context);
 
-                // TODO: TBD: could it be that search params are in fact required after all?
+                // We allow for a moment to configure the SearchParams via the property.
                 var searchParams = this.SearchParameters ?? OrConstraintSolver.DefaultRoutingSearchParameters();
-                searchParams.FirstSolutionStrategy = FirstSolutionStrategyType.PathCheapestArc;
-                //searchParams.LocalSearchMetaheuristic = LocalSearchMetaheuristic.GuidedLocalSearch;
-                //searchParams.TimeLimit = new Duration { Seconds = 7 };
 
                 if (!this.TrySolve(context, searchParams, out solution))
                 {
