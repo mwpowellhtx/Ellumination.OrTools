@@ -27,29 +27,68 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         {
         }
 
+        private class ArcCostDimension : Dimension
+        {
+            private TScope Scope { get; }
+
+            private DistanceMatrix Matrix => this.Scope.Matrix;
+
+            public ArcCostDimension(RoutingContext context, TScope scope)
+                : base(context, scope.DimensionCoefficient)
+            {
+                this.Scope = scope;
+
+                if (this.Coefficient > 0)
+                {
+                    var evaluatorIndex = this.RegisterTransitEvaluationCallback(this.OnEvaluateTransit);
+
+                    this.SetArcCostEvaluators(evaluatorIndex);
+                }
+            }
+
+            /// <summary>
+            /// Returns the result after Evaluating the <see cref="Matrix"/> Transit given
+            /// <paramref name="fromNode"/> and <paramref name="toNode"/>.
+            /// </summary>
+            /// <param name="fromNode"></param>
+            /// <param name="toNode"></param>
+            /// <returns></returns>
+            private long OnEvaluateTransit(int fromNode, int toNode) => this.Matrix[fromNode, toNode] ?? default;
+
+            /// <summary>
+            /// Returns the result after Evaluating the <see cref="Matrix"/> Transit given
+            /// <paramref name="fromIndex"/> and <paramref name="toIndex"/>.
+            /// </summary>
+            /// <param name="fromIndex"></param>
+            /// <param name="toIndex"></param>
+            /// <returns></returns>
+            private long OnEvaluateTransit(long fromIndex, long toIndex) => this.OnEvaluateTransit(
+                this.Context.IndexToNode(fromIndex), this.Context.IndexToNode(toIndex)
+            );
+        }
+
         /// <summary>
         /// Establishes the basic DistanceDimension given <typeparamref name="TScope"/>.
         /// </summary>
-        private class DistanceDimension : Dimension
+        private class NodeDemandDimension : Dimension
         {
             private TScope Scope { get; }
 
             private DistanceMatrix Matrix => this.Scope?.Matrix;
 
-            public DistanceDimension(RoutingContext context, TScope scope)
+            public NodeDemandDimension(RoutingContext context, TScope scope)
                 : base(context, scope.DimensionCoefficient)
             {
+                this.Scope = scope;
+
                 if (this.Coefficient > 0)
                 {
-                    this.Scope = scope;
-
                     var evaluatorIndex = this.RegisterTransitEvaluationCallback(this.OnEvaluateTransit);
 
                     this.AddDimension(evaluatorIndex, this.Scope.VehicleCap);
 
-                    this.SetArcCostEvaluators(evaluatorIndex);
-
-                    this.MutableDimension.SetGlobalSpanCostCoefficient(this.Coefficient);
+                    // ? 
+                    //this.MutableDimension.SetGlobalSpanCostCoefficient(this.Coefficient);
                 }
             }
 
@@ -92,11 +131,18 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         /// <summary>
         /// Arranges for the VRP Case Study scenarios to be performed.
         /// </summary>
+        /// <param name="scope"></param>
         [Background]
-        public void VehicleRoutingBackground()
+        public void VehicleRoutingBackground(TScope scope)
         {
-            $"Add {nameof(DistanceDimension)} dimension to this.{nameof(this.Scope)}.{nameof(this.Scope.Context)}".x(
-                () => this.Scope.Context.AddDefaultDimension<DistanceDimension>(this.Scope)
+            $"Verify {nameof(scope)}".x(() => scope = this.Scope.AssertNotNull());
+
+            $"Add {nameof(ArcCostDimension)} dimension to {nameof(scope)}.{nameof(scope.Context)}".x(
+                () => scope.Context.AddDefaultDimension<ArcCostDimension>(scope)
+            );
+
+            $"Add {nameof(NodeDemandDimension)} dimension to {nameof(scope)}.{nameof(scope.Context)}".x(
+                () => scope.Context.AddDefaultDimension<NodeDemandDimension>(scope)
             );
         }
 
