@@ -54,11 +54,23 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
             yield return end;
         }
 
+        private IEndpointCoordinates _depotCoords;
+        private IEndpointCoordinates _nodeCoords;
+
         /// <summary>
         /// Gets the DepotCoordinates based upon the Coupled <see cref="Endpoints"/>.
         /// </summary>
-        public virtual IEndpointCoordinates DepotCoordinates => this.Endpoints.OrEmpty()
-            .SelectMany(DecoupleEndpoint).OrderBy(x => x).Distinct();
+        public virtual IEndpointCoordinates DepotCoordinates => this._depotCoords ?? (this._depotCoords
+            = this.Endpoints.OrEmpty().SelectMany(DecoupleEndpoint).OrderBy(x => x).Distinct().ToArray()
+        );
+
+        /// <summary>
+        /// Gets the NodeCoordinates, Range of Coordinates encompassing <see cref="NodeCount"/>,
+        /// Excepting for the <see cref="DepotCoordinates"/>.
+        /// </summary>
+        public virtual IEndpointCoordinates NodeCoordinates => this._nodeCoords ?? (this._nodeCoords
+            = Enumerable.Range(0, this.NodeCount).Except(this.DepotCoordinates)
+        );
 
         /// <summary>
         /// Returns whether <paramref name="index"/> aligned with <see cref="NodeCount"/>
