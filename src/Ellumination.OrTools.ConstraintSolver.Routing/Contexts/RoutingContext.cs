@@ -289,7 +289,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// dimension variables. This may take considerable amount of time, especially when using
         /// dimensions with <em>slack</em>.
         /// </summary>
-        /// <param name="initialNodes"></param>
+        /// <param name="initialRouteNodes"></param>
         /// <param name="ignoreInactiveNodes"></param>
         /// <returns>The <see cref="Assignment"/> corresponding to the Route, if possible,
         /// otherwise, <c>null</c>.</returns>
@@ -298,15 +298,15 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <see cref="!:https://github.com/google/or-tools/blob/v8.0/ortools/constraint_solver/routing.h#L1060"/>
         /// <remarks>While we will wrap this one, we have some concerns over potentially
         /// <em>multi-depot</em> scenarios. How do we relay these scenarios to the model.</remarks>
-        public virtual Assignment ReadAssignmentFromRoutes(in IRouteNodeCoordinates initialNodes, bool ignoreInactiveNodes)
+        public virtual Assignment ReadAssignmentFromRoutes(in IRouteNodeCoordinates initialRouteNodes, bool ignoreInactiveNodes)
         {
             // Although this bit may seem superfluous, we do this in order to keep the verbiage aligned.
             var ignoreInactiveIndices = ignoreInactiveNodes;
             long[] ConvertNodesToIndices(IEnumerable<int> nodes) => this.NodesToIndices(nodes).ToArray();
             // TODO: TBD: we might also do a quick validation on the routes and node coordinates...
             // TODO: TBD: which should respectively align with the VehicleCount and NodeCount indicated by the Context.
-            var initialIndices = initialNodes.Select(ConvertNodesToIndices).ToArray();
-            var assignment = this.Model.ReadAssignmentFromRoutes(initialIndices, ignoreInactiveIndices);
+            var initialRouteIndices = initialRouteNodes.Select(ConvertNodesToIndices).ToArray();
+            var assignment = this.Model.ReadAssignmentFromRoutes(initialRouteIndices, ignoreInactiveIndices);
             // TODO: TBD: which should perhaps be routed through the problem solver trysolve event handling...
             return assignment;
         }
@@ -316,11 +316,11 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <see cref="ReadAssignmentFromRoutes(in IRouteNodeCoordinates, bool)"/> method.
         /// </summary>
         /// <param name="ignoreInactiveNodes"></param>
-        /// <param name="initialNodes"></param>
+        /// <param name="initialRouteNodes"></param>
         /// <returns></returns>
         /// <see cref="ReadAssignmentFromRoutes(in IRouteNodeCoordinates, bool)"/>
-        public virtual Assignment ReadAssignmentFromRoutes(bool ignoreInactiveNodes, params IEnumerable<int>[] initialNodes) =>
-            this.ReadAssignmentFromRoutes(initialNodes, ignoreInactiveNodes);
+        public virtual Assignment ReadAssignmentFromRoutes(bool ignoreInactiveNodes, params IEnumerable<int>[] initialRouteNodes) =>
+            this.ReadAssignmentFromRoutes(initialRouteNodes, ignoreInactiveNodes);
 #pragma warning restore IDE0001 // Name can be simplified
 
         /// <summary>
