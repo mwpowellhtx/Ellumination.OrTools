@@ -53,18 +53,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
             /// <param name="fromNode"></param>
             /// <param name="toNode"></param>
             /// <returns></returns>
-            private long OnEvaluateTransit(int fromNode, int toNode) => this.Matrix[fromNode, toNode] ?? default;
-
-            /// <summary>
-            /// Returns the result after Evaluating the <see cref="Matrix"/> Transit given
-            /// <paramref name="fromIndex"/> and <paramref name="toIndex"/>.
-            /// </summary>
-            /// <param name="fromIndex"></param>
-            /// <param name="toIndex"></param>
-            /// <returns></returns>
-            private long OnEvaluateTransit(long fromIndex, long toIndex) => this.OnEvaluateTransit(
-                this.Context.IndexToNode(fromIndex), this.Context.IndexToNode(toIndex)
-            );
+            protected override long OnEvaluateTransit(int fromNode, int toNode) => this.Matrix[fromNode, toNode] ?? default;
         }
 
         /// <summary>
@@ -99,18 +88,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
             /// <param name="fromNode"></param>
             /// <param name="toNode"></param>
             /// <returns></returns>
-            private long OnEvaluateTransit(int fromNode, int toNode) => this.Matrix[fromNode, toNode] ?? default;
-
-            /// <summary>
-            /// Returns the result after Evaluating the <see cref="Matrix"/> Transit given
-            /// <paramref name="fromIndex"/> and <paramref name="toIndex"/>.
-            /// </summary>
-            /// <param name="fromIndex"></param>
-            /// <param name="toIndex"></param>
-            /// <returns></returns>
-            private long OnEvaluateTransit(long fromIndex, long toIndex) => this.OnEvaluateTransit(
-                this.Context.IndexToNode(fromIndex), this.Context.IndexToNode(toIndex)
-            );
+            protected override long OnEvaluateTransit(int fromNode, int toNode) => this.Matrix[fromNode, toNode] ?? default;
         }
 
         /// <inheritdoc/>

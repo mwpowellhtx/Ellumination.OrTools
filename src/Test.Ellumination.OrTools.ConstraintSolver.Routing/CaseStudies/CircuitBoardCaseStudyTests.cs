@@ -71,19 +71,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
             /// <param name="fromNode"></param>
             /// <param name="toNode"></param>
             /// <returns></returns>
-            private long OnEvaluateTransit(int fromNode, int toNode) => this.Matrix[fromNode, toNode] ?? default;
-
-            /// <summary>
-            /// Returns the result after Evaluating <see cref="Matrix"/> given
-            /// <paramref name="fromIndex"/> and <paramref name="toIndex"/>.
-            /// </summary>
-            /// <param name="fromIndex"></param>
-            /// <param name="toIndex"></param>
-            /// <returns></returns>
-            /// <see cref="!:https://developers.google.com/optimization/routing/tsp#distance_callback"/>
-            private long OnEvaluateTransit(long fromIndex, long toIndex) => this.OnEvaluateTransit(
-                this.Context.IndexToNode(fromIndex), this.Context.IndexToNode(toIndex)
-            );
+            protected override long OnEvaluateTransit(int fromNode, int toNode) => this.Matrix[fromNode, toNode] ?? default;
         }
 
         /// <summary>
@@ -159,6 +147,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
                 var e_searchParams = e.SearchParameters;
                 e_searchParams.FirstSolutionStrategy = FirstSolutionStrategyType.PathCheapestArc;
                 //e_searchParams.LocalSearchMetaheuristic = LocalSearchMetaheuristicType.GuidedLocalSearch;
+                //var x = 30L.AsDuration();
                 //e_searchParams.TimeLimit = 30L.AsDuration();
                 e_searchParams.LogSearch = true;
             }

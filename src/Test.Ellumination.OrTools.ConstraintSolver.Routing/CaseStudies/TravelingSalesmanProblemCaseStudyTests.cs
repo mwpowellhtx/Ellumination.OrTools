@@ -136,20 +136,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
             /// <param name="fromNode"></param>
             /// <param name="toNode"></param>
             /// <returns></returns>
-            private long OnEvaluateTransit(int fromNode, int toNode) => this.Matrix[fromNode, toNode] ?? default(long);
-
-            /// <summary>
-            /// Evaluates the Transit between <paramref name="fromIndex"/> and
-            /// <paramref name="toIndex"/>.
-            /// </summary>
-            /// <param name="fromIndex"></param>
-            /// <param name="toIndex"></param>
-            /// <returns></returns>
-            /// <see cref="!:https://developers.google.com/optimization/routing/tsp#dist_callback1"/>
-            private long OnEvaluateTransit(long fromIndex, long toIndex) => this.OnEvaluateTransit(
-                this.Context.IndexToNode(fromIndex)
-                , this.Context.IndexToNode(toIndex)
-            );
+            protected override long OnEvaluateTransit(int fromNode, int toNode) => this.Matrix[fromNode, toNode] ?? default(long);
         }
 
         // TODO: TBD: okay, so test "works", output can be verified against expected outcomes...

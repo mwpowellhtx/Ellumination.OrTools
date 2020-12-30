@@ -52,17 +52,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
             /// </summary>
             /// <param name="node"></param>
             /// <returns></returns>
-            private long OnEvaluateTransit(int node) => this.Scope.Demands.ElementAt(node);
-
-            /// <summary>
-            /// Returns the result after Evaluating the
-            /// <see cref="ConstraintVehicleRoutingCaseStudyScope.Demands"/> given
-            /// <paramref name="index"/>.
-            /// </summary>
-            /// <param name="index"></param>
-            /// <returns></returns>
-            /// <see cref="OnEvaluateTransit(int)"/>
-            private long OnEvaluateTransit(long index) => this.OnEvaluateTransit(this.Context.IndexToNode(index));
+            protected override long OnEvaluateTransit(int node) => this.Scope.Demands.ElementAt(node);
         }
 
         /// <inheritdoc/>
