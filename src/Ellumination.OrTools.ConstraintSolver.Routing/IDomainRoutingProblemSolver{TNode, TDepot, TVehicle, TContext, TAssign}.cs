@@ -14,7 +14,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     /// <typeparam name="TVehicle">The Vehicle type.</typeparam>
     /// <typeparam name="TContext">The Context type.</typeparam>
     /// <typeparam name="TAssign">The
-    /// <see cref="IAssignableRoutingProblemSolver{TContext, TAssign}.Assigning"/> <see cref="EventArgs"/>
+    /// <see cref="DomainRoutingAssignmentEventArgs{TNode, TDepot, TVehicle, TContext}"/>
     /// type.</typeparam>
     /// <see cref="DomainContext{TNode, TDepot, TVehicle}"/>
     /// <see cref="DomainRoutingAssignmentEventArgs{TNode, TDepot, TVehicle, TContext}"/>
