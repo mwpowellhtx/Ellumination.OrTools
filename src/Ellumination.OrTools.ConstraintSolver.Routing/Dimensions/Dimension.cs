@@ -21,6 +21,12 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
     /// the underlying <see cref="RoutingContext.Model"/> with the rest of your routing model,
     /// so that you can focus on lines of business and leave that lifting to an adapter layer.
     /// </summary>
+    /// <remarks>The key here is to override the <see cref="OnEvaluateTransit(int, int)"/>
+    /// for transit between two <em>nodes</em>, or <see cref="OnEvaluateTransit(int)"/> when
+    /// considering from a single <em>node</em>. The <em>dimension</em> author may, of course,
+    /// define other transit callbacks, which is also perfectly fine to do, as long as the
+    /// callback blueprint is met, in either the <see cref="RoutingTransitEvaluationCallback"/>
+    /// or <see cref="RoutingUnaryTransitEvaluationCallback"/> form factors.</remarks>
     public abstract class Dimension : IDimension<RoutingContext>
     {
         // TODO: TBD: should IDimension be disposable?
@@ -222,6 +228,55 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
                 return this._registeredCallbacks.Skip(2);
             }
         }
+
+        /// <summary>
+        /// Override in order to perform <em>Domain</em> friendly <em>Transit Evaluation</em>
+        /// between <paramref name="fromNode"/> to <paramref name="toNode"/>. By default returns
+        /// the <c>default</c> <see cref="long"/> value, or <c>0</c>. However, of course,
+        /// override in order to respond with <see cref="Dimension"/> oriented results.
+        /// </summary>
+        /// <param name="fromNode"></param>
+        /// <param name="toNode"></param>
+        /// <returns></returns>
+        protected virtual long OnEvaluateTransit(int fromNode, int toNode) => default;
+
+        /// <summary>
+        /// Override in order to perform <see cref="RoutingContext.Model"/> specific <em>Transit
+        /// Evaluation</em>. By default, relies on the <see cref="ManagerContext.IndexToNode"/>
+        /// in order to translate <paramref name="fromIndex"/> and <paramref name="toIndex"/> to
+        /// <em>Domain</em> friendly <em>Nodes</em>. We think this serves perhaps 90 to 95 percent
+        /// of the common use cases that would ever exist.
+        /// </summary>
+        /// <param name="fromIndex"></param>
+        /// <param name="toIndex"></param>
+        /// <returns></returns>
+        protected virtual long OnEvaluateTransit(long fromIndex, long toIndex) => this.OnEvaluateTransit(
+            this.Context.IndexToNode(fromIndex)
+            , this.Context.IndexToNode(toIndex)
+        );
+
+        /// <summary>
+        /// Override in order to perform <em>Domain</em> friendly <em>Transit Evaluation</em>
+        /// involving <paramref name="fromNode"/>. By default returns the <c>default</c>
+        /// <see cref="long"/> value, or <c>0</c>. However, of course, override in order to
+        /// respond with <see cref="Dimension"/> oriented results.
+        /// </summary>
+        /// <param name="fromNode"></param>
+        /// <returns></returns>
+        protected virtual long OnEvaluateTransit(int fromNode) => default;
+
+        /// <summary>
+        /// Override in order to perform <see cref="RoutingContext.Model"/> specific <em>Transit
+        /// Evaluation</em>. By default, relies on the <see cref="ManagerContext.IndexToNode"/>
+        /// in order to translate <paramref name="fromIndex"/> to <em>Domain</em> friendly
+        /// <em>Nodes</em>. We think this serves perhaps 90 to 95 percent of the common use
+        /// cases that would ever exist.
+        /// </summary>
+        /// <param name="fromIndex"></param>
+        /// <returns></returns>
+        protected virtual long OnEvaluateTransit(long fromIndex) => this.OnEvaluateTransit(
+            this.Context.IndexToNode(fromIndex)
+        );
 
         private string _name;
 
