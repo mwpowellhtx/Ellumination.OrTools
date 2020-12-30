@@ -8,10 +8,10 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <Version>1.0.0.396</Version>
-        <AssemblyVersion>1.0.0.396</AssemblyVersion>
-        <FileVersion>1.0.0.396</FileVersion>
-        <PackageVersion>1.0.0.396</PackageVersion>
+        <Version>1.0.0.400</Version>
+        <AssemblyVersion>1.0.0.400</AssemblyVersion>
+        <FileVersion>1.0.0.400</FileVersion>
+        <PackageVersion>1.0.0.400</PackageVersion>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -38,7 +38,7 @@
     <!-- ReSharper disable UnknownProperty -->
     <ItemGroup>
         <PackageReference Include="Google.OrTools" Version="$(GoogleOrToolsVersion)" />
-        <PackageReference Include="Google.Protobuf" Version="$(GoogleProtobufVersion)" />
+        <PackageReference Include="Ellumination.Protobuf" Version="$(ElluminationProtobufVersion)" />
     </ItemGroup>
 
     <ItemGroup>

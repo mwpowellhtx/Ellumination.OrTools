@@ -7,10 +7,10 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <Version>2.19.1.16590</Version>
-        <AssemblyVersion>2.19.1.16590</AssemblyVersion>
-        <FileVersion>2.19.1.16590</FileVersion>
-        <PackageVersion>2.19.1.16590</PackageVersion>
+        <Version>2.19.1.16594</Version>
+        <AssemblyVersion>2.19.1.16594</AssemblyVersion>
+        <FileVersion>2.19.1.16594</FileVersion>
+        <PackageVersion>2.19.1.16594</PackageVersion>
         <!--<ReleaseVersionStrategy>patch</ReleaseVersionStrategy>-->
     </PropertyGroup>
 
