@@ -32,7 +32,7 @@ namespace Ellumination.OrTools
         /// Override in order to specify the <typeparamref name="TAlpha"/>
         /// and <typeparamref name="TBravo"/> Pairs.
         /// </summary>
-        protected abstract IEnumerable<(TAlpha alpha, TBravo bravo)> Pairs { get; }
+        protected virtual IEnumerable<(TAlpha alpha, TBravo bravo)> Pairs => throw new NotImplementedException();
 
         /// <summary>
         /// Returns the Item associated with <paramref name="getter"/> after
@@ -106,12 +106,12 @@ namespace Ellumination.OrTools
         /// </summary>
         protected static Type BridgeType { get; } = typeof(TBridge);
 
-        /// <summary>
-        /// Returns a Created <typeparamref name="TBridge"/> given the <paramref name="value"/>.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="value"></param>
-        /// <returns>Created <typeparamref name="TBridge"/> given the <paramref name="value"/>.</returns>
-        protected static TBridge CreateBridge<T>(T value) => (TBridge)Activator.CreateInstance(BridgeType, value);
+        ///// <summary>
+        ///// Returns a Created <typeparamref name="TBridge"/> given the <paramref name="value"/>.
+        ///// </summary>
+        ///// <typeparam name="T"></typeparam>
+        ///// <param name="value"></param>
+        ///// <returns>Created <typeparamref name="TBridge"/> given the <paramref name="value"/>.</returns>
+        //protected static TBridge CreateBridge<T>(T value) => (TBridge)Activator.CreateInstance(BridgeType, value);
     }
 }
