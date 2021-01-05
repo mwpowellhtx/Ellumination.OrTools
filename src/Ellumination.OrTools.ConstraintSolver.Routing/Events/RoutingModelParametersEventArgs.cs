@@ -6,22 +6,21 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
 
     /// <summary>
     /// Provides an <see cref="EventHandler{TEventArgs}"/> opportunity to relay some options
-    /// into the Routing Search algorithms.
+    /// into the Routing Model.
     /// </summary>
-    public class RoutingSearchParametersEventArgs : EventArgs
+    public class RoutingModelParametersEventArgs : EventArgs
     {
         /// <summary>
-        /// Gets or Sets the SearchParameters.
+        /// Gets or Sets the ModelParameters. May leave this unset, or <c>null</c>, which
+        /// initialize the Model without a <em>parameters</em> argument.
         /// </summary>
-        public SearchParameters Parameters { get; set; }
+        public ModelParameters Parameters { get; set; }
 
         /// <summary>
         /// Constructs a new Event Arguments instance.
         /// </summary>
-        /// <param name="searchParams"></param>
-        internal RoutingSearchParametersEventArgs(RoutingSearchParameters searchParams)
+        internal RoutingModelParametersEventArgs()
         {
-            this.Parameters = searchParams;
         }
     }
 }

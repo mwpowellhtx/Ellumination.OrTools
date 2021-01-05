@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Ellumination.OrTools.ConstraintSolver.Routing
 {
-    using Google.OrTools.ConstraintSolver;
+    using RoutingIndexManager = Google.OrTools.ConstraintSolver.RoutingIndexManager;
     // These make sense as aliases, but should not make them first class derivations.
     using IEndpoints = IEnumerable<(int start, int end)>;
     // This is because we want to keep these close to the generic IEnumerable.

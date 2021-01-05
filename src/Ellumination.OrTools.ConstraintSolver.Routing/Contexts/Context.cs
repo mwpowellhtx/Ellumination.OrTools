@@ -4,8 +4,9 @@ using System.Linq;
 
 namespace Ellumination.OrTools.ConstraintSolver.Routing
 {
-    using Distances;
-    using Google.OrTools.ConstraintSolver;
+    using DistanceMatrix = Distances.DistanceMatrix;
+    using RoutingModel = Google.OrTools.ConstraintSolver.RoutingModel;
+    using static String;
 
     /// <summary>
     /// Represents the basic building blocks of a <see cref="RoutingModel"/> Context. While
@@ -32,11 +33,14 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// </summary>
         /// <param name="pairs">The Pairs being combined into a message.</param>
         /// <returns></returns>
-        /// <see cref="string.Join"/>
+        /// <see cref="Join"/>
         protected static string RenderOutOfRangeMessage(params (string key, object value)[] pairs)
         {
-            string RenderPair((string key, object value) pair) => $"{pair.key}: {pair.value}";
-            return $"{{ {string.Join(", ", pairs.Select(RenderPair))} }} out of range";
+            const char comma = ',';
+            const char colon = ':';
+            const string curlyBraces = "{}";
+            string RenderPair((string key, object value) _) => Join($"{colon} ", _.key, $"{_.value}");
+            return $"{Join(Join($"{comma} ", pairs.Select(RenderPair)), curlyBraces.ToArray())} out of range";
         }
 
         /// <summary>
@@ -49,8 +53,9 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <returns></returns>
         protected static string RenderArray<T>(string enclosure, params T[] values)
         {
+            const char comma = ',';
             string RenderValue(T value) => $"{value}";
-            return string.Join(string.Join(", ", values.Select(RenderValue)), enclosure.ToArray());
+            return Join(Join($"{comma} ", values.Select(RenderValue)), enclosure.ToArray());
         }
 
         /// <summary>

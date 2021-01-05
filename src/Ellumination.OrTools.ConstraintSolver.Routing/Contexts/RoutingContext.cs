@@ -1,9 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Ellumination.OrTools.ConstraintSolver.Routing
 {
-    using Google.OrTools.ConstraintSolver;
+    using Assignment = Google.OrTools.ConstraintSolver.Assignment;
+    using Constraint = Google.OrTools.ConstraintSolver.Constraint;
+    using RoutingModel = Google.OrTools.ConstraintSolver.RoutingModel;
+    using Solver = Google.OrTools.ConstraintSolver.Solver;
     // These make sense as aliases, but should not make them first class derivations.
     using IEndpoints = IEnumerable<(int start, int end)>;
     // This is because we want to keep these close to the generic IEnumerable.
@@ -29,32 +33,43 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         private RoutingModel _model;
 
         /// <summary>
+        /// Offers subscribers an opportunity to Configure the <see cref="Model"/> Parameters.
+        /// </summary>
+        public virtual event EventHandler<RoutingModelParametersEventArgs> ConfigureModelParameters;
+
+        /// <summary>
+        /// Invokes the <see cref="ConfigureModelParameters"/> event with an option to elaborate on the
+        /// <see cref="RoutingModelParametersEventArgs"/> bits for use with the <see cref="Model"/>. May
+        /// do so via the event handler, or by overriding this invocation method.
+        /// </summary>
+        /// <param name="e">The <see cref="ConfigureModelParameters"/>
+        /// <see cref="RoutingModelParametersEventArgs"/> arguments.</param>
+        protected virtual void OnConfigureModelParameters(RoutingModelParametersEventArgs e) => this.ConfigureModelParameters?.Invoke(this, e);
+
+        /// <summary>
+        /// Returns a newly Created <see cref="RoutingModel"/> instance. Optionally, identifies
+        /// a <see cref="RoutingModelParametersEventArgs.Parameters"/> instance for use with the
+        /// <see cref="Model"/>.
+        /// </summary>
+        /// <returns></returns>
+        protected virtual RoutingModel CreateRoutingModel()
+        {
+            var args = new RoutingModelParametersEventArgs();
+            this.OnConfigureModelParameters(args);
+            var modelParams = args.Parameters;
+            return modelParams == null ? new RoutingModel(this.Manager) : new RoutingModel(this.Manager, modelParams);
+        }
+
+        /// <summary>
         /// Gets the Model associated with the Context.
         /// </summary>
-        public virtual RoutingModel Model => this._model ?? (this._model = this.ModelParameters == null
-            ? new RoutingModel(this.Manager)
-            : new RoutingModel(this.Manager, this.ModelParameters)
-        );
+        /// <see cref="CreateRoutingModel"/>
+        public virtual RoutingModel Model => this._model ?? (this._model = this.CreateRoutingModel());
 
         /// <summary>
         /// Gets the Solver associated with the <see cref="Model"/>.
         /// </summary>
         internal virtual Solver Solver => this.Model?.solver();
-
-        /// <summary>
-        /// Gets or Sets the Parameters associated with the Context. May be <c>null</c>,
-        /// in which case nothing is relayed to the <see cref="Model"/>, or Set up until
-        /// the moment when <see cref="Model"/> is warmed up, at which point the
-        /// opportunity will have been lost to have set or configured the Parameters
-        /// accordingly.
-        /// </summary>
-        /// <see cref="Model"/>
-        private RoutingModelParameters ModelParameters { get; }
-
-        /// <summary>
-        /// Gets the SearchParameters.
-        /// </summary>
-        protected RoutingSearchParameters SearchParameters { get; private set; }
 
         /// <summary>
         /// Gets an instance of <see cref="RoutingModelVehicleVariableLookup"/> for Private use.
@@ -97,20 +112,6 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         }
 
         /// <summary>
-        /// Constructs the Context given Node and Vehicle Counts, as well as Depot
-        /// and optional <paramref name="modelParameters"/>.
-        /// </summary>
-        /// <param name="nodeCount">The number of Nodes in the model.</param>
-        /// <param name="vehicleCount">The number of Vehicles in the model.</param>
-        /// <param name="depot"></param>
-        /// <param name="modelParameters"></param>
-        public RoutingContext(int nodeCount, int vehicleCount, int depot, RoutingModelParameters modelParameters = default)
-            : base(nodeCount, vehicleCount, depot)
-        {
-            this.ModelParameters = modelParameters;
-        }
-
-        /// <summary>
         /// Constructs the Context given Node and Vehicle Counts, as well as
         /// endpoint start and end coordinates.
         /// </summary>
@@ -125,36 +126,15 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         }
 
         /// <summary>
-        /// Constructs the Context given Node and Vehicle Counts, as well as endpoint
-        /// start and end coordinates, and optional <paramref name="modelParameters"/>.
-        /// </summary>
-        /// <param name="nodeCount">The number of Nodes in the model.</param>
-        /// <param name="vehicleCount">The number of Vehicles in the model.</param>
-        /// <param name="starts"></param>
-        /// <param name="ends"></param>
-        /// <param name="modelParameters">The Model parameters.</param>
-        /// <see cref="!:https://developers.google.com/optimization/routing/routing_tasks#setting-start-and-end-locations-for-routes"/>
-        public RoutingContext(int nodeCount, int vehicleCount, IEndpointCoordinates starts, IEndpointCoordinates ends
-            , RoutingModelParameters modelParameters = default)
-            : base(nodeCount, vehicleCount, starts, ends)
-        {
-            this.ModelParameters = modelParameters;
-        }
-
-        /// <summary>
-        /// Constructs the Context given Node and Vehicle Counts, endpoints, and optkional
-        /// <paramref name="modelParameters"/>.
+        /// Constructs the Context given Node and Vehicle Counts, endpoints.
         /// </summary>
         /// <param name="nodeCount">The number of Nodes in the model.</param>
         /// <param name="vehicleCount">The number of Vehicles in the model.</param>
         /// <param name="eps">The Endpoints involved during the Context.</param>
-        /// <param name="modelParameters">The Model parameters.</param>
         /// <see cref="!:https://developers.google.com/optimization/routing/routing_tasks#setting-start-and-end-locations-for-routes"/>
-        public RoutingContext(int nodeCount, int vehicleCount, IEndpoints eps
-            , RoutingModelParameters modelParameters = default)
+        public RoutingContext(int nodeCount, int vehicleCount, IEndpoints eps)
             : base(nodeCount, vehicleCount, eps)
         {
-            this.ModelParameters = modelParameters;
         }
 
         /// <summary>

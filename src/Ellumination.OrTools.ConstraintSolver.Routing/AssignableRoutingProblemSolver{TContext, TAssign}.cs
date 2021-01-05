@@ -227,7 +227,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         {
             var args = new RoutingSearchParametersEventArgs(searchParams);
             this.ConfigureSearchParameters?.Invoke(this, args);
-            searchParams = args.SearchParameters;
+            searchParams = args.Parameters;
         }
 
         /// <inheritdoc/>

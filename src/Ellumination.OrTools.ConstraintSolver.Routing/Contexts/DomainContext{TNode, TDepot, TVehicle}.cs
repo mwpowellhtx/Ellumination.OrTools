@@ -285,11 +285,8 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="depot">Meaning &quot;home base&quot; or &quot;headquarters&quot;,
         /// basically where ever the vehicles are operating as their base of operations for
         /// scheduling purposes.</param>
-        /// <param name="modelParams">Optional model parameters.</param>
-        public DomainContext(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles
-            , int depot, RoutingModelParameters modelParams = default)
-            : base(nodes.OrEmpty().Count(), vehicles.OrEmpty().Count()
-                  , ValidateDepot(depot, nodes), modelParams)
+        public DomainContext(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, int depot)
+            : base(nodes.OrEmpty().Count(), vehicles.OrEmpty().Count(), ValidateDepot(depot, nodes))
         {
             this.Nodes = nodes.OrEmpty().ToArray();
             this.Vehicles = vehicles.OrEmpty().ToArray();
@@ -303,13 +300,9 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="vehicles">The number of vehicles involved in the Context.</param>
         /// <param name="starts">Not every Vehicle necessarily Starts at the same location.</param>
         /// <param name="ends">Additionally, not every Vehicle may End at the same location.</param>
-        /// <param name="modelParams">Optional Model parameters.</param>
-        public DomainContext(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles
-            , IEndpointCoordinates starts, IEndpointCoordinates ends
-            , RoutingModelParameters modelParams = default)
+        public DomainContext(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, IEndpointCoordinates starts, IEndpointCoordinates ends)
             : base(nodes.OrEmpty().Count(), vehicles.OrEmpty().Count()
-                  , ValidateEndpointCoords(nodes, vehicles, starts)
-                  , ValidateEndpointCoords(nodes, vehicles, ends), modelParams)
+                  , ValidateEndpointCoords(nodes, vehicles, starts), ValidateEndpointCoords(nodes, vehicles, ends))
         {
             this.Nodes = nodes.OrEmpty().ToArray();
             this.Vehicles = vehicles.OrEmpty().ToArray();
@@ -322,11 +315,8 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="nodes">The number of nodes or locations involved in the Context.</param>
         /// <param name="vehicles">The number of vehicles involved in the Context.</param>
         /// <param name="depotSelector">A Depot selector.</param>
-        /// <param name="modelParams">Optional Model parameters.</param>
-        public DomainContext(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles
-            , Func<TVehicle, TNode, bool> depotSelector, RoutingModelParameters modelParams = default)
-            : this(nodes, vehicles, vehicles.OrEmpty()
-                  .Select(vehicle => FindEndpointCoord(nodes, vehicle, depotSelector)).ToArray(), modelParams)
+        public DomainContext(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, Func<TVehicle, TNode, bool> depotSelector)
+            : this(nodes, vehicles, vehicles.OrEmpty().Select(vehicle => FindEndpointCoord(nodes, vehicle, depotSelector)).ToArray())
         {
         }
 
@@ -337,13 +327,10 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="nodes">The number of nodes or locations involved in the Context.</param>
         /// <param name="vehicles">The number of vehicles involved in the Context.</param>
         /// <param name="epCoords">The endpoint coordinates.</param>
-        /// <param name="modelParams">Optional model parameters.</param>
-        public DomainContext(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, IEndpointCoordinates epCoords
-            , RoutingModelParameters modelParams = default)
+        public DomainContext(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, IEndpointCoordinates epCoords)
             // Whether it validates once, no need to repeat the request.
-            : base(nodes.OrEmpty().Count(), vehicles.OrEmpty().Count()
-                  , ValidateEndpointCoords(nodes, vehicles, epCoords), epCoords, modelParams)
-            //      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^
+            : base(nodes.OrEmpty().Count(), vehicles.OrEmpty().Count(), ValidateEndpointCoords(nodes, vehicles, epCoords), epCoords)
+            //                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^
         {
             this.Nodes = nodes.OrEmpty().ToArray();
             this.Vehicles = vehicles.OrEmpty().ToArray();
@@ -355,11 +342,8 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// <param name="nodes">The number of nodes or locations involved in the Context.</param>
         /// <param name="vehicles">The number of vehicles involved in the Context.</param>
         /// <param name="eps">The Depot endpoints.</param>
-        /// <param name="modelParams">Optional model parameters.</param>
-        public DomainContext(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles
-            , IEndpoints eps, RoutingModelParameters modelParams = default)
-            : base(nodes.OrEmpty().Count(), vehicles.OrEmpty().Count()
-                  , ValidateEndpoints(nodes, vehicles, eps), modelParams)
+        public DomainContext(IEnumerable<TNode> nodes, IEnumerable<TVehicle> vehicles, IEndpoints eps)
+            : base(nodes.OrEmpty().Count(), vehicles.OrEmpty().Count(), ValidateEndpoints(nodes, vehicles, eps))
         {
         }
     }
