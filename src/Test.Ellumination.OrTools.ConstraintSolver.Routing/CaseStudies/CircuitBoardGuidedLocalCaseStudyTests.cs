@@ -10,8 +10,6 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
     using Xwellbehaved;
     // TODO: TBD: making an alias here because we think we may refactor to collections suite...
     using DistanceMatrix = Distances.DistanceMatrix;
-    using FirstSolutionStrategyType = Google.OrTools.ConstraintSolver.FirstSolutionStrategy.Types.Value;
-    using LocalSearchMetaheuristicType = Google.OrTools.ConstraintSolver.LocalSearchMetaheuristic.Types.Value;
 
     /// <summary>
     /// This example involves drilling holes in a circuit board with an automated drill.
@@ -72,11 +70,11 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
 
             void OnConfigureSearchParameters(object sender, RoutingSearchParametersEventArgs e)
             {
-                var e_searchParams = e.SearchParameters;
-                e_searchParams.FirstSolutionStrategy = FirstSolutionStrategyType.PathCheapestArc;
-                e_searchParams.LocalSearchMetaheuristic = LocalSearchMetaheuristicType.GuidedLocalSearch;
-                e_searchParams.TimeLimit = 30L.AsDuration();
-                e_searchParams.LogSearch = true;
+                var e_params = e.Parameters.AssertNotNull();
+                e_params.FirstSolutionStrategy = FirstSolutionStrategy.PathCheapestArc;
+                e_params.LocalSearchMetaheuristic = LocalSearchMetaheuristic.GuidedLocalSearch;
+                e_params.TimeLimit = 30L.AsDuration();
+                e_params.LogSearch = true;
             }
 
             void OnConfigureSearchParametersCallback()

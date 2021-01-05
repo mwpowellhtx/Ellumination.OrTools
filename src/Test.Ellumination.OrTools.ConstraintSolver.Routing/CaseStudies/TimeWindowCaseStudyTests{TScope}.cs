@@ -52,7 +52,6 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
     using Assignment = Google.OrTools.ConstraintSolver.Assignment;
     using DistanceMatrix = Distances.DistanceMatrix;
     using RoutingDimension = Google.OrTools.ConstraintSolver.RoutingDimension;
-    using FirstSolutionStrategyType = Google.OrTools.ConstraintSolver.FirstSolutionStrategy.Types.Value;
     using static String;
 
     /// <summary>
@@ -170,9 +169,9 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
 
             void OnConfigureSearchParameters(object sender, RoutingSearchParametersEventArgs e)
             {
-                var e_searchParams = e.SearchParameters;
-                e_searchParams.FirstSolutionStrategy = FirstSolutionStrategyType.PathCheapestArc;
-                e_searchParams.LogSearch = true;
+                var e_params = e.Parameters.AssertNotNull();
+                e_params.FirstSolutionStrategy = FirstSolutionStrategy.PathCheapestArc;
+                e_params.LogSearch = true;
             }
 
             void OnConfigureSearchParametersCallback()
@@ -200,8 +199,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         /// <param name="scope"></param>
         /// <see cref="!:https://developers.google.com/optimization/routing/tsp#solution2"/>
         /// <see cref="!:https://github.com/google/or-tools/discussions/2249">See discussion concerning various aspects</see>
-        protected virtual void OnVerifyTimeWindowSolutionScope(TScope scope) =>
-            scope.AssertNotNull().VerifyAndReportSolution();
+        protected virtual void OnVerifyTimeWindowSolutionScope(TScope scope) => scope.AssertNotNull().VerifyAndReportSolution();
 
         /// <summary>
         /// Verifies that the <paramref name="scope"/> is correct according to what

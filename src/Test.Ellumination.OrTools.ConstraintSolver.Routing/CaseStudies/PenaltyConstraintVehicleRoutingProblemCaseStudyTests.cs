@@ -106,10 +106,11 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
 
             void OnScopeProblemSolverConfigureSearch(object sender, RoutingSearchParametersEventArgs e)
             {
+                var e_params = e.Parameters.AssertNotNull();
                 // Setting first solution heuristic.
-                e.SearchParameters.FirstSolutionStrategy = FirstSolutionStrategyType.PathCheapestArc;
-                e.SearchParameters.LocalSearchMetaheuristic = LocalSearchMetaheuristicType.GuidedLocalSearch;
-                e.SearchParameters.TimeLimit = 1L.AsDuration();
+                e_params.FirstSolutionStrategy = FirstSolutionStrategyType.PathCheapestArc;
+                e_params.LocalSearchMetaheuristic = LocalSearchMetaheuristicType.GuidedLocalSearch;
+                e_params.TimeLimit = 1L.AsDuration();
                 //e.SearchParameters.TimeLimit = 10L.AsDuration();
             }
 
