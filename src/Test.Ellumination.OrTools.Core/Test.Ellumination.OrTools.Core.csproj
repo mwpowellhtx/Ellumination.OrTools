@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.1</TargetFramework>
+        <Version>1.0.0.4</Version>
+        <AssemblyVersion>1.0.0.4</AssemblyVersion>
+        <FileVersion>1.0.0.4</FileVersion>
+        <Configurations>Debug</Configurations>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Platform)' == 'AnyCPU'">
+        <PlatformTarget>x64</PlatformTarget>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <RootNamespace>Ellumination.OrTools</RootNamespace>
+    </PropertyGroup>
+
+    <ImportGroup>
+        <Import Project="..\..\Dotnet.Unit.Testing.props" />
+    </ImportGroup>
+
+    <!-- ReSharper disable UnknownProperty -->
+    <ItemGroup>
+        <PackageReference Include="Google.OrTools" Version="$(GoogleOrToolsVersion)" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Ellumination.OrTools.Core\Ellumination.OrTools.Core.csproj" />
+    </ItemGroup>
+
+</Project>
