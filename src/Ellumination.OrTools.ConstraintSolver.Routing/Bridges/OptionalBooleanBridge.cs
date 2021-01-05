@@ -44,12 +44,12 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         /// Implicitly Converts the <paramref name="value"/> to a Bridge instance.
         /// </summary>
         /// <param name="value"></param>
-        public static implicit operator TBridge(TAlpha value) => CreateBridge<TBridge>(value);
+        public static implicit operator TBridge(TAlpha value) => new TBridge(value);
 
         /// <summary>
         /// Implicitly Converts the <paramref name="value"/> to a Bridge instance.
         /// </summary>
         /// <param name="value"></param>
-        public static implicit operator TBridge(TBravo value) => CreateBridge<TBridge>(value);
+        public static implicit operator TBridge(TBravo value) => new TBridge(value);
     }
 }
