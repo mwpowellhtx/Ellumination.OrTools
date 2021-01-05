@@ -42,7 +42,7 @@
         /// </summary>
         /// <see cref="!:https://github.com/google/or-tools/blob/master/ortools/constraint_solver/routing.h#L1296"/>
         /// <see cref="!:https://github.com/google/or-tools/blob/master/ortools/constraint_solver/routing.cc#L3959"/>
-        PathMostConstrainedArc = FirstSolutionStrategyType.PathCheapestArc,
+        PathMostConstrainedArc = FirstSolutionStrategyType.PathMostConstrainedArc,
 
         /// <summary>
         /// Same as <see cref="PathCheapestArc"/>, except that arc costs are evaluated using the
