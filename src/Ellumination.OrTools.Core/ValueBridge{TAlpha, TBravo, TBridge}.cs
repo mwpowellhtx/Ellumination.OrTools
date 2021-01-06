@@ -12,6 +12,8 @@ namespace Ellumination.OrTools
     /// <typeparam name="TAlpha"></typeparam>
     /// <typeparam name="TBravo"></typeparam>
     /// <typeparam name="TBridge"></typeparam>
+    /// <see cref="ConvertImplicitAlpha(ValueBridge{TAlpha, TBravo, TBridge})"/>
+    /// <see cref="ConvertImplicitBravo(ValueBridge{TAlpha, TBravo, TBridge})"/>
     public abstract class ValueBridge<TAlpha, TBravo, TBridge>
         where TBridge : ValueBridge<TAlpha, TBravo, TBridge>
     {
@@ -95,16 +97,44 @@ namespace Ellumination.OrTools
         internal ValueBridge(TBravo value) => this.Bravo = value;
 
         /// <summary>
+        /// Provides support for the <typeparamref name="TBridge"/> Implicit
+        /// <typeparamref name="TAlpha"/> conversion.
+        /// </summary>
+        /// <param name="bridge"></param>
+        /// <returns></returns>
+        private static TAlpha ConvertImplicitAlpha(ValueBridge<TAlpha, TBravo, TBridge> bridge) => bridge.Alpha;
+
+        /// <summary>
+        /// Provides support for the <typeparamref name="TBridge"/> Implicit
+        /// <typeparamref name="TBravo"/> conversion.
+        /// </summary>
+        /// <param name="bridge"></param>
+        /// <returns></returns>
+        private static TBravo ConvertImplicitBravo(ValueBridge<TAlpha, TBravo, TBridge> bridge) => bridge.Bravo;
+
+        /// <summary>
         /// Implicitly converts <paramref name="bridge"/> to <typeparamref name="TAlpha"/>.
         /// </summary>
         /// <param name="bridge"></param>
-        public static implicit operator TAlpha(ValueBridge<TAlpha, TBravo, TBridge> bridge) => bridge.Alpha;
+        /// <remarks>For convenience, we provide the implicit conversion from the Bridge to
+        /// the <typeparamref name="TAlpha"/> type. However, it is necessary for the adopting
+        /// developer to provide his or her own <em>implicit</em> or <em>explicit</em> conversion,
+        /// as the case may be, in the other direction, due to language constraints. We recommend
+        /// <em>implicit</em>, of course.</remarks>
+        /// <see cref="ConvertImplicitAlpha(ValueBridge{TAlpha, TBravo, TBridge})"/>
+        public static implicit operator TAlpha(ValueBridge<TAlpha, TBravo, TBridge> bridge) => ConvertImplicitAlpha(bridge);
 
         /// <summary>
         /// Implicitly converts <paramref name="bridge"/> to <typeparamref name="TBravo"/>.
         /// </summary>
         /// <param name="bridge"></param>
-        public static implicit operator TBravo(ValueBridge<TAlpha, TBravo, TBridge> bridge) => bridge.Bravo;
+        /// <remarks>For convenience, we provide the implicit conversion from the Bridge to
+        /// the <typeparamref name="TBravo"/> type. However, it is necessary for the adopting
+        /// developer to provide his or her own <em>implicit</em> or <em>explicit</em> conversion,
+        /// as the case may be, in the other direction, due to language constraints. We recommend
+        /// <em>implicit</em>, of course.</remarks>
+        /// <see cref="ConvertImplicitBravo(ValueBridge{TAlpha, TBravo, TBridge})"/>
+        public static implicit operator TBravo(ValueBridge<TAlpha, TBravo, TBridge> bridge) => ConvertImplicitBravo(bridge);
 
         /// <summary>
         /// Gets the <typeparamref name="TBridge"/> <see cref="Type"/>.
