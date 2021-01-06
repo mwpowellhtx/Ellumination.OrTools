@@ -29,10 +29,14 @@ namespace Ellumination.OrTools
         private TBravo _bravo;
 
         /// <summary>
-        /// Override in order to specify the <typeparamref name="TAlpha"/>
-        /// and <typeparamref name="TBravo"/> Pairs.
+        /// Override in order to specify the <typeparamref name="TAlpha"/> and
+        /// <typeparamref name="TBravo"/> Pairs. Pairs is useful when we are bridging finite sets
+        /// of values, enumerated values, and so forth. When it is unnecessary to do so, simply
+        /// leave the enumerated Pairs unimplemented.
         /// </summary>
-        protected virtual IEnumerable<(TAlpha alpha, TBravo bravo)> Pairs => throw new NotImplementedException();
+        /// <see cref="ExceptionExtensionMethods.ThrowException{TException}(object, object[])"/>
+        protected virtual IEnumerable<(TAlpha alpha, TBravo bravo)> Pairs =>
+            throw this.ThrowException<NotImplementedException>();
 
         /// <summary>
         /// Returns the Item associated with <paramref name="getter"/> after
@@ -42,7 +46,8 @@ namespace Ellumination.OrTools
         /// <param name="selector"></param>
         /// <param name="getter"></param>
         /// <returns></returns>
-        protected virtual T GetPairItem<T>(Func<(TAlpha alpha, TBravo bravo), bool> selector, Func<(TAlpha alpha, TBravo bravo), T> getter) =>
+        protected virtual T GetPairItem<T>(Func<(TAlpha alpha, TBravo bravo), bool> selector
+            , Func<(TAlpha alpha, TBravo bravo), T> getter) =>
             getter.Invoke(this.Pairs.Single(selector));
 
         /// <summary>
@@ -105,13 +110,5 @@ namespace Ellumination.OrTools
         /// Gets the <typeparamref name="TBridge"/> <see cref="Type"/>.
         /// </summary>
         protected static Type BridgeType { get; } = typeof(TBridge);
-
-        ///// <summary>
-        ///// Returns a Created <typeparamref name="TBridge"/> given the <paramref name="value"/>.
-        ///// </summary>
-        ///// <typeparam name="T"></typeparam>
-        ///// <param name="value"></param>
-        ///// <returns>Created <typeparamref name="TBridge"/> given the <paramref name="value"/>.</returns>
-        //protected static TBridge CreateBridge<T>(T value) => (TBridge)Activator.CreateInstance(BridgeType, value);
     }
 }
