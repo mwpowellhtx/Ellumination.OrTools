@@ -14,6 +14,7 @@ namespace Ellumination.OrTools
     /// <typeparam name="TBridge"></typeparam>
     /// <see cref="ConvertImplicitAlpha(TBridge)"/>
     /// <see cref="ConvertImplicitBravo(TBridge)"/>
+    /// <see cref="op_Implicit(ValueBridge{TAlpha, TBravo, TBridge})"/>
     public abstract class ValueBridge<TAlpha, TBravo, TBridge>
         where TBridge : ValueBridge<TAlpha, TBravo, TBridge>
     {
