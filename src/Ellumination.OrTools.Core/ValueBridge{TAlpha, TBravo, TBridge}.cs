@@ -54,18 +54,20 @@ namespace Ellumination.OrTools
             getter.Invoke(this.Pairs.Single(selector));
 
         /// <summary>
-        /// Override in order to Convert <paramref name="value"/> to <typeparamref name="TAlpha"/>.
+        /// Converts <typeparamref name="TBravo"/> <paramref name="value"/> to
+        /// <typeparamref name="TAlpha"/>.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        protected abstract TAlpha ConvertValue(TBravo value);
+        protected abstract TAlpha ConvertBravoValue(TBravo value);
 
         /// <summary>
-        /// Override in order to Convert <paramref name="value"/> to <typeparamref name="TBravo"/>.
+        /// Converts <typeparamref name="TAlpha"/> <paramref name="value"/> to
+        /// <typeparamref name="TBravo"/>.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        protected abstract TBravo ConvertValue(TAlpha value);
+        protected abstract TBravo ConvertAlphaValue(TAlpha value);
 
         /// <summary>
         /// Gets or Sets the <typeparamref name="TAlpha"/> Value.
@@ -73,7 +75,7 @@ namespace Ellumination.OrTools
         public virtual TAlpha Alpha
         {
             get => this._alpha;
-            set => this._bravo = this.ConvertValue(this._alpha = value);
+            set => this._bravo = this.ConvertAlphaValue(this._alpha = value);
         }
 
         /// <summary>
@@ -82,7 +84,7 @@ namespace Ellumination.OrTools
         public virtual TBravo Bravo
         {
             get => this._bravo;
-            set => this._alpha = this.ConvertValue(this._bravo = value);
+            set => this._alpha = this.ConvertBravoValue(this._bravo = value);
         }
 
         /// <summary>

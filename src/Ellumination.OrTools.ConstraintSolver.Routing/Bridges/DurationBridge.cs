@@ -27,14 +27,12 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
             throw new NotImplementedException();
 
         /// <inheritdoc/>
-        protected override TBravo ConvertValue((long seconds, int nanoseconds)? value) => value == null
-            ? null
-            : new TBravo { Seconds = value?.seconds ?? default, Nanos = value?.nanoseconds ?? default };
+        protected override TBravo ConvertAlphaValue((long seconds, int nanoseconds)? value) =>
+            value == null ? null : new TBravo { Seconds = value?.seconds ?? default, Nanos = value?.nanoseconds ?? default };
 
         /// <inheritdoc/>
-        protected override (long seconds, int nanoseconds)? ConvertValue(TBravo value) => value == null
-            ? Null
-            : (value.Seconds, value.Nanos);
+        protected override (long seconds, int nanoseconds)? ConvertBravoValue(TBravo value) =>
+            value == null ? Null : (value.Seconds, value.Nanos);
 
         /// <summary>
         /// Constructs a new Bridge instance given <paramref name="value"/>.

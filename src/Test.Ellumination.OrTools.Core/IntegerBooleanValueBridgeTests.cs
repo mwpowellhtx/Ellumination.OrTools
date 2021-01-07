@@ -25,10 +25,10 @@ namespace Ellumination.OrTools
         public class IntegerBooleanValueBridge : ValueBridge<int, bool, TBridge>
         {
             /// <inheritdoc/>
-            protected override int ConvertValue(bool value) => value ? 1 : default;
+            protected override bool ConvertAlphaValue(int value) => value != default;
 
             /// <inheritdoc/>
-            protected override bool ConvertValue(int value) => value != default;
+            protected override int ConvertBravoValue(bool value) => value ? 1 : default;
 
             /// <summary>
             /// Allows for verification that <see cref="Pairs"/> is not implemented.

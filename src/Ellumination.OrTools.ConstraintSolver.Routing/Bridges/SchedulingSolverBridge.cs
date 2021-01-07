@@ -18,10 +18,12 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
         };
 
         /// <inheritdoc/>
-        protected override TBravo ConvertValue(TAlpha value) => this.GetPairItem(p => p.alpha == value, p => p.bravo);
+        protected override TBravo ConvertAlphaValue(TAlpha value) =>
+            this.GetPairItem(p => p.alpha == value, p => p.bravo);
 
         /// <inheritdoc/>
-        protected override TAlpha ConvertValue(TBravo value) => this.GetPairItem(p => p.bravo == value, p => p.alpha);
+        protected override TAlpha ConvertBravoValue(TBravo value) =>
+            this.GetPairItem(p => p.bravo == value, p => p.alpha);
 
         /// <summary>
         /// Constructs a new Bridge instance given <paramref name="value"/>.
