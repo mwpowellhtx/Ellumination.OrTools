@@ -58,7 +58,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".parent", ".parent", "{FFF9
 		..\Dotnet.Unit.Testing.props = ..\Dotnet.Unit.Testing.props
 		..\Dotnet.Unit.Testing.Slim.props = ..\Dotnet.Unit.Testing.Slim.props
 		..\global.json = ..\global.json
+		..\LICENSE = ..\LICENSE
 		..\Licensing.props = ..\Licensing.props
+		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ellumination.OrTools.ConstraintSolver.Routing", "Ellumination.OrTools.ConstraintSolver.Routing\Ellumination.OrTools.ConstraintSolver.Routing.csproj", "{8531A58B-9DDA-4645-A3B1-C2525DA8CD30}"
@@ -73,7 +75,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ellumination.OrTools.Constr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Ellumination.OrTools.ConstraintSolver.Routing.Distances", "Test.Ellumination.OrTools.ConstraintSolver.Routing.Distances\Test.Ellumination.OrTools.ConstraintSolver.Routing.Distances.csproj", "{C42A2948-082F-4352-B326-79C3F57D7B09}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Ellumination.OrTools.Core", "Test.Ellumination.OrTools.Core\Test.Ellumination.OrTools.Core.csproj", "{06CE6A20-F45D-4EDA-89FC-045C6542BAA5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Ellumination.OrTools.Core", "Test.Ellumination.OrTools.Core\Test.Ellumination.OrTools.Core.csproj", "{06CE6A20-F45D-4EDA-89FC-045C6542BAA5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
