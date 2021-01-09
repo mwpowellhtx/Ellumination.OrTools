@@ -44,7 +44,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".parent", ".parent", "{8ADE
 		..\.gitignore = ..\.gitignore
 		..\Directory.Build.props = ..\Directory.Build.props
 		..\global.json = ..\global.json
+		..\LICENSE = ..\LICENSE
 		..\Licensing.props = ..\Licensing.props
+		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
 Global
