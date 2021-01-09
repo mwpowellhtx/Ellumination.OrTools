@@ -1,4 +1,4 @@
-# Kingdom.OrTools
+# Ellumination.OrTools
 
 This repository provides an easy to use wrapper for the [Google Operational Research Tools](http://github.com/google/or-tools), or *OrTools* for short.
 
@@ -8,7 +8,7 @@ At present I have re-factored the *search* capability and am considering how bes
 
 ## Constraint Problem Solver Usage
 
-I have published [Kingdom.OrTools.ConstraintSolver.Core](http://www.nuget.org/packages/Kingdom.OrTools.ConstraintSolver.Core/) and [Kingdom.OrTools.Core](https://www.nuget.org/packages/Kingdom.OrTools.Core/) for public consumption. Comments, issues, and otherwise constructive contributions are welcome.
+I have published [Ellumination.OrTools.ConstraintSolver.Core](http://nuget.org/packages/Ellumination.OrTools.ConstraintSolver.Core) and [Ellumination.OrTools.Core](https://nuget.org/packages/Ellumination.OrTools.Core/) for public consumption. Comments, issues, and otherwise constructive contributions are welcome.
 
 ### Derive from ``OrProblemSolverBase``
 
@@ -107,7 +107,7 @@ Any overrides of this method should at least invoke the base, bare minimum.
 
 #### Conduct a *new search*
 
-The default behavior prepares a ``Google.OrTools.ConstraintSolver.DecisionBuilder`` with ``Kingdom.OrTools.IntVarStrategy.IntVarSimple`` and ``Kingdom.OrTools.IntValueStrategi.IntValueSimple`` strategies, which map to ``Google.OrTools.ConstraintSolver.Solver.INT_VAR_SIMPLE`` and ``Google.OrTools.ConstraintSolver.Solver.INT_VALUE_SIMPLE``, respectively.
+The default behavior prepares a ``Google.OrTools.ConstraintSolver.DecisionBuilder`` with ``Ellumination.OrTools.IntVarStrategy.IntVarSimple`` and ``Ellumination.OrTools.IntValueStrategy.IntValueSimple`` strategies, which map to ``Google.OrTools.ConstraintSolver.Solver.INT_VAR_SIMPLE`` and ``Google.OrTools.ConstraintSolver.Solver.INT_VALUE_SIMPLE``, respectively.
 
 Override ``protected virtual ISearchAgent NewSearch(ISearchAgent agent)`` in order to specify a different *decision builder*. This is heavily leveraged against the provided ``ISearchAgent``, which includes the associated ``ISearchAgent.Solver``, ``ISearchAgent.Variables``, and so on:
 
