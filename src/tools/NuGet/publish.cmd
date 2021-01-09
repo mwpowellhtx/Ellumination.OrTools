@@ -5,7 +5,7 @@ setlocal
 rem We do not publish the API key as part of the script itself.
 if "%my_nuget_api_key%" equ "" (
     echo You are prohibited from making these sorts of changes.
-    goto :end
+    goto :fini
 )
 
 rem Default list delimiter is Comma (,).
@@ -20,6 +20,21 @@ if "%delim%" equ "." (
     goto :redefine_delim
 )
 
+rem Used to inform the function.
+set function_nuget=nuget
+set function_local=local
+
+set dry_true=true
+set dry_false=false
+
+set should_pause_false=false
+set should_pause_true=true
+
+set dry=%dry_false%
+set should_pause=%should_pause_true%
+
+set drive_letter=
+
 rem Go ahead and pre-seed the Projects up front.
 :set_projects
 set projects=
@@ -30,14 +45,18 @@ set all_projects=%all_projects%%delim%Ellumination.OrTools.LinearSolver.Core
 set all_projects=%all_projects%%delim%Ellumination.OrTools.Sat.Core
 set all_projects=%all_projects%%delim%Ellumination.OrTools.Sat.Parameters.Core
 set all_projects=%all_projects%%delim%Ellumination.OrTools.Sat.Parameters
+set all_projects=%all_projects%%delim%Ellumination.OrTools.ConstraintSolver.Routing
+set all_projects=%all_projects%%delim%Ellumination.OrTools.ConstraintSolver.Routing.Distances
 rem Setup Constraint Solver
 set constraint_projects=Ellumination.OrTools.Core
 set constraint_projects=%constraint_projects%%delim%Ellumination.OrTools.ConstraintSolver.Core
 rem Setup Routing
 set routing_projects=Ellumination.OrTools.Core
-rem TODO: TBD: does it require a dependency on our ConstraintSolver core package?
-rem set routing_projects=Ellumination.OrTools.ConstraintSolver.Core
 set routing_projects=%routing_projects%%delim%Ellumination.OrTools.ConstraintSolver.Routing
+set routing_projects=%routing_projects%%delim%Ellumination.OrTools.ConstraintSolver.Routing.Distances
+rem Setup Distances
+set distances_projects=Ellumination.OrTools.Core
+set distances_projects=%distances_projects%%delim%Ellumination.OrTools.ConstraintSolver.Routing.Distances
 rem Setup Linear Solver
 set linear_projects=Ellumination.OrTools.Core
 set linear_projects=%linear_projects%%delim%Ellumination.OrTools.LinearSolver.Core
@@ -60,7 +79,23 @@ rem We decided to let internally delivered packages rest in their respective bui
 
 rem Done parsing the args.
 if "%1" equ "" (
-    goto :end_args
+    goto :fini_args
+)
+
+:set_no_pause
+if "%1" equ "--no-pause" (
+    set should_pause=%should_pause_false%
+    goto :next_arg
+)
+
+:set_drive_letter
+if "%1" equ "--drive" (
+    set drive_letter=%2
+    goto :next_arg
+)
+if "%1" equ "--drive-letter" (
+    set drive_letter=%2
+    goto :next_arg
 )
 
 :set_dry_run
@@ -81,14 +116,14 @@ if "%1" equ "--config" (
 )
 
 :set_publish_local
-if "%1" equ "--local" (
-    set function=local
+if "%1" equ "--%function_local%" (
+    set function=%function_local%
     goto :next_arg
 )
 
 :set_publish_nuget
-if "%1" equ "--nuget" (
-    set function=nuget
+if "%1" equ "--%function_nuget%" (
+    set function=%function_nuget%
     goto :next_arg
 )
 
@@ -98,6 +133,16 @@ if "%1" equ "--routing" (
         set projects=%routing_projects%
     ) else (
         set projects=%projects%%delim%%routing_projects%
+    )
+	goto :next_arg
+)
+
+:add_distances_projects
+if "%1" equ "--distances" (
+    if "%projects%" equ "" (
+        set projects=%distances_projects%
+    ) else (
+        set projects=%projects%%delim%%distances_projects%
     )
 	goto :next_arg
 )
@@ -194,20 +239,23 @@ shift
 
 goto :parse_args
 
-:end_args
+:fini_args
 
 :verify_args
 
+:verify_drive_letter
+if "%drive_letter%" == "" set drive_letter=E:
+
 :verify_function
 if "%function%" equ "" (
-    set function=local
+    set function=%function_local%
 )
 
 :verify_projects
 if "%projects%" equ "" (
     rem In which case, there is nothing else to do.
     echo Nothing to process.
-    goto :end
+    goto :fini
 )
 
 :verify_config
@@ -221,7 +269,7 @@ if "%config%" equ "" (
 :set_vars
 set xcopy_exe=xcopy.exe
 set xcopy_opts=/y /f
-set xcopy_dest_dir=G:\Dev\NuGet\local\packages
+set xcopy_dest_dir=%drive_letter%\Dev\NuGet\%function_local%\packages
 rem Expecting NuGet to be found in the System Path.
 set nuget_exe=NuGet.exe
 set nuget_push_verbosity=detailed
@@ -243,8 +291,7 @@ if not "%projects%" equ "" (
 :next_project
 if not "%projects%" equ "" (
     for /f "tokens=1* delims=%delim%" %%p in ("%projects%") do (
-        if "%function%" equ "nuget" call :publish_nuget %%p
-        if "%function%" equ "local" call :publish_local %%p
+        call :on_publish %%p %function%
         set projects=%%q
         goto :next_project
     )
@@ -252,32 +299,33 @@ if not "%projects%" equ "" (
 
 popd
 
-goto :end
+goto :fini
 
-:publish_local
+:on_publish
 for %%f in ("%1\bin\%config%\%1.*.nupkg") do (
-    if "%dry%" equ "true" (
+    set current=%2-%dry%
+    if /i "%current%" == "%function_local%-%dry_true%" (
         echo Dry run: %xcopy_exe% %%f %xcopy_dest_dir% %xcopy_opts%
-    ) else (
+    )
+
+    if /i "%current%" == "%function_local%-%dry_false%" (
         echo Running: %xcopy_exe% %%f %xcopy_dest_dir% %xcopy_opts%
         %xcopy_exe% %%f %xcopy_dest_dir% %xcopy_opts%
     )
-)
-exit /b
 
-:publish_nuget
-for %%f in ("%1\bin\%config%\%1.*.nupkg") do (
-    if "%dry%" equ "true" (
+    if /i "%current%" == "%function_nuget%-%dry_true%" (
         echo Dry run: %nuget_exe% push "%%f"%nuget_push_opts%
-    ) else (
+    )
+
+    if /i "%current%" == "%function_nuget%-%dry_false%" (
         echo Running: %nuget_exe% push "%%f"%nuget_push_opts%
         %nuget_exe% push "%%f"%nuget_push_opts%
     )
 )
 exit /b
 
-:end
+:fini
+
+if /i "%should_pause%" == "%should_pause_true%" pause
 
 endlocal
-
-pause
