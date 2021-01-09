@@ -302,8 +302,8 @@ popd
 goto :fini
 
 :on_publish
+set current=%2-%dry%
 for %%f in ("%1\bin\%config%\%1.*.nupkg") do (
-    set current=%2-%dry%
     if /i "%current%" == "%function_local%-%dry_true%" (
         echo Dry run: %xcopy_exe% %%f %xcopy_dest_dir% %xcopy_opts%
     )
