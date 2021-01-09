@@ -8,10 +8,10 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <Version>1.1.1.16218</Version>
-        <AssemblyVersion>1.1.1.16218</AssemblyVersion>
-        <FileVersion>1.1.1.16218</FileVersion>
-        <PackageVersion>1.1.1.16218</PackageVersion>
+        <Version>1.1.1.16220</Version>
+        <AssemblyVersion>1.1.1.16220</AssemblyVersion>
+        <FileVersion>1.1.1.16220</FileVersion>
+        <PackageVersion>1.1.1.16220</PackageVersion>
         <!--<ReleaseVersionStrategy>patch</ReleaseVersionStrategy>-->
     </PropertyGroup>
 

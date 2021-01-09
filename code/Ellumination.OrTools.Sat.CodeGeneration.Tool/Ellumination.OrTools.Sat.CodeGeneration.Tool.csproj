@@ -7,10 +7,10 @@
 
     <PropertyGroup>
         <TargetFramework>netcoreapp2.1</TargetFramework>
-        <Version>1.2.1.14437</Version>
-        <AssemblyVersion>1.2.1.14437</AssemblyVersion>
-        <FileVersion>1.2.1.14437</FileVersion>
-        <PackageVersion>1.2.1.14437</PackageVersion>
+        <Version>1.2.1.14439</Version>
+        <AssemblyVersion>1.2.1.14439</AssemblyVersion>
+        <FileVersion>1.2.1.14439</FileVersion>
+        <PackageVersion>1.2.1.14439</PackageVersion>
         <!--<ReleaseVersionStrategy>patch</ReleaseVersionStrategy>-->
     </PropertyGroup>
 
