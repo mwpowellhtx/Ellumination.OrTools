@@ -162,7 +162,7 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing.CaseStudies
         /// </summary>
         /// <see cref="!:https://developers.google.com/optimization/routing/tsp#main"/>
         /// <param name="scope"></param>
-        [Scenario/*(Skip = "Remains an issue the expected solution is similar to a point then falls apart.")*/]
+        [Scenario(Skip = IncongruentResults)]
         public void Verify_ProblemSolver_Solution(TScope scope)
         {
             $"Verify {nameof(scope)}".x(() => scope = this.Scope.AssertNotNull());

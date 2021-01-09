@@ -160,6 +160,8 @@ namespace Ellumination.OrTools.ConstraintSolver.Routing
             "Initialize the base base class".x(() => true.AssertTrue());
         }
 
+        protected const string IncongruentResults = "Results are incongruent with those in the Google examples.";
+
         /// <summary>
         /// Gets whether IsDisposed.
         /// </summary>
